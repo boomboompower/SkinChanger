@@ -15,25 +15,19 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger;
+package me.boomboompower.skinchanger.utils;
 
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class SkinEvents {
+public class Threads {
 
-    @SubscribeEvent
-    public void onRender(RenderWorldLastEvent event) {
-        if (Minecraft.getMinecraft().currentScreen == null && SkinChanger.isOn) {
-            SkinChanger.skinManager.updatePlayer(null);
+    private static AtomicInteger threadNumber = new AtomicInteger(0);
+    private static ScheduledExecutorService RUNNABLE_POOL = Executors.newScheduledThreadPool(2, r -> new Thread(r, "Thread " + threadNumber.incrementAndGet()));
 
-            if (!SkinChanger.skinManager.getSkinName().isEmpty()) {
-                SkinChanger.skinManager.updateSkin();
-            }
-            if (SkinChanger.capeManager.getResourceLocation() != null) {
-                SkinChanger.capeManager.addCape();
-            }
-        }
+    public static void schedule(Runnable r, long initialDelay, long delay, TimeUnit unit) {
+        RUNNABLE_POOL.scheduleAtFixedRate(r, initialDelay, delay, unit);
     }
 }

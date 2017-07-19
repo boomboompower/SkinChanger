@@ -34,7 +34,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Predicate;
 
-public class TextBox extends Gui {
+public class ModernTextBox extends Gui {
 
     private String alertMessage = "";
 
@@ -70,7 +70,7 @@ public class TextBox extends Gui {
 
     private boolean running = false;
 
-    public TextBox(int componentId, int x, int y, int par5Width, int par6Height) {
+    public ModernTextBox(int componentId, int x, int y, int par5Width, int par6Height) {
         this.id = componentId;
         this.fontRendererInstance = Minecraft.getMinecraft().fontRendererObj;
         this.xPosition = x;

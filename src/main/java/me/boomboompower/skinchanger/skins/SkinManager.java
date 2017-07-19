@@ -26,23 +26,27 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ImageBufferDownload;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class SkinManager {
 
+    private List<String> logs = new ArrayList<>();
+
     private Minecraft mc;
+    private AbstractClientPlayer playerIn;
 
     private String skinName = "";
 
-    public SkinManager() {
+    public SkinManager(AbstractClientPlayer playerIn) {
         this.mc = Minecraft.getMinecraft();
+        this.playerIn = playerIn == null ? Minecraft.getMinecraft().thePlayer : playerIn;
     }
 
     public String getSkinName() {
@@ -53,17 +57,23 @@ public class SkinManager {
         this.skinName = formatName(skinName);
     }
 
-    public void updateSkin(AbstractClientPlayer player) {
-        Minecraft.getMinecraft().addScheduledTask(() -> replaceSkin(player, this.skinName));
+    public void updateSkin() {
+        if (!SkinChanger.isOn) return;
+
+        Minecraft.getMinecraft().addScheduledTask(() -> replaceSkin(this.skinName));
     }
 
-    public void update(AbstractClientPlayer player, String skinName) {
+    public void update(String skinName) {
         setSkinName(skinName);
-        updateSkin(player);
+        updateSkin();
     }
 
-    public void reset(AbstractClientPlayer thePlayer) {
-        update(thePlayer, thePlayer.getName());
+    public void reset() {
+        update(playerIn.getName());
+    }
+
+    public void updatePlayer(AbstractClientPlayer playerIn) {
+        this.playerIn = playerIn == null ? Minecraft.getMinecraft().thePlayer : playerIn;
     }
 
     /*
@@ -74,22 +84,25 @@ public class SkinManager {
         return name.length() > 16 ? name.substring(0, 16) : name;
     }
 
-    private void replaceSkin(AbstractClientPlayer player, String skinName) {
-        if (skinName == null || skinName.isEmpty()) return;
+    private void replaceSkin(String skinName) {
+        this.replaceSkin(getSkin(skinName));
+    }
+
+    public void replaceSkin(ResourceLocation location) {
+        if (playerIn == null || skinName == null || skinName.isEmpty() || !SkinChanger.isOn) return;
 
         NetworkPlayerInfo playerInfo;
 
         try {
-            playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(player);
+            playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(playerIn);
         } catch (Throwable ex) {
             log("Could not get the players info!");
             return;
         }
-        ResourceLocation resourceLocation = getSkin(skinName);
 
-        if (resourceLocation != null) {
+        if (location != null) {
             try {
-                ObfuscationReflectionHelper.setPrivateValue(NetworkPlayerInfo.class, playerInfo, resourceLocation, "locationSkin", "field_178865_e");
+                ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, location, "locationSkin", "field_178865_e");
             } catch (Exception ex) {
                 log("Failed to set the players skin (NetworkPlayerInfo)");
             }
@@ -125,6 +138,9 @@ public class SkinManager {
     }
 
     protected void log(String message, Object... replace) {
+        if (logs.contains(message)) return;
+
         System.out.println(String.format("[SkinManager] " + message, replace));
+        logs.add(message);
     }
 }

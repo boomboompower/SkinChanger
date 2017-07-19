@@ -24,22 +24,22 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
-import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CapeManager {
 
     private List<String> logs = new ArrayList<>();
-    private boolean usingCape = false;
 
-    private static final MethodHandle GET_PLAYER_INFO = ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"});
+    private AbstractClientPlayer playerIn;
+
+    private boolean usingCape = false;
 
     private ResourceLocation resourceLocation = new ResourceLocation(SkinChanger.MOD_ID,"cape.png");
 
-    public CapeManager() {
+    public CapeManager(AbstractClientPlayer playerIn) {
+        this.playerIn = playerIn;
     }
 
     public ResourceLocation getResourceLocation() {
@@ -50,38 +50,44 @@ public class CapeManager {
         this.resourceLocation = location;
     }
 
-    public void addCape(AbstractClientPlayer thePlayer) {
+    public void addCape() {
         usingCape = true;
         if (resourceLocation == null) setResourceLocation(new ResourceLocation(SkinChanger.MOD_ID,"cape.png"));
-        Minecraft.getMinecraft().addScheduledTask(() -> setCape(thePlayer, resourceLocation));
+        Minecraft.getMinecraft().addScheduledTask(() -> setCape(resourceLocation));
     }
 
-    public void removeCape(AbstractClientPlayer thePlayer) {
+    public void removeCape() {
         usingCape = false;
         setResourceLocation(null);
-        Minecraft.getMinecraft().addScheduledTask(() -> setCape(thePlayer, null));
+        Minecraft.getMinecraft().addScheduledTask(() -> setCape(null));
+    }
+
+    public void updatePlayer(AbstractClientPlayer playerIn) {
+        this.playerIn = playerIn == null ? Minecraft.getMinecraft().thePlayer : playerIn;
     }
 
     /*
      * MISC
      */
 
-    public void setCape(AbstractClientPlayer player, ResourceLocation location) {
+    public void setCape(ResourceLocation location) {
+        if (!SkinChanger.isOn || playerIn == null) return;
+
         NetworkPlayerInfo info = null;
 
         try {
-            info = (NetworkPlayerInfo) GET_PLAYER_INFO.invoke(player);
+            info = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(playerIn);
         } catch (Throwable ex) {
             log("Could not find player info, issue whilst invoking");
         }
 
         if (info == null) {
-            log("playerInfo was null, returning!");
+            log("playerInfo for cape was null, stopping so nothing gets broken");
             return;
         }
 
         try {
-            ObfuscationReflectionHelper.setPrivateValue(NetworkPlayerInfo.class, info, location, "locationCape", "field_178862_f");
+            ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, info, location, "locationCape", "field_178862_f");
         } catch (Throwable x) {
             x.printStackTrace();
         }

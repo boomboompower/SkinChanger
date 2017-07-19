@@ -19,48 +19,42 @@ package me.boomboompower.skinchanger.gui.utils;
 
 import com.mojang.authlib.GameProfile;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.stats.StatBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.IChatComponent;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.UUID;
 
 public class FakePlayerUtils {
 
     public static FakePlayer getFakePlayer() {
-        return new FakePlayer(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld());
+        return new FakePlayer(Minecraft.getMinecraft().thePlayer.worldObj);
     }
 
     public static class FakePlayer extends AbstractClientPlayer {
 
-        private ResourceLocation skinLocation;
-        private ResourceLocation capeLocation;
+        private static final GameProfile FAKE_GAME_PROFILE = new GameProfile(UUID.nameUUIDFromBytes("skinchanger".getBytes()), "MyNameIsJeff213");
 
-        private static final GameProfile FAKE_GAME_PROFILE = new GameProfile(UUID.nameUUIDFromBytes("skinchanger".getBytes()), "Player");
-        private static CustomNetworkPlayerInfo info = new CustomNetworkPlayerInfo(FAKE_GAME_PROFILE);
+        private NetworkPlayerInfo playerInfo;
 
         public FakePlayer(World world) {
             super(world, FAKE_GAME_PROFILE);
         }
 
-        public void setSkinLocation(ResourceLocation location) {
-            info.setLocationSkin(location);
-        }
-
-        public void setCapeLocation(ResourceLocation location) {
-            info.setLocationCape(location);
+        @Override
+        protected NetworkPlayerInfo getPlayerInfo() {
+            return playerInfo == null ? playerInfo = new NetworkPlayerInfo(FAKE_GAME_PROFILE) : playerInfo;
         }
 
         @Override
-        protected NetworkPlayerInfo getPlayerInfo() {
-            return info;
+        public boolean hasPlayerInfo() {
+            return playerInfo != null;
         }
 
         @Override
