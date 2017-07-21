@@ -19,12 +19,29 @@ package me.boomboompower.skinchanger.utils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.fml.common.FMLLog;
+
+import org.apache.logging.log4j.Level;
 
 public class GlobalUtils {
 
     public static final String PREFIX = ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY;
 
     public static void sendChatMessage(String msg) {
-        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(PREFIX + msg));
+        sendChatMessage(msg, true);
+    }
+
+    public static void sendChatMessage(String msg, boolean usePrefix) {
+        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText((usePrefix ? PREFIX : ChatColor.GRAY) + msg));
+    }
+
+    public static void bigMessage(String mainMessage, String... lines) {
+        FMLLog.log(Level.WARN, "****************************************************************************");
+        FMLLog.log(Level.WARN, "* " + mainMessage);
+        FMLLog.log(Level.WARN, "* ");
+        for (String line : lines) {
+            FMLLog.log(Level.WARN, "*  " + line);
+        }
+        FMLLog.log(Level.WARN, "****************************************************************************");
     }
 }

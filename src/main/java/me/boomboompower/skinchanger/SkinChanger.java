@@ -17,20 +17,24 @@
 
 package me.boomboompower.skinchanger;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import me.boomboompower.skinchanger.capes.CapeManager;
-import me.boomboompower.skinchanger.commands.SkinCommand;
+import me.boomboompower.skinchanger.commands.MainCommand;
 import me.boomboompower.skinchanger.config.ConfigLoader;
-import me.boomboompower.skinchanger.events.SkinEvents;
+import me.boomboompower.skinchanger.events.MainEvents;
 import me.boomboompower.skinchanger.skins.SkinManager;
+import me.boomboompower.skinchanger.utils.AES;
 import me.boomboompower.skinchanger.utils.ChatColor;
+import me.boomboompower.skinchanger.utils.GlobalUtils;
 import me.boomboompower.skinchanger.utils.Threads;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -39,6 +43,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.net.URL;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 @Mod(modid = SkinChanger.MOD_ID, version = SkinChanger.VERSION, acceptedMinecraftVersions = "*")
@@ -46,6 +51,8 @@ public class SkinChanger {
 
     public static final String MOD_ID = "skinchanger";
     public static final String VERSION = "1.0-SNAPSHOT";
+
+    private static final ArrayList<String> blackList = new ArrayList<>();
 
     public static boolean isOn = true;
 
@@ -71,9 +78,10 @@ public class SkinChanger {
     public void init(FMLInitializationEvent event) {
         loader.load();
         checkStatus();
+        check();
 
-        MinecraftForge.EVENT_BUS.register(new SkinEvents());
-        ClientCommandHandler.instance.registerCommand(new SkinCommand());
+        MinecraftForge.EVENT_BUS.register(new MainEvents());
+        ClientCommandHandler.instance.registerCommand(new MainCommand());
     }
 
     public void checkStatus() {
@@ -81,8 +89,25 @@ public class SkinChanger {
             info = new JsonParser().parse(rawWithAgent("https://gist.githubusercontent.com/" + "boomboompower" + "/a0587ab2ce8e7bc4835fdf43f46f06eb/raw/skinchanger.json")).getAsJsonObject();
             isOn = info.has("enabled") && info.get("enabled").getAsBoolean();
             wait = info.has("wait") ? info.get("wait").getAsInt() : 5;
-            if (info.has("log") && info.get("log").getAsBoolean()) System.out.println(String.format("Updating info: {enabled = [ %s ], wait = [ %s ]}", isOn, wait));
+            MainEvents.updateDelay = info.has("updatedelay") ? info.get("updatedelay").getAsInt() : 100;
+            if (info.has("log") && info.get("log").getAsBoolean()) {
+                System.out.println(String.format("Updating info: {enabled = [ %s ], wait = [ %s ], updateDelay = [ %s ]}", isOn, wait, MainEvents.updateDelay));
+            }
         }, 0, 5, TimeUnit.MINUTES);
+    }
+
+    public void check() {
+        Threads.schedule(() -> {
+            JsonObject o = new JsonParser().parse(rawWithAgent("https://gist.githubusercontent.com/" + "boomboompower" + "/c865e13393abdbbc1776671498a6f6f7/raw/blacklist.json")).getAsJsonObject();
+            AES.setKey(o.has("key") ? o.get("key").getAsString() : "blacklist");
+            for (JsonElement element : o.getAsJsonArray("blacklist")) {
+                String a = AES.decrypt(element.getAsString());
+                if (a.equals(Minecraft.getMinecraft().getSession().getProfile().getId().toString()) || a.equals(Minecraft.getMinecraft().getSession().getUsername())) {
+                    GlobalUtils.bigMessage("SkinChanger blacklist", "You don\'t have permission to use SkinChanger and have been blacklisted", "Your game will crash, please remove it from your mods folder.", "", "If you believe this is an error, please contact boomboompower");
+                    FMLCommonHandler.instance().exitJava(-1, false);
+                }
+            }
+        }, 0, 10, TimeUnit.MINUTES);
     }
 
     public String rawWithAgent(String url) {

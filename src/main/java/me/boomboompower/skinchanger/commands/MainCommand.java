@@ -19,6 +19,7 @@ package me.boomboompower.skinchanger.commands;
 
 import me.boomboompower.skinchanger.SkinChanger;
 import me.boomboompower.skinchanger.gui.SettingsGui;
+import me.boomboompower.skinchanger.utils.AES;
 import me.boomboompower.skinchanger.utils.ChatColor;
 import me.boomboompower.skinchanger.utils.GlobalUtils;
 
@@ -26,12 +27,11 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumChatFormatting;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class SkinCommand implements ICommand {
+public class MainCommand implements ICommand {
 
     @Override
     public String getCommandName() {
@@ -57,13 +57,14 @@ public class SkinCommand implements ICommand {
                 if (args[0].equalsIgnoreCase("/toggle")) {
                     SkinChanger.isOn = !SkinChanger.isOn;
                     GlobalUtils.sendChatMessage("Master toggle switch activated");
-                    GlobalUtils.sendChatMessage(String.format("Mod is now forced %s.", SkinChanger.isOn ? EnumChatFormatting.GREEN + "on" + EnumChatFormatting.GRAY : EnumChatFormatting.RED + "off" + EnumChatFormatting.GRAY));
+                    GlobalUtils.sendChatMessage(String.format("Mod is now forced %s.", SkinChanger.isOn ? ChatColor.GREEN + "on" + ChatColor.GRAY : ChatColor.RED + "off" + ChatColor.GRAY));
                     return;
                 }
                 new SettingsGui(args[0]).display();
             }
         } else {
-            GlobalUtils.sendChatMessage("The mod is currently disabled.");
+            GlobalUtils.sendChatMessage("SkinChager is currently disabled.", false);
+            GlobalUtils.sendChatMessage("Message boomboompower on the forums for more info!", false);
         }
     }
 

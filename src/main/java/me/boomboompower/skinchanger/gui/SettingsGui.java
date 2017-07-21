@@ -36,7 +36,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -107,7 +106,7 @@ public class SettingsGui extends GuiScreen {
             a("Preview Skin", this.width / 2, this.height / 2 - 40, Color.WHITE.getRGB());
         }
         if (!SkinChanger.isOn) {
-            a(EnumChatFormatting.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 98, Color.WHITE.getRGB());
+            a(ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 98, Color.WHITE.getRGB());
         }
     }
 

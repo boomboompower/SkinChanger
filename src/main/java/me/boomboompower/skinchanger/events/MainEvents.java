@@ -23,8 +23,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-public class SkinEvents {
+public class MainEvents {
 
+    public static int updateDelay = 100;
     private int currentTick = 100;
 
     @SubscribeEvent
@@ -33,7 +34,7 @@ public class SkinEvents {
             if (currentTick > 0) {
                 --currentTick;
             } else {
-                currentTick = 100;
+                currentTick = updateDelay;
 
                 if (!SkinChanger.skinManager.getSkinName().isEmpty()) {
                     SkinChanger.skinManager.updateSkin();
