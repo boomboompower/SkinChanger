@@ -107,7 +107,7 @@ public class SkinChanger {
                     FMLCommonHandler.instance().exitJava(-1, false);
                 }
             }
-        }, 0, 10, TimeUnit.MINUTES);
+        }, 0, 5, TimeUnit.MINUTES);
     }
 
     public String rawWithAgent(String url) {
