@@ -15,18 +15,19 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package me.boomboompower.skinchanger;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import me.boomboompower.skinchanger.capes.CapeManager;
 import me.boomboompower.skinchanger.commands.SkinCommand;
 import me.boomboompower.skinchanger.config.ConfigLoader;
+import me.boomboompower.skinchanger.events.SkinEvents;
 import me.boomboompower.skinchanger.skins.SkinManager;
 import me.boomboompower.skinchanger.utils.ChatColor;
-
 import me.boomboompower.skinchanger.utils.Threads;
+
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -36,10 +37,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.commons.io.IOUtils;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.net.HttpURLConnection;
 import java.util.concurrent.TimeUnit;
 
 @Mod(modid = SkinChanger.MOD_ID, version = SkinChanger.VERSION, acceptedMinecraftVersions = "*")
@@ -64,8 +63,8 @@ public class SkinChanger {
         data.authorList.add("boomboompower");
 
         loader = new ConfigLoader(event.getSuggestedConfigurationFile());
-        skinManager = new SkinManager(Minecraft.getMinecraft().thePlayer);
-        capeManager = new CapeManager(Minecraft.getMinecraft().thePlayer);
+        skinManager = new SkinManager(Minecraft.getMinecraft().thePlayer, true);
+        capeManager = new CapeManager(Minecraft.getMinecraft().thePlayer, true);
     }
 
     @Mod.EventHandler
@@ -88,15 +87,14 @@ public class SkinChanger {
 
     public String rawWithAgent(String url) {
         try {
-            URL u = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
             connection.setUseCaches(false);
             connection.addRequestProperty("User-Agent", "Mozilla/4.76");
             connection.setReadTimeout(15000);
             connection.setConnectTimeout(15000);
             connection.setDoOutput(true);
-            return IOUtils.toString(connection.getInputStream(), Charset.defaultCharset());
+            return IOUtils.toString(connection.getInputStream(), "UTF-8");
         } catch (Exception e) {
             e.printStackTrace();
         }

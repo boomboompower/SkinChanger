@@ -34,36 +34,26 @@ public class CapeManager {
 
     private AbstractClientPlayer playerIn;
 
+    private boolean normalPlayer = false;
     private boolean usingCape = false;
 
-    private ResourceLocation resourceLocation = new ResourceLocation(SkinChanger.MOD_ID,"cape.png");
-
-    public CapeManager(AbstractClientPlayer playerIn) {
+    public CapeManager(AbstractClientPlayer playerIn, boolean normalPlayer) {
         this.playerIn = playerIn;
-    }
-
-    public ResourceLocation getResourceLocation() {
-        return this.resourceLocation;
-    }
-
-    public void setResourceLocation(ResourceLocation location) {
-        this.resourceLocation = location;
+        this.normalPlayer = normalPlayer;
     }
 
     public void addCape() {
         usingCape = true;
-        if (resourceLocation == null) setResourceLocation(new ResourceLocation(SkinChanger.MOD_ID,"cape.png"));
-        Minecraft.getMinecraft().addScheduledTask(() -> setCape(resourceLocation));
+        Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(SkinChanger.MOD_ID,"cape.png")));
     }
 
     public void removeCape() {
         usingCape = false;
-        setResourceLocation(null);
         Minecraft.getMinecraft().addScheduledTask(() -> setCape(null));
     }
 
     public void updatePlayer(AbstractClientPlayer playerIn) {
-        this.playerIn = playerIn == null ? Minecraft.getMinecraft().thePlayer : playerIn;
+        this.playerIn = normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn;
     }
 
     /*
@@ -71,12 +61,12 @@ public class CapeManager {
      */
 
     public void setCape(ResourceLocation location) {
-        if (!SkinChanger.isOn || playerIn == null) return;
+        if (!SkinChanger.isOn || (normalPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
 
         NetworkPlayerInfo info = null;
 
         try {
-            info = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(playerIn);
+            info = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn);
         } catch (Throwable ex) {
             log("Could not find player info, issue whilst invoking");
         }

@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.stats.StatBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.IChatComponent;
@@ -55,6 +56,11 @@ public class FakePlayerUtils {
         @Override
         public boolean hasPlayerInfo() {
             return playerInfo != null;
+        }
+
+        @Override
+        public boolean isWearing(EnumPlayerModelParts p_175148_1_) {
+            return true;
         }
 
         @Override

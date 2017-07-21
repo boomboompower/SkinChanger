@@ -20,7 +20,6 @@ package me.boomboompower.skinchanger.gui;
 import me.boomboompower.skinchanger.SkinChanger;
 import me.boomboompower.skinchanger.capes.CapeManager;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
-import me.boomboompower.skinchanger.gui.utils.DrawingUtils;
 import me.boomboompower.skinchanger.gui.utils.FakePlayerUtils;
 import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
 import me.boomboompower.skinchanger.skins.SkinManager;
@@ -31,7 +30,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -42,22 +46,23 @@ import org.lwjgl.input.Keyboard;
 import java.awt.*;
 import java.io.IOException;
 
-public class ChangeGui extends GuiScreen {
+public class SettingsGui extends GuiScreen {
 
     private FakePlayerUtils.FakePlayer fakePlayer = FakePlayerUtils.getFakePlayer();
-    private SkinManager fakePlayerSkinManager = new SkinManager(fakePlayer);
-    private CapeManager fakePlayerCapeManager = new CapeManager(fakePlayer);
+    private SkinManager fakePlayerSkinManager = new SkinManager(fakePlayer, false);
+    private CapeManager fakePlayerCapeManager = new CapeManager(fakePlayer, false);
 
     private ModernTextBox textField;
-    private ModernButton previewCape;
 
     private String message = "";
 
-    public ChangeGui() {
+    private boolean previewCape = false;
+
+    public SettingsGui() {
         this("");
     }
 
-    public ChangeGui(String message) {
+    public SettingsGui(String message) {
         this.message = message;
 
         SkinChanger.skinManager.updatePlayer(null);
@@ -74,7 +79,7 @@ public class ChangeGui extends GuiScreen {
         this.buttonList.add(new ModernButton(2, this.width / 2 - 160, this.height / 2 + 50, 150, 20, "Reset skin"));
         this.buttonList.add(new ModernButton(3, this.width / 2 - 160, this.height / 2 + 74, 150, 20, "Confirm skin"));
 
-        this.buttonList.add(this.previewCape = new ModernButton(4, this.width / 2 + 10, this.height / 2 + 26, 150, 20, "Preview cape"));
+        this.buttonList.add(new ModernButton(4, this.width / 2 + 10, this.height / 2 + 26, 150, 20, "Preview cape"));
         this.buttonList.add(new ModernButton(5, this.width / 2 + 10, this.height / 2 + 50, 150, 20, "Reset cape"));
         this.buttonList.add(new ModernButton(6, this.width / 2 + 10, this.height / 2 + 74, 150, 20, "Add cape"));
 
@@ -86,7 +91,6 @@ public class ChangeGui extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawGuiBackground();
 
-        previewCape.enabled = false;
         textField.setEnabled(true);
         textField.drawTextBox();
 
@@ -95,9 +99,13 @@ public class ChangeGui extends GuiScreen {
         fontRendererObj.drawString("Skin Settings", this.width / 2 - 118, this.height / 2 + 8, Color.WHITE.getRGB(), false);
         fontRendererObj.drawString("Cape Settings", this.width / 2 + 50, this.height / 2 + 8, Color.WHITE.getRGB(), false);
 
-        fontRendererObj.drawString("Preview", (this.width / 2 - fontRendererObj.getStringWidth("Preview") / 2), this.height / 2 - 40, Color.WHITE.getRGB(), false);
-        DrawingUtils.drawEntityOnScreen(this.width / 2, this.height / 2 - 50, 30, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, fakePlayer);
+        drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, fakePlayer);
 
+        if (previewCape) {
+            a("Preview Cape", this.width / 2, this.height / 2 - 40, Color.WHITE.getRGB());
+        } else {
+            a("Preview Skin", this.width / 2, this.height / 2 - 40, Color.WHITE.getRGB());
+        }
         if (!SkinChanger.isOn) {
             a(EnumChatFormatting.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 98, Color.WHITE.getRGB());
         }
@@ -112,17 +120,21 @@ public class ChangeGui extends GuiScreen {
         }
         switch (button.id) {
             case 1:
-                fakePlayerSkinManager.update(textField.getText());
+                previewCape = false;
+                fakePlayerCapeManager.removeCape();
+                if (!textField.getText().isEmpty() && textField.getText().length() >= 2) {
+                    fakePlayerSkinManager.update(textField.getText());
+                }
                 break;
             case 2:
                 SkinChanger.skinManager.reset();
-                sendChatMessage("Skin reset!");
+                sendChatMessage("Your skin has been reset!");
                 mc.displayGuiScreen(null);
                 break;
             case 3:
                 if (!textField.getText().isEmpty() && textField.getText().length() >= 2) {
                     SkinChanger.skinManager.update(textField.getText());
-                    sendChatMessage(String.format("Skin updated to %s!", ChatColor.GOLD + textField.getText() + ChatColor.GRAY));
+                    sendChatMessage(String.format("Your skin has been updated to %s!", ChatColor.GOLD + textField.getText() + ChatColor.GRAY));
                 } else {
                     sendChatMessage("Not enough characters provided");
                     sendChatMessage("Use a name between 2 and 16 characters!");
@@ -130,11 +142,12 @@ public class ChangeGui extends GuiScreen {
                 mc.displayGuiScreen(null);
                 break;
             case 4:
+                previewCape = true;
                 fakePlayerCapeManager.addCape();
                 break;
             case 5:
                 SkinChanger.capeManager.removeCape();
-                sendChatMessage("Cape removed!");
+                sendChatMessage("Your cape has been removed!");
                 mc.displayGuiScreen(null);
                 break;
             case 6:
@@ -196,5 +209,50 @@ public class ChangeGui extends GuiScreen {
 
     private void a(String message, int x, int y, int color) {
         fontRendererObj.drawString(message, (float) (x - fontRendererObj.getStringWidth(message) / 2), (float) y, color, false);
+    }
+
+    private void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase ent) {
+        GlStateManager.enableColorMaterial();
+        GlStateManager.pushMatrix();
+        GlStateManager.translate((float) posX, (float) posY, 50.0F);
+        GlStateManager.scale((float) (-scale), (float) scale, (float) scale);
+        GlStateManager.rotate(180.0F, 0.0F, 0.0F , 1.0F);
+        if (previewCape) {
+            GlStateManager.rotate(180F, 0F, 360F, 0F);
+        }
+        float f = ent.renderYawOffset;
+        float f1 = ent.rotationYaw;
+        float f2 = ent.rotationPitch;
+        float f3 = ent.prevRotationYawHead;
+        float f4 = ent.rotationYawHead;
+        GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
+        RenderHelper.enableStandardItemLighting();
+        GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+        if (!previewCape) {
+            GlStateManager.rotate(-((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
+            ent.renderYawOffset = (float) Math.atan((double) (mouseX / 40.0F)) * 20.0F;
+            ent.rotationYaw = (float) Math.atan((double) (mouseX / 40.0F)) * 40.0F;
+            ent.rotationPitch = -((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F;
+        }
+        ent.rotationYawHead = ent.rotationYaw;
+        ent.prevRotationYawHead = ent.rotationYaw;
+        GlStateManager.translate(0.0F, 0.0F, 0.0F);
+        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+        rendermanager.setPlayerViewY(previewCape ? 180.0F : 0.0F);
+        rendermanager.setRenderShadow(false);
+        rendermanager.doRenderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
+        rendermanager.setRenderShadow(true);
+        ent.renderYawOffset = f;
+        ent.rotationYaw = f1;
+        ent.rotationPitch = f2;
+        ent.prevRotationYawHead = f3;
+        ent.rotationYawHead = f4;
+
+        GlStateManager.popMatrix();
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        GlStateManager.disableTexture2D();
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
 }

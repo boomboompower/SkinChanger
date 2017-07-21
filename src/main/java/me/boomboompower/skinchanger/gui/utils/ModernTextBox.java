@@ -429,9 +429,9 @@ public class ModernTextBox extends Gui {
         if (this.getVisible()) {
             if (this.getEnableBackgroundDrawing()) {
                 if (this.isEnabled) {
-                    drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height, new Color(50, 200, 255, 75).getRGB());
+                    drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height, new Color(0, 148, 255, 75).getRGB());
                 } else {
-                    drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height,  new Color(36, 144, 180, 75).getRGB());
+                    drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height,  new Color(0, 125, 215, 75).getRGB());
                 }
             }
 
@@ -454,8 +454,8 @@ public class ModernTextBox extends Gui {
                 return;
             }
 
-            if (s.isEmpty() && !isFocused && !isEnabled) {
-                this.fontRendererInstance.drawString("Write here!", ((this.xPosition + this.width / 2) - fontRendererInstance.getStringWidth("Text box") / 2), this.yPosition + this.height / 2 - 4, disabledColor, false);
+            if (s.isEmpty() && !isFocused && isEnabled) {
+                this.fontRendererInstance.drawString("Write here!", ((this.xPosition + this.width / 2) - fontRendererInstance.getStringWidth("Write here!") / 2), this.yPosition + this.height / 2 - 4, i, false);
                 return;
             }
 

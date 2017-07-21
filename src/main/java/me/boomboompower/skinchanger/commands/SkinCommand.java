@@ -18,7 +18,7 @@
 package me.boomboompower.skinchanger.commands;
 
 import me.boomboompower.skinchanger.SkinChanger;
-import me.boomboompower.skinchanger.gui.ChangeGui;
+import me.boomboompower.skinchanger.gui.SettingsGui;
 import me.boomboompower.skinchanger.utils.ChatColor;
 import me.boomboompower.skinchanger.utils.GlobalUtils;
 
@@ -52,7 +52,7 @@ public class SkinCommand implements ICommand {
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
         if (SkinChanger.isOn) {
             if (args.length == 0) {
-                new ChangeGui().display();
+                new SettingsGui().display();
             } else {
                 if (args[0].equalsIgnoreCase("/toggle")) {
                     SkinChanger.isOn = !SkinChanger.isOn;
@@ -60,7 +60,7 @@ public class SkinCommand implements ICommand {
                     GlobalUtils.sendChatMessage(String.format("Mod is now forced %s.", SkinChanger.isOn ? EnumChatFormatting.GREEN + "on" + EnumChatFormatting.GRAY : EnumChatFormatting.RED + "off" + EnumChatFormatting.GRAY));
                     return;
                 }
-                new ChangeGui(args[0]).display();
+                new SettingsGui(args[0]).display();
             }
         } else {
             GlobalUtils.sendChatMessage("The mod is currently disabled.");

@@ -15,24 +15,32 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger;
+package me.boomboompower.skinchanger.events;
+
+import me.boomboompower.skinchanger.SkinChanger;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class SkinEvents {
 
-    @SubscribeEvent
-    public void onRender(RenderWorldLastEvent event) {
-        if (Minecraft.getMinecraft().currentScreen == null && SkinChanger.isOn) {
-            SkinChanger.skinManager.updatePlayer(null);
+    private int currentTick = 100;
 
-            if (!SkinChanger.skinManager.getSkinName().isEmpty()) {
-                SkinChanger.skinManager.updateSkin();
-            }
-            if (SkinChanger.capeManager.getResourceLocation() != null) {
-                SkinChanger.capeManager.addCape();
+    @SubscribeEvent
+    public void onTick(TickEvent.ClientTickEvent event) {
+        if (Minecraft.getMinecraft().currentScreen == null && SkinChanger.isOn) {
+            if (currentTick > 0) {
+                --currentTick;
+            } else {
+                currentTick = 100;
+
+                if (!SkinChanger.skinManager.getSkinName().isEmpty()) {
+                    SkinChanger.skinManager.updateSkin();
+                }
+                if (SkinChanger.capeManager.isUsingCape()) {
+                    SkinChanger.capeManager.addCape();
+                }
             }
         }
     }

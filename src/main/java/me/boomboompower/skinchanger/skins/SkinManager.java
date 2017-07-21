@@ -44,9 +44,11 @@ public class SkinManager {
 
     private String skinName = "";
 
-    public SkinManager(AbstractClientPlayer playerIn) {
-        this.mc = Minecraft.getMinecraft();
-        this.playerIn = playerIn == null ? Minecraft.getMinecraft().thePlayer : playerIn;
+    private boolean normalPlayer = false;
+
+    public SkinManager(AbstractClientPlayer playerIn, boolean normalPlayer) {
+        this.playerIn = playerIn;
+        this.normalPlayer = normalPlayer;
     }
 
     public String getSkinName() {
@@ -69,11 +71,11 @@ public class SkinManager {
     }
 
     public void reset() {
-        update(playerIn.getName());
+        update((normalPlayer ? Minecraft.getMinecraft().thePlayer.getName() : playerIn.getName()));
     }
 
     public void updatePlayer(AbstractClientPlayer playerIn) {
-        this.playerIn = playerIn == null ? Minecraft.getMinecraft().thePlayer : playerIn;
+        this.playerIn = normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn;
     }
 
     /*
@@ -89,12 +91,12 @@ public class SkinManager {
     }
 
     public void replaceSkin(ResourceLocation location) {
-        if (playerIn == null || skinName == null || skinName.isEmpty() || !SkinChanger.isOn) return;
+        if (skinName == null || skinName.isEmpty() || !SkinChanger.isOn || (normalPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
 
         NetworkPlayerInfo playerInfo;
 
         try {
-            playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(playerIn);
+            playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn);
         } catch (Throwable ex) {
             log("Could not get the players info!");
             return;
@@ -130,7 +132,7 @@ public class SkinManager {
                     }
                 }
             });
-            mc.renderEngine.loadTexture(location, imageData);
+            Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
             return location;
         } else {
             return null;
