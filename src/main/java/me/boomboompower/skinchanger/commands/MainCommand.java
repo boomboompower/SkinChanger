@@ -19,7 +19,6 @@ package me.boomboompower.skinchanger.commands;
 
 import me.boomboompower.skinchanger.SkinChanger;
 import me.boomboompower.skinchanger.gui.SettingsGui;
-import me.boomboompower.skinchanger.utils.AES;
 import me.boomboompower.skinchanger.utils.ChatColor;
 import me.boomboompower.skinchanger.utils.GlobalUtils;
 
