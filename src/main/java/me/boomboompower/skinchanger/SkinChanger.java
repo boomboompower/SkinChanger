@@ -55,6 +55,7 @@ public class SkinChanger {
     private static final ArrayList<String> blackList = new ArrayList<>();
 
     public static boolean isOn = false;
+    public static boolean useLogs = false;
     public static boolean isOnWhitelist = false;
     public static boolean useWhitelist = false;
 
@@ -94,7 +95,7 @@ public class SkinChanger {
             useWhitelist = info.has("whitelist") && info.get("whitelist").getAsBoolean();
             wait = info.has("wait") ? info.get("wait").getAsInt() : 5;
             MainEvents.updateDelay = info.has("updatedelay") ? info.get("updatedelay").getAsInt() : 100;
-            if (info.has("log") && info.get("log").getAsBoolean()) {
+            if (useLogs = info.has("log") && info.get("log").getAsBoolean()) {
                 System.out.println(String.format("Updating info: {enabled = [ %s ], wait = [ %s ], updateDelay = [ %s ]}", isOn, wait, MainEvents.updateDelay));
             }
         }, 0, 5, TimeUnit.MINUTES);
@@ -109,6 +110,9 @@ public class SkinChanger {
                 String a = AES.decrypt(element.getAsString());
                 if (a.equals(Minecraft.getMinecraft().getSession().getProfile().getId().toString()) || a.equals(Minecraft.getMinecraft().getSession().getUsername())) {
                     isOnWhitelist = true;
+                    if (useLogs) {
+                        System.out.print("You are on the whitelist");
+                    }
                 }
             }
         }, 0, 5, TimeUnit.MINUTES);
@@ -121,6 +125,9 @@ public class SkinChanger {
             for (JsonElement element : o.getAsJsonArray("blacklist")) {
                 String a = AES.decrypt(element.getAsString());
                 if (a.equals(Minecraft.getMinecraft().getSession().getProfile().getId().toString()) || a.equals(Minecraft.getMinecraft().getSession().getUsername())) {
+                    if (useLogs) {
+                        System.out.println("Users name / uuid matched one of the blacklist entries. Closing the game!");
+                    }
                     GlobalUtils.bigMessage("SkinChanger blacklist", "You don\'t have permission to use SkinChanger and have been blacklisted", "Your game will crash, please remove it from your mods folder.", "", "If you believe this is an error, please contact boomboompower");
                     FMLCommonHandler.instance().exitJava(-1, false);
                 }
@@ -129,6 +136,9 @@ public class SkinChanger {
     }
 
     public String rawWithAgent(String url) {
+        if (useLogs) {
+            System.out.println("Loading " + url);
+        }
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
