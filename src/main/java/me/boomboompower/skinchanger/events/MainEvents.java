@@ -31,9 +31,6 @@ public class MainEvents {
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
         if (Minecraft.getMinecraft().currentScreen == null && SkinChanger.isOn) {
-            if (SkinChanger.useWhitelist && !SkinChanger.isOnWhitelist) {
-                return;
-            }
             if (currentTick > 0) {
                 --currentTick;
             } else {

@@ -56,8 +56,6 @@ public class SkinChanger {
 
     public static boolean isOn = false;
     public static boolean useLogs = false;
-    public static boolean isOnWhitelist = false;
-    public static boolean useWhitelist = false;
 
     public static ConfigLoader loader;
     public static SkinManager skinManager;
@@ -81,7 +79,6 @@ public class SkinChanger {
     public void init(FMLInitializationEvent event) {
         loader.load();
         checkStatus();
-        whitelist();
         check();
 
         MinecraftForge.EVENT_BUS.register(new MainEvents());
@@ -92,28 +89,10 @@ public class SkinChanger {
         Threads.schedule(() -> {
             info = new JsonParser().parse(rawWithAgent("https://gist.githubusercontent.com/" + "boomboompower" + "/a0587ab2ce8e7bc4835fdf43f46f06eb/raw/skinchanger.json")).getAsJsonObject();
             isOn = info.has("enabled") && info.get("enabled").getAsBoolean();
-            useWhitelist = info.has("whitelist") && info.get("whitelist").getAsBoolean();
             wait = info.has("wait") ? info.get("wait").getAsInt() : 5;
             MainEvents.updateDelay = info.has("updatedelay") ? info.get("updatedelay").getAsInt() : 100;
             if (useLogs = info.has("log") && info.get("log").getAsBoolean()) {
                 System.out.println(String.format("Updating info: {enabled = [ %s ], wait = [ %s ], updateDelay = [ %s ]}", isOn, wait, MainEvents.updateDelay));
-            }
-        }, 0, 5, TimeUnit.MINUTES);
-    }
-
-    public void whitelist() {
-        Threads.schedule(() -> {
-            if (!useWhitelist) return;
-            JsonObject o = new JsonParser().parse(rawWithAgent("https://gist.githubusercontent.com/" + "boomboompower" + "/7b597976cba957a79482ce12b01f40e0/raw/skinchanger_whitelist.json")).getAsJsonObject();
-            AES.setKey(o.has("key") ? o.get("key").getAsString() : "whitelist");
-            for (JsonElement element : o.getAsJsonArray("whitelist")) {
-                String a = AES.decrypt(element.getAsString());
-                if (a.equals(Minecraft.getMinecraft().getSession().getProfile().getId().toString()) || a.equals(Minecraft.getMinecraft().getSession().getUsername())) {
-                    isOnWhitelist = true;
-                    if (useLogs) {
-                        System.out.print("You are on the whitelist");
-                    }
-                }
             }
         }, 0, 5, TimeUnit.MINUTES);
     }

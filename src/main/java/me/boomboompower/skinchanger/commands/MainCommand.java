@@ -50,21 +50,16 @@ public class MainCommand implements ICommand {
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
         if (SkinChanger.isOn) {
-            if (SkinChanger.useWhitelist && !SkinChanger.isOnWhitelist) {
-                GlobalUtils.sendChatMessage("SkinChanger is currently in whitelist-only mode", false);
-                GlobalUtils.sendChatMessage("Contact boomboompower for permission to use it!", false);
+            if (args.length == 0) {
+                new SettingsGui().display();
             } else {
-                if (args.length == 0) {
-                    new SettingsGui().display();
-                } else {
-                    if (args[0].equalsIgnoreCase("/toggle")) {
-                        SkinChanger.isOn = !SkinChanger.isOn;
-                        GlobalUtils.sendChatMessage("Master toggle switch activated");
-                        GlobalUtils.sendChatMessage(String.format("Mod is now forced %s.", SkinChanger.isOn ? ChatColor.GREEN + "on" + ChatColor.GRAY : ChatColor.RED + "off" + ChatColor.GRAY));
-                        return;
-                    }
-                    new SettingsGui(args[0]).display();
+                if (args[0].equalsIgnoreCase("/toggle")) {
+                    SkinChanger.isOn = !SkinChanger.isOn;
+                    GlobalUtils.sendChatMessage("Master toggle switch activated");
+                    GlobalUtils.sendChatMessage(String.format("Mod is now forced %s.", SkinChanger.isOn ? ChatColor.GREEN + "on" + ChatColor.GRAY : ChatColor.RED + "off" + ChatColor.GRAY));
+                    return;
                 }
+                new SettingsGui(args[0]).display();
             }
         } else {
             GlobalUtils.sendChatMessage("SkinChager is currently disabled.", false);
