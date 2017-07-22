@@ -107,13 +107,20 @@ public class SettingsGui extends GuiScreen {
         }
         if (!SkinChanger.isOn) {
             a(ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 98, Color.WHITE.getRGB());
+        } else if (SkinChanger.useWhitelist && !SkinChanger.isOnWhitelist) {
+            a(ChatColor.RED + "SkinChanger is currently whitelisted. Features may not work for you", this.width / 2, this.height / 2 + 98, Color.WHITE.getRGB());
         }
     }
 
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         if (!SkinChanger.isOn) {
-            sendChatMessage("Mod is currently disabled, check back soon!");
+            sendChatMessage("SkinChanger is currently disabled, check back soon!", false);
+            mc.displayGuiScreen(null);
+            return;
+        } else if (SkinChanger.useWhitelist && !SkinChanger.isOnWhitelist) {
+            sendChatMessage("SkinChanger is currently whitelisted", false);
+            sendChatMessage("Ask boomboompower for permission to use!", false);
             mc.displayGuiScreen(null);
             return;
         }
