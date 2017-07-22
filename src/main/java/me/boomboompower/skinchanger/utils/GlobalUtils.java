@@ -23,6 +23,8 @@ import net.minecraftforge.fml.common.FMLLog;
 
 import org.apache.logging.log4j.Level;
 
+import java.util.ArrayList;
+
 public class GlobalUtils {
 
     public static final String PREFIX = ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY;
@@ -36,6 +38,7 @@ public class GlobalUtils {
     }
 
     public static void bigMessage(String mainMessage, String... lines) {
+        if (mainMessage == null) return;
         FMLLog.log(Level.WARN, "****************************************************************************");
         FMLLog.log(Level.WARN, "* " + mainMessage);
         FMLLog.log(Level.WARN, "* ");

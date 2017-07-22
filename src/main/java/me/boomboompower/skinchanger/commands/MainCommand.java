@@ -52,7 +52,7 @@ public class MainCommand implements ICommand {
         if (SkinChanger.isOn) {
             if (SkinChanger.useWhitelist && !SkinChanger.isOnWhitelist) {
                 GlobalUtils.sendChatMessage("SkinChanger is currently in whitelist-only mode", false);
-                GlobalUtils.sendChatMessage("Contact boomboompower for permission to use!", false);
+                GlobalUtils.sendChatMessage("Contact boomboompower for permission to use it!", false);
             } else {
                 if (args.length == 0) {
                     new SettingsGui().display();

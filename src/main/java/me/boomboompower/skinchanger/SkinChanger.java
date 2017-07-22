@@ -111,11 +111,6 @@ public class SkinChanger {
                     isOnWhitelist = true;
                 }
             }
-            if (isOnWhitelist) {
-                GlobalUtils.bigMessage("SkinChanger whitelist", "Congratulations, you are whitelisted to use SkinChanger");
-            } else {
-                GlobalUtils.bigMessage("SkinChanger whitelist", "Whitelisting is enabled. Contact boomboompower to join");
-            }
         }, 0, 5, TimeUnit.MINUTES);
     }
 
