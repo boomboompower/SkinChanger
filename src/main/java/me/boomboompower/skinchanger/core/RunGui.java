@@ -17,9 +17,6 @@
 
 package me.boomboompower.skinchanger.core;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -33,7 +30,6 @@ import java.util.UUID;
 public class RunGui extends JComponent {
 
     private static final Font serverGuiFont = new Font("Monospaced", Font.PLAIN, 12);
-    private static final Logger LOGGER = LogManager.getLogger();
 
     public static void createMenu() {
         try {
@@ -61,7 +57,7 @@ public class RunGui extends JComponent {
         try {
             this.add(this.getMessageComponent(), "Center");
         } catch (Exception exception) {
-            LOGGER.error("Couldn\'t build Menu", exception);
+            System.out.println("Couldn\'t build Menu");
         }
     }
 
