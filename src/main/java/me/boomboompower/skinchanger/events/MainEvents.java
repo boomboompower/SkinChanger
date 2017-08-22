@@ -69,7 +69,7 @@ public class MainEvents {
     public void onRender(RenderPlayerEvent.Pre event) {
         if (event.entityPlayer instanceof FakePlayerUtils.FakePlayer) {
 
-            List<LayerRenderer<?>> layerRenderers = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, event.renderer, "layerRenderers");
+            List<LayerRenderer<?>> layerRenderers = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, event.renderer, "layerRenderers", "field_177097_h");
 
             layerRenderers.removeIf(layerRenderer -> layerRenderer instanceof LayerCape);
             layerRenderers.add(new FakePlayerCape(event.renderer));
