@@ -17,7 +17,7 @@
 
 package me.boomboompower.skinchanger.capes;
 
-import me.boomboompower.skinchanger.SkinChanger;
+import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.utils.ReflectUtils;
 
 import net.minecraft.client.Minecraft;
@@ -44,7 +44,7 @@ public class CapeManager {
 
     public void addCape() {
         usingCape = true;
-        Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(SkinChanger.MOD_ID,"cape.png")));
+        Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(SkinChangerMod.MOD_ID,"cape.png")));
     }
 
     public void removeCape() {
@@ -61,7 +61,7 @@ public class CapeManager {
      */
 
     public void setCape(ResourceLocation location) {
-        if (!SkinChanger.isOn || (normalPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
+        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() || (normalPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
 
         NetworkPlayerInfo info = null;
 
@@ -112,6 +112,10 @@ public class CapeManager {
 
         System.out.println(String.format("[CapeManager] " + message, replace));
         logs.add(message);
+    }
+
+    protected boolean isHelper() {
+        return false; // TODO
     }
 }
 

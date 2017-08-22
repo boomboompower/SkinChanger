@@ -20,7 +20,7 @@ package me.boomboompower.skinchanger.config;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import me.boomboompower.skinchanger.SkinChanger;
+import me.boomboompower.skinchanger.SkinChangerMod;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -52,8 +52,8 @@ public class ConfigLoader {
                 log("Could not read log properly, saving.", configFile.getName());
                 save();
             }
-            SkinChanger.skinManager.setSkinName(configJson.has("skinname") ? configJson.get("skinname").getAsString() : null);
-            SkinChanger.capeManager.setUsingCape(configJson.has("usingcape") && configJson.get("usingcape").getAsBoolean());
+            SkinChangerMod.getInstance().getSkinManager().setSkinName(configJson.has("skinname") ? configJson.get("skinname").getAsString() : null);
+            SkinChangerMod.getInstance().getCapeManager().setUsingCape(configJson.has("usingcape") && configJson.get("usingcape").getAsBoolean());
         } else {
             log("Config doesn\'t exist. Saving.", configFile.getName());
             save();
@@ -66,8 +66,8 @@ public class ConfigLoader {
             configFile.createNewFile();
             FileWriter writer = new FileWriter(configFile);
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            configJson.addProperty("skinname", SkinChanger.skinManager.getSkinName());
-            configJson.addProperty("usingcape", SkinChanger.capeManager.isUsingCape());
+            configJson.addProperty("skinname", SkinChangerMod.getInstance().getSkinManager().getSkinName());
+            configJson.addProperty("usingcape", SkinChangerMod.getInstance().getCapeManager().isUsingCape());
 
             bufferedWriter.write(configJson.toString());
             bufferedWriter.close();

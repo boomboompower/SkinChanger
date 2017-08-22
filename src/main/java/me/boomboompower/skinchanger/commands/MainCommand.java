@@ -17,7 +17,7 @@
 
 package me.boomboompower.skinchanger.commands;
 
-import me.boomboompower.skinchanger.SkinChanger;
+import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.gui.SettingsGui;
 import me.boomboompower.skinchanger.utils.ChatColor;
 import me.boomboompower.skinchanger.utils.GlobalUtils;
@@ -49,14 +49,14 @@ public class MainCommand implements ICommand {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-        if (SkinChanger.isOn) {
+        if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
             if (args.length == 0) {
                 new SettingsGui().display();
             } else {
                 if (args[0].equalsIgnoreCase("/toggle")) {
-                    SkinChanger.isOn = !SkinChanger.isOn;
+                    SkinChangerMod.getInstance().getWebsiteUtils().disableMod();
                     GlobalUtils.sendChatMessage("Master toggle switch activated");
-                    GlobalUtils.sendChatMessage(String.format("Mod is now forced %s.", SkinChanger.isOn ? ChatColor.GREEN + "on" + ChatColor.GRAY : ChatColor.RED + "off" + ChatColor.GRAY));
+                    GlobalUtils.sendChatMessage(String.format("Mod is now forced %s.", ChatColor.RED + "off" + ChatColor.GRAY));
                     return;
                 }
                 new SettingsGui(args[0]).display();

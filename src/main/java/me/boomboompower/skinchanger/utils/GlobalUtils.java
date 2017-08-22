@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class GlobalUtils {
 
-    public static final String PREFIX = ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY;
+    public static final String PREFIX = ChatColor.AQUA + "SkinChangerMod" + ChatColor.GOLD + " > " + ChatColor.GRAY;
 
     public static void sendChatMessage(String msg) {
         sendChatMessage(msg, true);
@@ -35,16 +35,5 @@ public class GlobalUtils {
 
     public static void sendChatMessage(String msg, boolean usePrefix) {
         Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText((usePrefix ? PREFIX : ChatColor.GRAY) + msg));
-    }
-
-    public static void bigMessage(String mainMessage, String... lines) {
-        if (mainMessage == null) return;
-        FMLLog.log(Level.WARN, "****************************************************************************");
-        FMLLog.log(Level.WARN, "* " + mainMessage);
-        FMLLog.log(Level.WARN, "* ");
-        for (String line : lines) {
-            FMLLog.log(Level.WARN, "*  " + line);
-        }
-        FMLLog.log(Level.WARN, "****************************************************************************");
     }
 }

@@ -17,7 +17,7 @@
 
 package me.boomboompower.skinchanger.skins;
 
-import me.boomboompower.skinchanger.SkinChanger;
+import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.utils.ReflectUtils;
 
 import net.minecraft.client.Minecraft;
@@ -60,7 +60,7 @@ public class SkinManager {
     }
 
     public void updateSkin() {
-        if (!SkinChanger.isOn) return;
+        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) return;
 
         Minecraft.getMinecraft().addScheduledTask(() -> replaceSkin(this.skinName));
     }
@@ -91,7 +91,7 @@ public class SkinManager {
     }
 
     public void replaceSkin(ResourceLocation location) {
-        if (skinName == null || skinName.isEmpty() || !SkinChanger.isOn || (normalPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
+        if (skinName == null || skinName.isEmpty() || SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() || (normalPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
 
         NetworkPlayerInfo playerInfo;
 

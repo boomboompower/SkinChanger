@@ -17,7 +17,7 @@
 
 package me.boomboompower.skinchanger.gui;
 
-import me.boomboompower.skinchanger.SkinChanger;
+import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.capes.CapeManager;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.FakePlayerUtils;
@@ -64,7 +64,7 @@ public class SettingsGui extends GuiScreen {
     public SettingsGui(String message) {
         this.message = message;
 
-        SkinChanger.skinManager.updatePlayer(null);
+        SkinChangerMod.getInstance().getSkinManager().updatePlayer(null);
         fakePlayerSkinManager.replaceSkin(DefaultPlayerSkin.getDefaultSkinLegacy());
     }
 
@@ -105,15 +105,15 @@ public class SettingsGui extends GuiScreen {
         } else {
             a("Preview Skin", this.width / 2, this.height / 2 - 40, Color.WHITE.getRGB());
         }
-        if (!SkinChanger.isOn) {
+        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
             a(ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 98, Color.WHITE.getRGB());
         }
     }
 
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
-        if (!SkinChanger.isOn) {
-            sendChatMessage("SkinChanger is currently disabled, check back soon!", false);
+        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
+            sendChatMessage("SkinChangerMod is currently disabled, check back soon!");
             mc.displayGuiScreen(null);
             return;
         }
@@ -126,13 +126,13 @@ public class SettingsGui extends GuiScreen {
                 }
                 break;
             case 2:
-                SkinChanger.skinManager.reset();
+                SkinChangerMod.getInstance().getSkinManager().reset();
                 sendChatMessage("Your skin has been reset!");
                 mc.displayGuiScreen(null);
                 break;
             case 3:
                 if (!textField.getText().isEmpty() && textField.getText().length() >= 2) {
-                    SkinChanger.skinManager.update(textField.getText());
+                    SkinChangerMod.getInstance().getSkinManager().update(textField.getText());
                     sendChatMessage(String.format("Your skin has been updated to %s!", ChatColor.GOLD + textField.getText() + ChatColor.GRAY));
                 } else {
                     sendChatMessage("Not enough characters provided");
@@ -145,12 +145,12 @@ public class SettingsGui extends GuiScreen {
                 fakePlayerCapeManager.addCape();
                 break;
             case 5:
-                SkinChanger.capeManager.removeCape();
+                SkinChangerMod.getInstance().getCapeManager().removeCape();
                 sendChatMessage("Your cape has been removed!");
                 mc.displayGuiScreen(null);
                 break;
             case 6:
-                SkinChanger.capeManager.addCape();
+                SkinChangerMod.getInstance().getCapeManager().addCape();
                 sendChatMessage("You now have a cape!");
                 mc.displayGuiScreen(null);
                 break;
@@ -160,7 +160,7 @@ public class SettingsGui extends GuiScreen {
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
-        SkinChanger.loader.save();
+        SkinChangerMod.getInstance().getLoader().save();
     }
 
     @Override
