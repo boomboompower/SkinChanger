@@ -37,7 +37,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class SkinChangerMod {
 
     public static final String MOD_ID = "skinchanger";
-    public static final String VERSION = "1.0-SNAPSHOT";
+    public static final String VERSION = "2.0.0";
 
     private WebsiteUtils websiteUtils;
     private ConfigLoader loader;
@@ -54,10 +54,11 @@ public class SkinChangerMod {
         data.description = ChatColor.AQUA + "An easy way to change your minecraft skin! (Clientside)";
         data.authorList.add("boomboompower");
 
-        loader = new ConfigLoader(event.getSuggestedConfigurationFile());
+        this.websiteUtils = new WebsiteUtils("SkinChanger");
+        this.loader = new ConfigLoader(event.getSuggestedConfigurationFile());
 
-        skinManager = new SkinManager(Minecraft.getMinecraft().thePlayer, true);
-        capeManager = new CapeManager(Minecraft.getMinecraft().thePlayer, true);
+        this.skinManager = new SkinManager(Minecraft.getMinecraft().thePlayer, true);
+        this.capeManager = new CapeManager(Minecraft.getMinecraft().thePlayer, true);
     }
 
     @Mod.EventHandler
@@ -66,8 +67,8 @@ public class SkinChangerMod {
         ClientCommandHandler.instance.registerCommand(new MainCommand());
 
         Minecraft.getMinecraft().addScheduledTask(() -> {
-            websiteUtils.begin();
-            loader.load();
+            this.websiteUtils.begin();
+            this.loader.load();
         });
     }
 

@@ -106,7 +106,9 @@ public class SettingsGui extends GuiScreen {
             a("Preview Skin", this.width / 2, this.height / 2 - 40, Color.WHITE.getRGB());
         }
         if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-            a(ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 98, Color.WHITE.getRGB());
+            a(ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
+        } else {
+            a(ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
         }
     }
 
@@ -227,12 +229,10 @@ public class SettingsGui extends GuiScreen {
         GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
         RenderHelper.enableStandardItemLighting();
         GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
-        if (!previewCape) {
-            GlStateManager.rotate(-((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
-            ent.renderYawOffset = (float) Math.atan((double) (mouseX / 40.0F)) * 20.0F;
-            ent.rotationYaw = (float) Math.atan((double) (mouseX / 40.0F)) * 40.0F;
-            ent.rotationPitch = -((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F;
-        }
+        GlStateManager.rotate(-((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
+        ent.renderYawOffset = previewCape ? -(float) Math.atan((double) (mouseX / 40.0F)) * 20.0F : (float) Math.atan((double) (mouseX / 40.0F)) * 20.0F;
+        ent.rotationYaw = previewCape ? -(float) Math.atan((double) (mouseX / 40.0F)) * 40.0F : (float) Math.atan((double) (mouseX / 40.0F)) * 40.0F;
+        ent.rotationPitch = -((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F;
         ent.rotationYawHead = ent.rotationYaw;
         ent.prevRotationYawHead = ent.rotationYaw;
         GlStateManager.translate(0.0F, 0.0F, 0.0F);

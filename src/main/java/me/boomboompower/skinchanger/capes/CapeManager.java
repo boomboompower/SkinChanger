@@ -34,17 +34,22 @@ public class CapeManager {
 
     private AbstractClientPlayer playerIn;
 
-    private boolean normalPlayer = false;
+    private boolean isClientPlayer = false;
     private boolean usingCape = false;
 
-    public CapeManager(AbstractClientPlayer playerIn, boolean normalPlayer) {
+    public CapeManager(AbstractClientPlayer playerIn, boolean isClientPlayer) {
         this.playerIn = playerIn;
-        this.normalPlayer = normalPlayer;
+        this.isClientPlayer = isClientPlayer;
     }
 
     public void addCape() {
         usingCape = true;
         Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(SkinChangerMod.MOD_ID,"cape.png")));
+    }
+
+    public void addCape(ResourceLocation location) {
+        usingCape = true;
+        Minecraft.getMinecraft().addScheduledTask(() -> setCape(location));
     }
 
     public void removeCape() {
@@ -53,7 +58,7 @@ public class CapeManager {
     }
 
     public void updatePlayer(AbstractClientPlayer playerIn) {
-        this.playerIn = normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn;
+        this.playerIn = isClientPlayer ? Minecraft.getMinecraft().thePlayer : playerIn;
     }
 
     /*
@@ -61,14 +66,24 @@ public class CapeManager {
      */
 
     public void setCape(ResourceLocation location) {
-        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() || (normalPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
+        if ((SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() && !isHelper()) || (isClientPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
 
         NetworkPlayerInfo info = null;
 
         try {
-            info = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn);
+            info = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(isClientPlayer ? Minecraft.getMinecraft().thePlayer : playerIn);
         } catch (Throwable ex) {
             log("Could not find player info, issue whilst invoking");
+        }
+
+        if (isHelper()) {
+            ResourceLocation saved = location;
+            try {
+                location = new ResourceLocation(SkinChangerMod.MOD_ID,"helpers/" + playerIn.getUniqueID().toString() +".png");
+            } catch (NullPointerException ex) {
+                location = saved;
+                log("%s is marked as a helper, but their cape image cannot be found!", playerIn.getUniqueID().toString());
+            }
         }
 
         if (info == null) {
@@ -115,7 +130,7 @@ public class CapeManager {
     }
 
     protected boolean isHelper() {
-        return false; // TODO
+        return playerIn != null && (SkinChangerMod.getInstance().getWebsiteUtils().getHelpers().contains(playerIn.getUniqueID().toString()));
     }
 }
 

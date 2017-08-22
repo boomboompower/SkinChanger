@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.core;
+package me.boomboompower.skinchanger.run;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;

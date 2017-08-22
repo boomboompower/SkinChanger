@@ -18,29 +18,36 @@
 package me.boomboompower.skinchanger.events;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
-
 import me.boomboompower.skinchanger.capes.CapeManager;
+import me.boomboompower.skinchanger.gui.utils.FakePlayerUtils;
+import me.boomboompower.skinchanger.renderer.FakePlayerCape;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
+import net.minecraft.client.renderer.entity.layers.LayerCape;
+import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+
+import java.util.List;
 
 public class MainEvents {
 
-    public static int updateDelay = 100;
     private int currentTick = 100;
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
         if (Minecraft.getMinecraft().currentScreen == null) {
-            if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-                if (currentTick > 0) {
-                    --currentTick;
-                } else {
-                    currentTick = updateDelay;
+            if (currentTick > 0) {
+                --currentTick;
+            } else {
+                currentTick = 100;
 
+                if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
                     if (!SkinChangerMod.getInstance().getSkinManager().getSkinName().isEmpty()) {
                         SkinChangerMod.getInstance().getSkinManager().updateSkin();
                     }
@@ -48,13 +55,26 @@ public class MainEvents {
                         SkinChangerMod.getInstance().getCapeManager().addCape();
                     }
                 }
-            }
 
-            for (EntityPlayer player : Minecraft.getMinecraft().theWorld.playerEntities) {
-                if (player.getUniqueID().toString().equals("54d50dc1-f5ba-4e83-ace6-65b5b6c2ba8d")) {
-                    new CapeManager((AbstractClientPlayer) player, false).setCape(new ResourceLocation(SkinChangerMod.MOD_ID,"helpers/54d50dc1-f5ba-4e83-ace6-65b5b6c2ba8d.png"));
+                for (EntityPlayer player : Minecraft.getMinecraft().theWorld.playerEntities) {
+                    if (SkinChangerMod.getInstance().getWebsiteUtils().getHelpers().contains(player.getUniqueID().toString())) {
+                        new CapeManager((AbstractClientPlayer) player, false).addCape(null);
+                    }
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onRender(RenderPlayerEvent.Pre event) {
+        if (event.entityPlayer instanceof FakePlayerUtils.FakePlayer) {
+
+            List<LayerRenderer<?>> layerRenderers = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, event.renderer, "layerRenderers");
+
+            layerRenderers.removeIf(layerRenderer -> layerRenderer instanceof LayerCape);
+            layerRenderers.add(new FakePlayerCape(event.renderer));
+
+            ReflectionHelper.setPrivateValue(RendererLivingEntity.class, event.renderer, layerRenderers, "layerRenderers");
         }
     }
 }
