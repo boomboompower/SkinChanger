@@ -74,7 +74,7 @@ public class MainEvents {
             layerRenderers.removeIf(layerRenderer -> layerRenderer instanceof LayerCape);
             layerRenderers.add(new FakePlayerCape(event.renderer));
 
-            ReflectionHelper.setPrivateValue(RendererLivingEntity.class, event.renderer, layerRenderers, "layerRenderers");
+            ReflectionHelper.setPrivateValue(RendererLivingEntity.class, event.renderer, layerRenderers, "layerRenderers", "field_177097_h");
         }
     }
 }
