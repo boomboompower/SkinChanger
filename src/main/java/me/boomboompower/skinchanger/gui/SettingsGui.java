@@ -82,6 +82,8 @@ public class SettingsGui extends GuiScreen {
         this.buttonList.add(new ModernButton(5, this.width / 2 + 10, this.height / 2 + 50, 150, 20, "Reset cape"));
         this.buttonList.add(new ModernButton(6, this.width / 2 + 10, this.height / 2 + 74, 150, 20, "Add cape"));
 
+        this.buttonList.add(new ModernButton(7, this.width - 85, 30, 85, 20, "Experimental"));
+
         this.textField.setMaxStringLength(16);
         this.textField.setText(message);
     }
@@ -90,8 +92,8 @@ public class SettingsGui extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawGuiBackground();
 
-        textField.setEnabled(true);
-        textField.drawTextBox();
+        this.textField.setEnabled(true);
+        this.textField.drawTextBox();
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -108,7 +110,9 @@ public class SettingsGui extends GuiScreen {
         if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
             a(ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
         } else {
-            a(ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
+            if (previewCape) {
+                a(ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
+            }
         }
     }
 
@@ -155,6 +159,14 @@ public class SettingsGui extends GuiScreen {
                 SkinChangerMod.getInstance().getCapeManager().addCape();
                 sendChatMessage("You now have a cape!");
                 mc.displayGuiScreen(null);
+                break;
+            case 7:
+                if (SkinChangerMod.getInstance().getWebsiteUtils().isExperimentsEnabled()) {
+                    mc.displayGuiScreen(new ExperimentalGui());
+                } else {
+                    sendChatMessage(ChatColor.RED + "Experimental features are currently disabled!");
+                    mc.displayGuiScreen(null);
+                }
                 break;
         }
     }

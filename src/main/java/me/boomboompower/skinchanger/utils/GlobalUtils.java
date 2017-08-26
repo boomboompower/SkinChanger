@@ -19,15 +19,10 @@ package me.boomboompower.skinchanger.utils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.fml.common.FMLLog;
-
-import org.apache.logging.log4j.Level;
-
-import java.util.ArrayList;
 
 public class GlobalUtils {
 
-    public static final String PREFIX = ChatColor.AQUA + "SkinChangerMod" + ChatColor.GOLD + " > " + ChatColor.GRAY;
+    public static final String PREFIX = ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY;
 
     public static void sendChatMessage(String msg) {
         sendChatMessage(msg, true);

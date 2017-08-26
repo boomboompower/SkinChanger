@@ -26,12 +26,16 @@ import me.boomboompower.skinchanger.utils.ChatColor;
 import me.boomboompower.skinchanger.utils.WebsiteUtils;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
+import java.util.concurrent.TimeUnit;
 
 @Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "*")
 public class SkinChangerMod {
@@ -70,6 +74,10 @@ public class SkinChangerMod {
             this.websiteUtils.begin();
             this.loader.load();
         });
+
+        this.websiteUtils.schedule(() -> {
+
+        }, 0, 5, TimeUnit.SECONDS);
     }
 
     public SkinManager getSkinManager() {
@@ -78,6 +86,10 @@ public class SkinChangerMod {
 
     public CapeManager getCapeManager() {
         return this.capeManager;
+    }
+
+    public void setCapeManager(CapeManager capeManager) {
+        this.capeManager = capeManager;
     }
 
     public ConfigLoader getLoader() {

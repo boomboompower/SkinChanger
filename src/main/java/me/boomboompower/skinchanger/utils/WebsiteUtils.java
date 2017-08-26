@@ -21,25 +21,34 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import com.mojang.authlib.GameProfile;
 import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.capes.CapeManager;
 
 import net.minecraft.client.Minecraft;
-
+import net.minecraft.client.entity.EntityOtherPlayerMP;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.IImageBuffer;
+import net.minecraft.client.renderer.ThreadDownloadImageData;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.commons.io.IOUtils;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,6 +70,11 @@ public class WebsiteUtils {
 
     private List<String> helperList = new ArrayList<>();
 
+    private boolean experimental_changeAll = false;
+    private boolean experimental_oldGui = false;
+    private boolean useExperimental = false;
+
+    private ScheduledFuture<?> experimentalChecker;
     private ScheduledFuture<?> modSettingsChecker;
     private ScheduledFuture<?> modVersionChecker;
     private ScheduledFuture<?> helperChecker;
@@ -126,6 +140,17 @@ public class WebsiteUtils {
                     }
                 }
             }, 0, 5, TimeUnit.MINUTES);
+
+            this.experimentalChecker = schedule(() -> {
+                JsonObject object = new JsonParser().parse(rawWithAgent("https://gist.githubusercontent.com/boomboompower/a0587ab2ce8e7bc4835fdf43f46f06eb/raw/experimental.json")).getAsJsonObject();
+                if (object.has("success") && object.get("success").getAsBoolean()) {
+                    this.useExperimental = object.has("enabled") && object.get("enabled").getAsBoolean();
+                    this.experimental_oldGui = object.has("old-gui") && object.get("old-gui").getAsBoolean();
+                    this.experimental_changeAll = object.has("change-all") && object.get("change-all").getAsBoolean();
+                } else {
+                    this.useExperimental = false;
+                }
+            }, 0, 10, TimeUnit.MINUTES);
         } else {
             throw new IllegalStateException("WebsiteUtils is already running!");
         }
@@ -133,6 +158,7 @@ public class WebsiteUtils {
 
     public void stop() {
         if (this.isRunning) {
+            this.experimentalChecker.cancel(true);
             this.modSettingsChecker.cancel(true);
             this.modVersionChecker.cancel(true);
             this.helperChecker.cancel(true);
@@ -174,11 +200,26 @@ public class WebsiteUtils {
         return this.helperList;
     }
 
-    private ScheduledFuture<?> schedule(Runnable r, long initialDelay, long delay, TimeUnit unit) {
+    public ScheduledFuture<?> schedule(Runnable r, long initialDelay, long delay, TimeUnit unit) {
         return this.RUNNABLE_POOL.scheduleAtFixedRate(r, initialDelay, delay, unit);
     }
 
-    private String rawWithAgent(String url) {
+    // Experimental shit
+    public boolean isExperimentsEnabled() {
+        return this.useExperimental;
+    }
+
+    public boolean isChangeAllEnabled() {
+        return this.experimental_changeAll;
+    }
+
+    public boolean isOldGuiEnabled() {
+        return this.experimental_oldGui;
+    }
+
+    // Other things
+
+    public String rawWithAgent(String url) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
@@ -228,10 +269,9 @@ public class WebsiteUtils {
                         e.printStackTrace();
                     }
                 }
-                ReflectionHelper.setPrivateValue(GameProfile.class, mc.thePlayer.getGameProfile(), UUID.fromString("54d50dc1-f5ba-4e83-ace6-65b5b6c2ba8d"), "id");
                 sendMessage("&9&m---------------------------------------------");
                 sendMessage(" ");
-                sendMessage(" &b\u26AB &e" + this.modName +" is out of date!");
+                sendMessage(" &b\u26AB &e" + this.modName + " is out of date!");
                 sendMessage(" &b\u26AB &eDownload %s from the forum page!", "&6v" + utils.getUpdateVersion() + "&e");
                 sendMessage(" ");
                 sendMessage("&9&m---------------------------------------------");
@@ -259,6 +299,104 @@ public class WebsiteUtils {
                 sendMessage(" ");
                 sendMessage("&9&m-----------------------------------------------");
             });
+        }
+    }
+
+    private List<EntityPlayer> givenCapes = new ArrayList<>();
+    private List<EntityPlayer> notGivenCapes = new ArrayList<>();
+
+    @SubscribeEvent
+    public void onTick2(TickEvent.ClientTickEvent event) {
+        runAsync(() -> {
+            try {
+                Thread.sleep(5000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            while (Minecraft.getMinecraft().theWorld == null) {
+                try {
+                    Thread.sleep(500L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for (String s : this.helperList) {
+                    for (EntityOtherPlayerMP player : get()) {
+                        if (s.equals(player.getUniqueID().toString()) && !givenCapes.contains(player) && !notGivenCapes.contains(player)) {
+                            this.givenCapes.add(player);
+                            new CapeManager(player, false).setCape(getHelperSkin(s));
+                        } else {
+                            if (!this.notGivenCapes.contains(player)) {
+                                this.notGivenCapes.add(player);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private List<EntityOtherPlayerMP> get() {
+        List<EntityOtherPlayerMP> ppl = new ArrayList<>();
+        for (Entity entity : Minecraft.getMinecraft().theWorld.loadedEntityList) {
+            if (entity instanceof EntityOtherPlayerMP) {
+                ppl.add((EntityOtherPlayerMP) entity);
+            }
+        }
+        return ppl;
+    }
+
+    @SubscribeEvent
+    public void onWorldChange(EntityJoinWorldEvent event) {
+        this.givenCapes.clear();
+        this.notGivenCapes.clear();
+    }
+
+    private ResourceLocation getHelperSkin(String id) {
+        JsonObject object = new JsonParser().parse(SkinChangerMod.getInstance().getWebsiteUtils().rawWithAgent("https://gist.github.com/boomboompower/a0587ab2ce8e7bc4835fdf43f46f06eb/raw/" + id + ".json")).getAsJsonObject();
+        if (object.has("success") && object.get("success").getAsBoolean()) {
+            return object.has("url") ? downloadCape(object.get("url").getAsString(), id) : null;
+        } else {
+            return null;
+        }
+    }
+
+    private ResourceLocation downloadCape(String url, String id) {
+        if (url != null && !url.isEmpty()) {
+            final ResourceLocation rl = new ResourceLocation("helpers/" + id);
+
+            File file1 = new File(new File("./mods/skinchanger".replace("/", File.separator), "helpers"), id);
+            File file2 = new File(file1, id + ".png");
+
+            TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
+
+            IImageBuffer imageBuffer = new IImageBuffer() {
+                @Override
+                public BufferedImage parseUserSkin(BufferedImage img) {
+                    int imageWidth = 64;
+                    int imageHeight = 32;
+                    int srcWidth = img.getWidth();
+
+                    for (int srcHeight = img.getHeight(); imageWidth < srcWidth || imageHeight < srcHeight; imageHeight *= 2) {
+                        imageWidth *= 2;
+                    }
+
+                    BufferedImage imgNew = new BufferedImage(imageWidth, imageHeight, 2);
+                    Graphics g = imgNew.getGraphics();
+                    g.drawImage(img, 0, 0, null);
+                    g.dispose();
+                    return imgNew;
+                }
+
+                @Override
+                public void skinAvailable() {
+                }
+            };
+            ThreadDownloadImageData textureCape = new ThreadDownloadImageData(file2, url, null, imageBuffer);
+            textureManager.loadTexture(rl, textureCape);
+
+            return rl;
+        } else {
+            return null;
         }
     }
 

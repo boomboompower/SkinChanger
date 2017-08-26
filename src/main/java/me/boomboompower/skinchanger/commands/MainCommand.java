@@ -34,7 +34,7 @@ public class MainCommand implements ICommand {
 
     @Override
     public String getCommandName() {
-        return "changeskin";
+        return "skinchanger";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class MainCommand implements ICommand {
 
     @Override
     public List<String> getCommandAliases() {
-        return Arrays.asList("changecape", "skin", "cape");
+        return Arrays.asList("changeskin", "changecape", "skin", "cape");
     }
 
     @Override

@@ -28,8 +28,6 @@ import java.nio.file.Paths;
 
 public class ConfigLoader {
 
-    private boolean hasSeenSwitchMessage = false;
-
     private File configFile;
     private JsonObject configJson;
 
@@ -56,7 +54,6 @@ public class ConfigLoader {
             }
             SkinChangerMod.getInstance().getSkinManager().setSkinName(configJson.has("skinname") ? configJson.get("skinname").getAsString() : null);
             SkinChangerMod.getInstance().getCapeManager().setUsingCape(configJson.has("usingcape") && configJson.get("usingcape").getAsBoolean());
-            this.hasSeenSwitchMessage = this.configJson.has("seenswitch") && configJson.get("seenswitch").getAsBoolean();
         } else {
             log("Config doesn\'t exist. Saving.", configFile.getName());
             save();
@@ -71,7 +68,6 @@ public class ConfigLoader {
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             configJson.addProperty("skinname", SkinChangerMod.getInstance().getSkinManager().getSkinName());
             configJson.addProperty("usingcape", SkinChangerMod.getInstance().getCapeManager().isUsingCape());
-            configJson.addProperty("seenswitch", this.hasSeenSwitchMessage);
 
             bufferedWriter.write(configJson.toString());
             bufferedWriter.close();
@@ -89,14 +85,6 @@ public class ConfigLoader {
 
     public File getConfigFile() {
         return this.configFile;
-    }
-
-    public boolean hasSeenSwitchMessage() {
-        return this.hasSeenSwitchMessage;
-    }
-
-    public void theySawSwitch() {
-        this.hasSeenSwitchMessage = true;
     }
 
     protected void log(String message, Object... replace) {

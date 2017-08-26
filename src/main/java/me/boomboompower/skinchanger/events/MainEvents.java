@@ -18,16 +18,14 @@
 package me.boomboompower.skinchanger.events;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.capes.CapeManager;
 import me.boomboompower.skinchanger.gui.utils.FakePlayerUtils;
 import me.boomboompower.skinchanger.renderer.FakePlayerCape;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.entity.player.EntityPlayer;
+
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -53,12 +51,6 @@ public class MainEvents {
                     }
                     if (SkinChangerMod.getInstance().getCapeManager().isUsingCape()) {
                         SkinChangerMod.getInstance().getCapeManager().addCape();
-                    }
-                }
-
-                for (EntityPlayer player : Minecraft.getMinecraft().theWorld.playerEntities) {
-                    if (SkinChangerMod.getInstance().getWebsiteUtils().getHelpers().contains(player.getUniqueID().toString())) {
-                        new CapeManager((AbstractClientPlayer) player, false).addCape(null);
                     }
                 }
             }

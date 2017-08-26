@@ -66,7 +66,7 @@ public class CapeManager {
      */
 
     public void setCape(ResourceLocation location) {
-        if ((SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() && !isHelper()) || (isClientPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
+        if ((SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) || (isClientPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
 
         NetworkPlayerInfo info = null;
 
@@ -74,16 +74,6 @@ public class CapeManager {
             info = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(isClientPlayer ? Minecraft.getMinecraft().thePlayer : playerIn);
         } catch (Throwable ex) {
             log("Could not find player info, issue whilst invoking");
-        }
-
-        if (isHelper()) {
-            ResourceLocation saved = location;
-            try {
-                location = new ResourceLocation(SkinChangerMod.MOD_ID,"helpers/" + playerIn.getUniqueID().toString() +".png");
-            } catch (NullPointerException ex) {
-                location = saved;
-                log("%s is marked as a helper, but their cape image cannot be found!", playerIn.getUniqueID().toString());
-            }
         }
 
         if (info == null) {
@@ -106,31 +96,11 @@ public class CapeManager {
         this.usingCape = usingCape;
     }
 
-//    public BufferedImage parseCape(BufferedImage img) {
-//        int imageWidth = 64;
-//        int imageHeight = 32;
-//        int srcWidth = img.getWidth();
-//
-//        for (int srcHeight = img.getHeight(); imageWidth < srcWidth || imageHeight < srcHeight; imageHeight *= 2) {
-//            imageWidth *= 2;
-//        }
-//
-//        BufferedImage imgNew = new BufferedImage(imageWidth, imageHeight, 2);
-//        Graphics g = imgNew.getGraphics();
-//        g.drawImage(img, 0, 0, null);
-//        g.dispose();
-//        return imgNew;
-//    }
-
     protected void log(String message, Object... replace) {
         if (logs.contains(message)) return;
 
         System.out.println(String.format("[CapeManager] " + message, replace));
         logs.add(message);
-    }
-
-    protected boolean isHelper() {
-        return playerIn != null && (SkinChangerMod.getInstance().getWebsiteUtils().getHelpers().contains(playerIn.getUniqueID().toString()));
     }
 }
 
