@@ -61,6 +61,6 @@ processResources {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'me.boomboompower.skinchanger.core.JavaMain'
+        attributes 'Main-Class': 'me.boomboompower.skinchanger.run.JavaMain'
     }
 }

@@ -91,12 +91,12 @@ public class SkinManager {
     }
 
     public void replaceSkin(ResourceLocation location) {
-        if (skinName == null || skinName.isEmpty() || SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() || (normalPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
+        if (this.skinName == null || this.skinName.isEmpty() || SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() || (this.normalPlayer ? Minecraft.getMinecraft().thePlayer == null : this.playerIn == null)) return;
 
         NetworkPlayerInfo playerInfo;
 
         try {
-            playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn);
+            playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(this.normalPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn);
         } catch (Throwable ex) {
             log("Could not get the players info!");
             return;

@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2016 boomboompower
+ *     Copyright (C) 2017 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -295,7 +295,7 @@ public class ModernTextBox extends Gui {
      * Call this method from your GuiScreen to process the keys into the textbox
      */
     public boolean textboxKeyTyped(char c, int keyCode) {
-        if (!this.isFocused) {
+        if (!this.isFocused || this.running) {
             return false;
         } else if (GuiScreen.isKeyComboCtrlA(keyCode)) {
             this.setCursorPositionEnd();

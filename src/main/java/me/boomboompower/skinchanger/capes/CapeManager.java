@@ -34,6 +34,7 @@ public class CapeManager {
 
     private AbstractClientPlayer playerIn;
 
+    private boolean isExperimental = false;
     private boolean isClientPlayer = false;
     private boolean usingCape = false;
 
@@ -43,22 +44,22 @@ public class CapeManager {
     }
 
     public void addCape() {
-        usingCape = true;
+        this.usingCape = true;
         Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(SkinChangerMod.MOD_ID,"cape.png")));
     }
 
     public void addCape(ResourceLocation location) {
-        usingCape = true;
+        this.usingCape = true;
         Minecraft.getMinecraft().addScheduledTask(() -> setCape(location));
     }
 
     public void removeCape() {
-        usingCape = false;
+        this.usingCape = false;
         Minecraft.getMinecraft().addScheduledTask(() -> setCape(null));
     }
 
     public void updatePlayer(AbstractClientPlayer playerIn) {
-        this.playerIn = isClientPlayer ? Minecraft.getMinecraft().thePlayer : playerIn;
+        this.playerIn = this.isClientPlayer ? Minecraft.getMinecraft().thePlayer : playerIn;
     }
 
     /*
@@ -66,7 +67,7 @@ public class CapeManager {
      */
 
     public void setCape(ResourceLocation location) {
-        if ((SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) || (isClientPlayer ? Minecraft.getMinecraft().thePlayer == null : playerIn == null)) return;
+        if ((SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) || (this.isClientPlayer ? Minecraft.getMinecraft().thePlayer == null : this.playerIn == null)) return;
 
         NetworkPlayerInfo info = null;
 
@@ -92,15 +93,23 @@ public class CapeManager {
         return this.usingCape;
     }
 
+    public boolean isExperimental() {
+        return this.isExperimental;
+    }
+
     public void setUsingCape(boolean usingCape) {
         this.usingCape = usingCape;
     }
 
+    public void setExperimental(boolean isExperimental) {
+        this.isExperimental = isExperimental;
+    }
+
     protected void log(String message, Object... replace) {
-        if (logs.contains(message)) return;
+        if (this.logs.contains(message)) return;
 
         System.out.println(String.format("[CapeManager] " + message, replace));
-        logs.add(message);
+        this.logs.add(message);
     }
 }
 

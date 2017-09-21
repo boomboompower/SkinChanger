@@ -19,6 +19,7 @@ package me.boomboompower.skinchanger.gui.utils;
 
 import com.mojang.authlib.GameProfile;
 
+import me.boomboompower.skinchanger.SkinChangerMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -40,7 +41,7 @@ public class FakePlayerUtils {
 
     public static class FakePlayer extends AbstractClientPlayer {
 
-        private static final GameProfile FAKE_GAME_PROFILE = new GameProfile(UUID.nameUUIDFromBytes("skinchanger".getBytes()), "MyNameIsJeff213");
+        private static final GameProfile FAKE_GAME_PROFILE = new GameProfile(UUID.nameUUIDFromBytes("skinchanger".getBytes()), "SkinChanger v" + SkinChangerMod.VERSION);
 
         private NetworkPlayerInfo playerInfo;
 
@@ -50,16 +51,16 @@ public class FakePlayerUtils {
 
         @Override
         protected NetworkPlayerInfo getPlayerInfo() {
-            return playerInfo == null ? playerInfo = new NetworkPlayerInfo(FAKE_GAME_PROFILE) : playerInfo;
+            return this.playerInfo == null ? this.playerInfo = new NetworkPlayerInfo(FAKE_GAME_PROFILE) : this.playerInfo;
         }
 
         @Override
         public boolean hasPlayerInfo() {
-            return playerInfo != null;
+            return this.playerInfo != null;
         }
 
         @Override
-        public boolean isWearing(EnumPlayerModelParts p_175148_1_) {
+        public boolean isWearing(EnumPlayerModelParts modelParts) {
             return true;
         }
 

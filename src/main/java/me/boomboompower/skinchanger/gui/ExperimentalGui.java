@@ -17,93 +17,31 @@
 
 package me.boomboompower.skinchanger.gui;
 
-import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.gui.experimental.GuiExperimentalAllPlayers;
+import me.boomboompower.skinchanger.gui.experimental.GuiExperimentalOptifine;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
-import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
-import me.boomboompower.skinchanger.skins.SkinManager;
+import me.boomboompower.skinchanger.gui.utils.ModernGui;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityOtherPlayerMP;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.Entity;
-
-import org.lwjgl.input.Keyboard;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-public class ExperimentalGui extends GuiScreen {
-
-    private ModernTextBox textField;
+public class ExperimentalGui extends ModernGui {
 
     @Override
     public void initGui() {
-        Keyboard.enableRepeatEvents(true);
-
-        this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20);
-
-        this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Give skin to all players"));
+        this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "All player utils"));
+        this.buttonList.add(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 50, 150, 20, "Optifine utils"));
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        drawDefaultBackground();
-
-        this.textField.setEnabled(true);
-        this.textField.drawTextBox();
-
-        super.drawScreen(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
+    public void buttonPressed(ModernButton button) {
         switch (button.id) {
             case 1:
-                for (EntityOtherPlayerMP player : get()) {
-                    new SkinManager(player, false).update(textField.getText());
-                }
+                mc.displayGuiScreen(new GuiExperimentalAllPlayers());
+                break;
+            case 2:
+                mc.displayGuiScreen(new GuiExperimentalOptifine());
                 break;
             default:
                 mc.displayGuiScreen(null);
                 break;
         }
-    }
-
-    @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        if (keyCode == 1) {
-            this.mc.displayGuiScreen(null);
-        } else {
-            this.textField.textboxKeyTyped(typedChar, keyCode);
-        }
-    }
-
-    @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        this.textField.mouseClicked(mouseX, mouseY, mouseButton);
-    }
-
-    @Override
-    public boolean doesGuiPauseGame() {
-        return false;
-    }
-
-    @Override
-    public void onGuiClosed() {
-        Keyboard.enableRepeatEvents(false);
-        SkinChangerMod.getInstance().getLoader().save();
-    }
-
-    private List<EntityOtherPlayerMP> get() {
-        List<EntityOtherPlayerMP> ppl = new ArrayList<>();
-        for (Entity entity : Minecraft.getMinecraft().theWorld.loadedEntityList) {
-            if (entity instanceof EntityOtherPlayerMP) {
-                ppl.add((EntityOtherPlayerMP) entity);
-            }
-        }
-        return ppl;
     }
 }

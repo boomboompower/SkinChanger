@@ -26,7 +26,6 @@ import me.boomboompower.skinchanger.capes.CapeManager;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -337,9 +336,11 @@ public class WebsiteUtils {
 
     private List<EntityOtherPlayerMP> get() {
         List<EntityOtherPlayerMP> ppl = new ArrayList<>();
-        for (Entity entity : Minecraft.getMinecraft().theWorld.loadedEntityList) {
-            if (entity instanceof EntityOtherPlayerMP) {
-                ppl.add((EntityOtherPlayerMP) entity);
+        if (Minecraft.getMinecraft().theWorld != null && Minecraft.getMinecraft().theWorld.loadedEntityList != null) {
+            for (Entity entity : Minecraft.getMinecraft().theWorld.loadedEntityList) {
+                if (entity instanceof EntityOtherPlayerMP) {
+                    ppl.add((EntityOtherPlayerMP) entity);
+                }
             }
         }
         return ppl;

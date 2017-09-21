@@ -29,6 +29,9 @@ import java.awt.*;
 
 public class ModernButton extends GuiButton {
 
+    private Color backgroundColorEnabled = null;
+    private Color backgroundColorDisabled = null;
+
     public int id;
     public int width;
     public int height;
@@ -45,7 +48,7 @@ public class ModernButton extends GuiButton {
     }
 
     public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
-        super(buttonId, x, y, widthIn, heightIn, buttonText);
+        super(buttonId, x, y, widthIn, heightIn, buttonText != null ? buttonText : "");
         this.width = 200;
         this.height = 20;
         this.enabled = true;
@@ -55,13 +58,14 @@ public class ModernButton extends GuiButton {
         this.yPosition = y;
         this.width = widthIn;
         this.height = heightIn;
-        this.displayString = buttonText;
+        this.displayString = buttonText != null ? buttonText : "";
     }
 
     /**
      * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
      * this button.
      */
+    @Override
     protected int getHoverState(boolean mouseOver) {
         int i = 1;
 
@@ -76,6 +80,7 @@ public class ModernButton extends GuiButton {
     /**
      * Draws this button to the screen.
      */
+    @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY) {
         if (this.visible) {
             FontRenderer fontrenderer = mc.fontRendererObj;
@@ -84,9 +89,9 @@ public class ModernButton extends GuiButton {
             int i = this.getHoverState(this.hovered);
 
             if (this.enabled) {
-                drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height, new Color(255, 255, 255, 75).getRGB());
+                drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height, this.backgroundColorEnabled == null ? new Color(255, 255, 255, 75).getRGB() : this.backgroundColorEnabled.getRGB());
             } else {
-                drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height,  new Color(100, 100, 100, 75).getRGB());
+                drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height, this.backgroundColorDisabled == null ? new Color(100, 100, 100, 75).getRGB() : this.backgroundColorDisabled.getRGB());
             }
 
             this.mouseDragged(mc, mouseX, mouseY);
@@ -105,6 +110,7 @@ public class ModernButton extends GuiButton {
      * Returns true if the mouse has been pressed on this control. Equivalent of MouseListener.mousePressed(MouseEvent
      * e).
      */
+    @Override
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
         return this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
     }
@@ -112,21 +118,23 @@ public class ModernButton extends GuiButton {
     /**
      * Whether the mouse cursor is currently over the button.
      */
-    public boolean isMouseOver()
-    {
+    @Override
+    public boolean isMouseOver() {
         return this.hovered;
     }
 
-    public void playPressSound(SoundHandler soundHandlerIn)
-    {
+    @Override
+    public void playPressSound(SoundHandler soundHandlerIn) {
         soundHandlerIn.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
     }
 
+    @Override
     public int getButtonWidth()
     {
         return this.width;
     }
 
+    @Override
     public void setWidth(int width)
     {
         this.width = width;
@@ -138,5 +146,13 @@ public class ModernButton extends GuiButton {
 
     public void setText(String text) {
         this.displayString = text != null ? text : "";
+    }
+
+    public void setBackEnabled(Color color) {
+        this.backgroundColorEnabled = color;
+    }
+
+    public void setBackDisabled(Color color) {
+        this.backgroundColorDisabled = color;
     }
 }

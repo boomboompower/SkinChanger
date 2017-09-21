@@ -74,10 +74,6 @@ public class SkinChangerMod {
             this.websiteUtils.begin();
             this.loader.load();
         });
-
-        this.websiteUtils.schedule(() -> {
-
-        }, 0, 5, TimeUnit.SECONDS);
     }
 
     public SkinManager getSkinManager() {
@@ -86,10 +82,6 @@ public class SkinChangerMod {
 
     public CapeManager getCapeManager() {
         return this.capeManager;
-    }
-
-    public void setCapeManager(CapeManager capeManager) {
-        this.capeManager = capeManager;
     }
 
     public ConfigLoader getLoader() {

@@ -24,6 +24,7 @@ import me.boomboompower.skinchanger.renderer.FakePlayerCape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
+import net.minecraft.client.renderer.entity.layers.LayerDeadmau5Head;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -49,7 +50,7 @@ public class MainEvents {
                     if (!SkinChangerMod.getInstance().getSkinManager().getSkinName().isEmpty()) {
                         SkinChangerMod.getInstance().getSkinManager().updateSkin();
                     }
-                    if (SkinChangerMod.getInstance().getCapeManager().isUsingCape()) {
+                    if (SkinChangerMod.getInstance().getCapeManager().isUsingCape() && !SkinChangerMod.getInstance().getCapeManager().isExperimental()) {
                         SkinChangerMod.getInstance().getCapeManager().addCape();
                     }
                 }
@@ -63,7 +64,7 @@ public class MainEvents {
 
             List<LayerRenderer<?>> layerRenderers = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, event.renderer, "layerRenderers", "field_177097_h");
 
-            layerRenderers.removeIf(layerRenderer -> layerRenderer instanceof LayerCape);
+            layerRenderers.removeIf(layerRenderer -> layerRenderer instanceof LayerCape || layerRenderer instanceof LayerDeadmau5Head);
             layerRenderers.add(new FakePlayerCape(event.renderer));
 
             ReflectionHelper.setPrivateValue(RendererLivingEntity.class, event.renderer, layerRenderers, "layerRenderers", "field_177097_h");
