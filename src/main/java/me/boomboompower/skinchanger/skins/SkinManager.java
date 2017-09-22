@@ -71,7 +71,7 @@ public class SkinManager {
     }
 
     public void reset() {
-        update((normalPlayer ? Minecraft.getMinecraft().thePlayer.getName() : playerIn.getName()));
+        update(this.normalPlayer ? Minecraft.getMinecraft().thePlayer.getName() : this.playerIn.getName());
     }
 
     public void updatePlayer(AbstractClientPlayer playerIn) {

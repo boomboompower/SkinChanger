@@ -50,8 +50,13 @@ public class MainEvents {
                     if (!SkinChangerMod.getInstance().getSkinManager().getSkinName().isEmpty()) {
                         SkinChangerMod.getInstance().getSkinManager().updateSkin();
                     }
-                    if (SkinChangerMod.getInstance().getCapeManager().isUsingCape() && !SkinChangerMod.getInstance().getCapeManager().isExperimental()) {
-                        SkinChangerMod.getInstance().getCapeManager().addCape();
+
+                    if (SkinChangerMod.getInstance().getCapeManager().isUsingCape()) {
+                        if (SkinChangerMod.getInstance().getCapeManager().isExperimental()) {
+                            SkinChangerMod.getInstance().getCapeManager().giveOfCape(SkinChangerMod.getInstance().getCapeManager().getOfCapeName());
+                        } else {
+                            SkinChangerMod.getInstance().getCapeManager().addCape();
+                        }
                     }
                 }
             }

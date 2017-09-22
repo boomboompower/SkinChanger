@@ -85,8 +85,24 @@ public class GuiExperimentalAllPlayers extends ModernGui {
                 this.mc.displayGuiScreen(null);
                 break;
             case 1:
+                List<String> names = new ArrayList<>();
+
+                get().forEach(p -> names.add(p.getName()));
+
+                for (EntityOtherPlayerMP player : get()) {
+                    String name = names.get(new Random().nextInt(names.size()));
+                    new SkinManager(player, false).update(name);
+                    names.remove(name);
+                }
+                sendChatMessage("All players skins were switched!");
+                this.mc.displayGuiScreen(null);
                 break;
             case 2:
+                for (EntityOtherPlayerMP player : get()) {
+                    new SkinManager(player, false).reset();
+                }
+                sendChatMessage("All players skins have been reset!");
+                this.mc.displayGuiScreen(null);
                 break;
             default:
                 this.mc.displayGuiScreen(null);
@@ -110,19 +126,5 @@ public class GuiExperimentalAllPlayers extends ModernGui {
             }
         }
         return ppl;
-    }
-
-    private void switchSkins() {
-        List<ResourceLocation> skins = new ArrayList<>();
-
-        for (EntityOtherPlayerMP player : get()) {
-            skins.add(player.getLocationSkin());
-        }
-
-        for (EntityOtherPlayerMP player : get()) {
-            ResourceLocation location = skins.get(new Random().nextInt(skins.size()));
-            new SkinManager(player, false).replaceSkin(location);
-            skins.remove(location);
-        }
     }
 }

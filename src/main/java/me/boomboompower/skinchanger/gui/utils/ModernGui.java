@@ -111,6 +111,10 @@ public abstract class ModernGui extends GuiScreen {
         fontRendererIn.drawString(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y, color, false);
     }
 
+    public void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color, boolean shadow) {
+        fontRendererIn.drawString(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y, color, shadow);
+    }
+
     @Override
     public void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
         fontRendererIn.drawString(text, (float) x, (float) y, color, false);

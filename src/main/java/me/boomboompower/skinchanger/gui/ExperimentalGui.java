@@ -26,21 +26,21 @@ public class ExperimentalGui extends ModernGui {
 
     @Override
     public void initGui() {
-        this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "All player utils"));
-        this.buttonList.add(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 50, 150, 20, "Optifine utils"));
+        this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 2, 150, 20, "All player utils"));
+        this.buttonList.add(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Optifine utils"));
     }
 
     @Override
     public void buttonPressed(ModernButton button) {
         switch (button.id) {
             case 1:
-                mc.displayGuiScreen(new GuiExperimentalAllPlayers());
+                this.mc.displayGuiScreen(new GuiExperimentalAllPlayers());
                 break;
             case 2:
-                mc.displayGuiScreen(new GuiExperimentalOptifine());
+                this.mc.displayGuiScreen(new GuiExperimentalOptifine());
                 break;
             default:
-                mc.displayGuiScreen(null);
+                this.mc.displayGuiScreen(null);
                 break;
         }
     }

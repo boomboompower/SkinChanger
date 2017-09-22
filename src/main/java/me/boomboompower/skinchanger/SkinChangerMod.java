@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 public class SkinChangerMod {
 
     public static final String MOD_ID = "skinchanger";
-    public static final String VERSION = "2.0.0";
+    public static final String VERSION = "2.0.1";
 
     private WebsiteUtils websiteUtils;
     private ConfigLoader loader;

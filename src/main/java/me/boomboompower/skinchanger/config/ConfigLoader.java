@@ -37,9 +37,9 @@ public class ConfigLoader {
 
     public void load() {
         if (exists()) {
-            log("Config exists, attempting load...", configFile.getName());
+            log("Config exists, attempting load...", this.configFile.getName());
             try {
-                FileReader fileReader = new FileReader(configFile);
+                FileReader fileReader = new FileReader(this.configFile);
                 BufferedReader reader = new BufferedReader(fileReader);
                 StringBuilder builder = new StringBuilder();
 
@@ -47,40 +47,47 @@ public class ConfigLoader {
                 while ((current = reader.readLine()) != null) {
                     builder.append(current);
                 }
-                configJson = new JsonParser().parse(builder.toString()).getAsJsonObject();
+                this.configJson = new JsonParser().parse(builder.toString()).getAsJsonObject();
             } catch (Exception ex) {
-                log("Could not read log properly, saving.", configFile.getName());
+                log("Could not read log properly, saving.", this.configFile.getName());
                 save();
             }
-            SkinChangerMod.getInstance().getSkinManager().setSkinName(configJson.has("skinname") ? configJson.get("skinname").getAsString() : null);
-            SkinChangerMod.getInstance().getCapeManager().setUsingCape(configJson.has("usingcape") && configJson.get("usingcape").getAsBoolean());
+            SkinChangerMod.getInstance().getSkinManager().setSkinName(this.configJson.has("skinname") ? configJson.get("skinname").getAsString() : null);
+            SkinChangerMod.getInstance().getCapeManager().setUsingCape(this.configJson.has("usingcape") && configJson.get("usingcape").getAsBoolean());
+            SkinChangerMod.getInstance().getCapeManager().setExperimental(this.configJson.has("experimental") && configJson.get("experimental").getAsBoolean());
+            if (this.configJson.has("experimental") && this.configJson.get("experimental").getAsBoolean() && this.configJson.has("ofCapeName")) {
+                SkinChangerMod.getInstance().getCapeManager().giveOfCape(this.configJson.get("ofCapeName").getAsString());
+            }
         } else {
-            log("Config doesn\'t exist. Saving.", configFile.getName());
+            log("Config doesn\'t exist. Saving.", this.configFile.getName());
             save();
         }
     }
 
     public void save() {
-        configJson = new JsonObject();
+        this.configJson = new JsonObject();
         try {
-            configFile.createNewFile();
-            FileWriter writer = new FileWriter(configFile);
-            BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            configJson.addProperty("skinname", SkinChangerMod.getInstance().getSkinManager().getSkinName());
-            configJson.addProperty("usingcape", SkinChangerMod.getInstance().getCapeManager().isUsingCape());
+            this.configFile.createNewFile();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(this.configFile));
+            this.configJson.addProperty("skinname", SkinChangerMod.getInstance().getSkinManager().getSkinName());
+            this.configJson.addProperty("usingcape", SkinChangerMod.getInstance().getCapeManager().isUsingCape());
+            this.configJson.addProperty("experimental", SkinChangerMod.getInstance().getCapeManager().isExperimental());
 
-            bufferedWriter.write(configJson.toString());
+            if (SkinChangerMod.getInstance().getCapeManager().isExperimental()) {
+                this.configJson.addProperty("ofCapeName", SkinChangerMod.getInstance().getCapeManager().getOfCapeName());
+            }
+
+            bufferedWriter.write(this.configJson.toString());
             bufferedWriter.close();
-            writer.close();
-            log("Saved config.", configFile.getName());
+            log("Saved config.", this.configFile.getName());
         } catch (Exception ex) {
-            log("Could not save.", configFile.getName());
+            log("Could not save.", this.configFile.getName());
             ex.printStackTrace();
         }
     }
 
     public boolean exists() {
-        return Files.exists(Paths.get(configFile.getPath()));
+        return Files.exists(Paths.get(this.configFile.getPath()));
     }
 
     public File getConfigFile() {
