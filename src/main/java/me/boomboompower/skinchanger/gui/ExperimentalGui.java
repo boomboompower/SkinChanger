@@ -17,15 +17,19 @@
 
 package me.boomboompower.skinchanger.gui;
 
+import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.gui.experimental.GuiExperimentalAllPlayers;
 import me.boomboompower.skinchanger.gui.experimental.GuiExperimentalOptifine;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
+import me.boomboompower.skinchanger.utils.ChatColor;
 
 public class ExperimentalGui extends ModernGui {
 
     @Override
     public void initGui() {
+        this.buttonList.add(new ModernButton(0, this.width / 2 - 75, this.height / 2 - 22, 150, 20,
+                "Rending: " + (SkinChangerMod.getInstance().isRenderingEnabled() ? ChatColor.GREEN + "On" : ChatColor.GRAY + "Off")));
         this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 2, 150, 20, "All player utils"));
         this.buttonList.add(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Optifine utils"));
     }
@@ -33,6 +37,10 @@ public class ExperimentalGui extends ModernGui {
     @Override
     public void buttonPressed(ModernButton button) {
         switch (button.id) {
+            case 0:
+                SkinChangerMod.getInstance().setRenderingEnabled(!SkinChangerMod.getInstance().isRenderingEnabled());
+                button.setText("Rending: " + (SkinChangerMod.getInstance().isRenderingEnabled() ? ChatColor.GREEN + "On" : ChatColor.GRAY + "Off"));
+                break;
             case 1:
                 this.mc.displayGuiScreen(new GuiExperimentalAllPlayers());
                 break;

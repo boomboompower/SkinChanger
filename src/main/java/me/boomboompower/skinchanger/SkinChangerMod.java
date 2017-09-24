@@ -26,8 +26,6 @@ import me.boomboompower.skinchanger.utils.ChatColor;
 import me.boomboompower.skinchanger.utils.WebsiteUtils;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -35,13 +33,13 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-import java.util.concurrent.TimeUnit;
-
 @Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "*")
 public class SkinChangerMod {
 
     public static final String MOD_ID = "skinchanger";
     public static final String VERSION = "2.0.1";
+
+    private boolean renderingEnabled = true;
 
     private WebsiteUtils websiteUtils;
     private ConfigLoader loader;
@@ -94,5 +92,13 @@ public class SkinChangerMod {
 
     public static SkinChangerMod getInstance() {
         return instance;
+    }
+
+    public void setRenderingEnabled(boolean toggledIn) {
+        this.renderingEnabled = toggledIn;
+    }
+
+    public boolean isRenderingEnabled() {
+        return this.renderingEnabled;
     }
 }

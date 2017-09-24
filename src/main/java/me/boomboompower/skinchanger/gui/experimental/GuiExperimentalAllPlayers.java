@@ -28,7 +28,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
 
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;

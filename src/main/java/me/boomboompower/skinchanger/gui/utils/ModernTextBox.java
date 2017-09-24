@@ -32,7 +32,6 @@ import net.minecraft.util.MathHelper;
 import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.function.Predicate;
 
 public class ModernTextBox extends Gui {
 
@@ -66,17 +65,29 @@ public class ModernTextBox extends Gui {
     /** True if this textbox is visible */
     private boolean visible = true;
     private GuiPageButtonList.GuiResponder guiResponder;
-    private Predicate<String> validator = s -> true;
+
+    private boolean onlyAllowNumbers = false;
+    private String noTextMessage = "Write here!";
 
     private boolean running = false;
 
-    public ModernTextBox(int componentId, int x, int y, int par5Width, int par6Height) {
+    public ModernTextBox(int componentId, int x, int y, int width, int height) {
+        this(componentId, x, y, width, height, false);
+    }
+
+    public ModernTextBox(int componentId, int x, int y, int width, int height, boolean onlyAllowNumbers) {
+        this(componentId, x, y, width, height, "Write Here!", onlyAllowNumbers);
+    }
+
+    public ModernTextBox(int componentId, int x, int y, int width, int height, String noTextMessage, boolean onlyAllowNumbers) {
         this.id = componentId;
         this.fontRendererInstance = Minecraft.getMinecraft().fontRendererObj;
         this.xPosition = x;
         this.yPosition = y;
-        this.width = par5Width;
-        this.height = par6Height;
+        this.width = width;
+        this.height = height;
+        this.noTextMessage = noTextMessage;
+        this.onlyAllowNumbers = onlyAllowNumbers;
     }
 
     public void setGuiResponder(GuiPageButtonList.GuiResponder guiResponder) {
@@ -94,14 +105,12 @@ public class ModernTextBox extends Gui {
      * Sets the text of the textbox
      */
     public void setText(String text) {
-        if (this.validator.test(format(text))) {
-            if (format(text).length() > this.maxStringLength) {
-                this.text = format(text).substring(0, this.maxStringLength);
-            } else {
-                this.text = format(text);
-            }
-            this.setCursorPositionEnd();
+        if (format(text).length() > this.maxStringLength) {
+            this.text = format(text).substring(0, this.maxStringLength);
+        } else {
+            this.text = format(text);
         }
+        this.setCursorPositionEnd();
     }
 
     /**
@@ -118,10 +127,6 @@ public class ModernTextBox extends Gui {
         int i = this.cursorPosition < this.selectionEnd ? this.cursorPosition: this.selectionEnd;
         int j = this.cursorPosition < this.selectionEnd ? this.selectionEnd: this.cursorPosition;
         return this.text.substring(i, j);
-    }
-
-    public void setValidator(Predicate < String > theValidator) {
-        this.validator = theValidator;
     }
 
     /**
@@ -151,13 +156,11 @@ public class ModernTextBox extends Gui {
             s = s + this.text.substring(j);
         }
 
-        if (this.validator.test(s)) {
-            this.text = s;
-            this.moveCursorBy(i - this.selectionEnd + l);
+        this.text = s;
+        this.moveCursorBy(i - this.selectionEnd + l);
 
-            if (this.guiResponder != null) {
-                this.guiResponder.func_175319_a(this.id, this.text);
-            }
+        if (this.guiResponder != null) {
+            this.guiResponder.func_175319_a(this.id, this.text);
         }
     }
 
@@ -196,16 +199,14 @@ public class ModernTextBox extends Gui {
                     s = s + this.text.substring(j);
                 }
 
-                if (this.validator.test(s)) {
-                    this.text = s;
+                this.text = s;
 
-                    if (flag) {
-                        this.moveCursorBy(num);
-                    }
+                if (flag) {
+                    this.moveCursorBy(num);
+                }
 
-                    if (this.guiResponder != null) {
-                        this.guiResponder.func_175319_a(this.id, this.text);
-                    }
+                if (this.guiResponder != null) {
+                    this.guiResponder.func_175319_a(this.id, this.text);
                 }
             }
         }
@@ -385,12 +386,18 @@ public class ModernTextBox extends Gui {
                     return true;
                 default:
                     if (ChatAllowedCharacters.isAllowedCharacter(c)) {
-                        if (Character.isLetterOrDigit(c) || c == '_') {
+                        if (onlyAllowNumbers) {
+                            if (Character.isDigit(c)) {
+                                if (this.isEnabled) {
+                                    this.writeText(Character.toString(c));
+                                }
+                            } else if (!running) {
+                                alert("Only numbers can be used!", 1250);
+                            }
+                        } else {
                             if (this.isEnabled) {
                                 this.writeText(Character.toString(c));
                             }
-                        } else if (!running) {
-                            alert("Only letters and numbers can be used!", 1250);
                         }
                         return true;
                     } else {
@@ -455,7 +462,7 @@ public class ModernTextBox extends Gui {
             }
 
             if (s.isEmpty() && !isFocused && isEnabled) {
-                this.fontRendererInstance.drawString("Write here!", ((this.xPosition + this.width / 2) - fontRendererInstance.getStringWidth("Write here!") / 2), this.yPosition + this.height / 2 - 4, i, false);
+                this.fontRendererInstance.drawString(noTextMessage, ((this.xPosition + this.width / 2) - fontRendererInstance.getStringWidth(noTextMessage) / 2), this.yPosition + this.height / 2 - 4, i, false);
                 return;
             }
 
@@ -696,13 +703,25 @@ public class ModernTextBox extends Gui {
         }, time);
     }
 
+    public void setOnlyAllowNumbers(boolean onlyAllowNumbers) {
+        this.onlyAllowNumbers = onlyAllowNumbers;
+    }
+
+    public boolean onlyAllowNumbers() {
+        return this.onlyAllowNumbers;
+    }
+
     private String format(String input) {
-        StringBuilder builder = new StringBuilder();
-        for (char c : input.toCharArray()) {
-            if (Character.isLetterOrDigit(c) || c == '_') {
-                builder.append(c);
+        if (this.onlyAllowNumbers) {
+            StringBuilder builder = new StringBuilder();
+            for (char c : input.toCharArray()) {
+                if (Character.isDigit(c)) {
+                    builder.append(c);
+                }
             }
+            return builder.toString();
+        } else {
+            return input;
         }
-        return builder.toString();
     }
 }

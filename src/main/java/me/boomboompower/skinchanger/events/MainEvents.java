@@ -24,7 +24,6 @@ import me.boomboompower.skinchanger.renderer.FakePlayerCape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
-import net.minecraft.client.renderer.entity.layers.LayerDeadmau5Head;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -41,13 +40,13 @@ public class MainEvents {
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
         if (Minecraft.getMinecraft().currentScreen == null) {
-            if (currentTick > 0) {
-                --currentTick;
+            if (this.currentTick > 0) {
+                --this.currentTick;
             } else {
-                currentTick = 100;
+                this.currentTick = 100;
 
-                if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-                    if (!SkinChangerMod.getInstance().getSkinManager().getSkinName().isEmpty()) {
+                if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() && SkinChangerMod.getInstance().isRenderingEnabled()) {
+                    if (!SkinChangerMod.getInstance().getSkinManager().getSkinName().isEmpty() && SkinChangerMod.getInstance().getSkinManager().isUsingSkin()) {
                         SkinChangerMod.getInstance().getSkinManager().updateSkin();
                     }
 
@@ -69,7 +68,7 @@ public class MainEvents {
 
             List<LayerRenderer<?>> layerRenderers = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, event.renderer, "layerRenderers", "field_177097_h");
 
-            layerRenderers.removeIf(layerRenderer -> layerRenderer instanceof LayerCape || layerRenderer instanceof LayerDeadmau5Head);
+            layerRenderers.removeIf(layerRenderer -> layerRenderer instanceof LayerCape);
             layerRenderers.add(new FakePlayerCape(event.renderer));
 
             ReflectionHelper.setPrivateValue(RendererLivingEntity.class, event.renderer, layerRenderers, "layerRenderers", "field_177097_h");
