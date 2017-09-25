@@ -45,8 +45,8 @@ public class MainEvents {
             } else {
                 this.currentTick = 100;
 
-                if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() && SkinChangerMod.getInstance().isRenderingEnabled()) {
-                    if (!SkinChangerMod.getInstance().getSkinManager().getSkinName().isEmpty() && SkinChangerMod.getInstance().getSkinManager().isUsingSkin()) {
+                if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
+                    if (!SkinChangerMod.getInstance().getSkinManager().getSkinName().isEmpty()  && SkinChangerMod.getInstance().isRenderingEnabled()) {
                         SkinChangerMod.getInstance().getSkinManager().updateSkin();
                     }
 

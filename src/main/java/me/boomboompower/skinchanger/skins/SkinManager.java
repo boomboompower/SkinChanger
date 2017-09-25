@@ -45,7 +45,6 @@ public class SkinManager {
     private String skinName = "";
 
     private boolean normalPlayer = false;
-    private boolean usingSkin = true;
 
     public SkinManager(AbstractClientPlayer playerIn, boolean normalPlayer) {
         this.playerIn = playerIn;
@@ -63,8 +62,6 @@ public class SkinManager {
     public void updateSkin() {
         if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) return;
 
-        this.usingSkin = true;
-
         Minecraft.getMinecraft().addScheduledTask(() -> replaceSkin(this.skinName));
     }
 
@@ -74,7 +71,6 @@ public class SkinManager {
     }
 
     public void reset() {
-        this.usingSkin = false;
         update(this.normalPlayer ? Minecraft.getMinecraft().thePlayer.getName() : this.playerIn.getName());
     }
 
@@ -141,10 +137,6 @@ public class SkinManager {
         } else {
             return null;
         }
-    }
-
-    public boolean isUsingSkin() {
-        return this.usingSkin;
     }
 
     protected void log(String message, Object... replace) {
