@@ -45,7 +45,7 @@ public class SkinManager {
     private String skinName = "";
 
     private boolean normalPlayer = false;
-    private boolean usingSkin = false;
+    private boolean usingSkin = true;
 
     public SkinManager(AbstractClientPlayer playerIn, boolean normalPlayer) {
         this.playerIn = playerIn;

@@ -22,7 +22,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.capes.CapeManager;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
@@ -30,15 +29,13 @@ import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+
 import org.apache.commons.io.IOUtils;
 
 import java.awt.*;
@@ -281,7 +278,7 @@ public class WebsiteUtils {
             this.hasSeenHigherMessage = true;
             utils.runAsync(() -> {
                 try {
-                    Thread.sleep(3000L);
+                    Thread.sleep(1000L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -301,39 +298,6 @@ public class WebsiteUtils {
         }
     }
 
-    private List<EntityPlayer> givenCapes = new ArrayList<>();
-    private List<EntityPlayer> notGivenCapes = new ArrayList<>();
-
-    @SubscribeEvent
-    public void onTick2(TickEvent.ClientTickEvent event) {
-        runAsync(() -> {
-            try {
-                Thread.sleep(5000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            while (Minecraft.getMinecraft().theWorld == null) {
-                try {
-                    Thread.sleep(500L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                for (String s : this.helperList) {
-                    for (EntityOtherPlayerMP player : get()) {
-                        if (s.equals(player.getUniqueID().toString()) && !givenCapes.contains(player) && !notGivenCapes.contains(player)) {
-                            this.givenCapes.add(player);
-                            new CapeManager(player, false).setCape(getHelperSkin(s));
-                        } else {
-                            if (!this.notGivenCapes.contains(player)) {
-                                this.notGivenCapes.add(player);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
     private List<EntityOtherPlayerMP> get() {
         List<EntityOtherPlayerMP> ppl = new ArrayList<>();
         if (Minecraft.getMinecraft().theWorld != null && Minecraft.getMinecraft().theWorld.loadedEntityList != null) {
@@ -344,21 +308,6 @@ public class WebsiteUtils {
             }
         }
         return ppl;
-    }
-
-    @SubscribeEvent
-    public void onWorldChange(EntityJoinWorldEvent event) {
-        this.givenCapes.clear();
-        this.notGivenCapes.clear();
-    }
-
-    private ResourceLocation getHelperSkin(String id) {
-        JsonObject object = new JsonParser().parse(SkinChangerMod.getInstance().getWebsiteUtils().rawWithAgent("https://gist.github.com/boomboompower/a0587ab2ce8e7bc4835fdf43f46f06eb/raw/" + id + ".json")).getAsJsonObject();
-        if (object.has("success") && object.get("success").getAsBoolean()) {
-            return object.has("url") ? downloadCape(object.get("url").getAsString(), id) : null;
-        } else {
-            return null;
-        }
     }
 
     private ResourceLocation downloadCape(String url, String id) {

@@ -52,9 +52,10 @@ public class ConfigLoader {
                 log("Could not read log properly, saving.", this.configFile.getName());
                 save();
             }
-            SkinChangerMod.getInstance().getSkinManager().setSkinName(this.configJson.has("skinname") ? configJson.get("skinname").getAsString() : null);
-            SkinChangerMod.getInstance().getCapeManager().setUsingCape(this.configJson.has("usingcape") && configJson.get("usingcape").getAsBoolean());
-            SkinChangerMod.getInstance().getCapeManager().setExperimental(this.configJson.has("experimental") && configJson.get("experimental").getAsBoolean());
+            SkinChangerMod.getInstance().getSkinManager().setSkinName(this.configJson.has("skinname") ? this.configJson.get("skinname").getAsString() : null);
+            SkinChangerMod.getInstance().getCapeManager().setUsingCape(this.configJson.has("usingcape") && this.configJson.get("usingcape").getAsBoolean());
+            SkinChangerMod.getInstance().getCapeManager().setExperimental(this.configJson.has("experimental") && this.configJson.get("experimental").getAsBoolean());
+            SkinChangerMod.getInstance().setRenderingEnabled(this.configJson.has("rendering") && this.configJson.get("rendering").getAsBoolean());
             if (this.configJson.has("experimental") && this.configJson.get("experimental").getAsBoolean() && this.configJson.has("ofCapeName")) {
                 SkinChangerMod.getInstance().getCapeManager().giveOfCape(this.configJson.get("ofCapeName").getAsString());
             }
@@ -72,6 +73,7 @@ public class ConfigLoader {
             this.configJson.addProperty("skinname", SkinChangerMod.getInstance().getSkinManager().getSkinName());
             this.configJson.addProperty("usingcape", SkinChangerMod.getInstance().getCapeManager().isUsingCape());
             this.configJson.addProperty("experimental", SkinChangerMod.getInstance().getCapeManager().isExperimental());
+            this.configJson.addProperty("rendering", SkinChangerMod.getInstance().isRenderingEnabled());
 
             if (SkinChangerMod.getInstance().getCapeManager().isExperimental()) {
                 this.configJson.addProperty("ofCapeName", SkinChangerMod.getInstance().getCapeManager().getOfCapeName());
