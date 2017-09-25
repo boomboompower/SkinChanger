@@ -24,7 +24,15 @@ import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
 import me.boomboompower.skinchanger.utils.ChatColor;
 
+import org.apache.commons.io.FileUtils;
+
+import java.awt.*;
+import java.io.File;
+import java.util.Arrays;
+
 public class ExperimentalGui extends ModernGui {
+
+    private ModernButton skinCache;
 
     @Override
     public void initGui() {
@@ -32,6 +40,18 @@ public class ExperimentalGui extends ModernGui {
                 "Rending: " + (SkinChangerMod.getInstance().isRenderingEnabled() ? ChatColor.GREEN + "On" : ChatColor.GRAY + "Off")));
         this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 2, 150, 20, "All player utils"));
         this.buttonList.add(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Optifine utils"));
+        this.buttonList.add(this.skinCache = new ModernButton(3, this.width / 2 - 75, this.height / 2 + 50, 150, 20, "Delete skin cache"));
+
+        this.skinCache.setBackEnabled(new Color(255, 0, 0, 75));
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        super.drawScreen(mouseX, mouseY, partialTicks);
+
+        if (this.skinCache.isMouseOver()) {
+            drawHoveringText(Arrays.asList("This button is dangerous and", ChatColor.DARK_RED.toString() + ChatColor.BOLD + "may" + ChatColor.RESET + " be bad for your game"), mouseX, mouseY);
+        }
     }
 
     @Override
@@ -46,6 +66,9 @@ public class ExperimentalGui extends ModernGui {
                 break;
             case 2:
                 this.mc.displayGuiScreen(new GuiExperimentalOptifine());
+                break;
+            case 3:
+                FileUtils.deleteQuietly(new File("./mods/skinchanger".replace("/", File.separator), "skins"));
                 break;
             default:
                 this.mc.displayGuiScreen(null);
