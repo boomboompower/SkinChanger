@@ -20,6 +20,7 @@ package me.boomboompower.skinchanger.gui.utils;
 import com.google.common.collect.Lists;
 
 import me.boomboompower.skinchanger.utils.GlobalUtils;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
@@ -40,8 +41,6 @@ public abstract class ModernGui extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        drawDefaultBackground();
-
         for (GuiButton button : this.buttonList) {
             button.drawButton(this.mc, mouseX, mouseY);
         }
@@ -140,7 +139,7 @@ public abstract class ModernGui extends GuiScreen {
     public void buttonPressed(ModernButton button) {
     }
 
-    protected void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase ent, boolean previewCape) {
+    protected void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase entity, boolean previewCape) {
         GlStateManager.enableColorMaterial();
         GlStateManager.pushMatrix();
         GlStateManager.translate((float) posX, (float) posY, 50.0F);
@@ -149,31 +148,31 @@ public abstract class ModernGui extends GuiScreen {
         if (previewCape) {
             GlStateManager.rotate(180F, 0F, 360F, 0F);
         }
-        float f = ent.renderYawOffset;
-        float f1 = ent.rotationYaw;
-        float f2 = ent.rotationPitch;
-        float f3 = ent.prevRotationYawHead;
-        float f4 = ent.rotationYawHead;
+        float prevYawOffset = entity.renderYawOffset;
+        float prevYaw = entity.rotationYaw;
+        float prevPitch = entity.rotationPitch;
+        float prevYawRotation = entity.prevRotationYawHead;
+        float prevHeadRotation = entity.rotationYawHead;
         GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
         RenderHelper.enableStandardItemLighting();
         GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(-((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
-        ent.renderYawOffset = previewCape ? -(float) Math.atan((double) (mouseX / 40.0F)) * 20.0F : (float) Math.atan((double) (mouseX / 40.0F)) * 20.0F;
-        ent.rotationYaw = previewCape ? -(float) Math.atan((double) (mouseX / 40.0F)) * 40.0F : (float) Math.atan((double) (mouseX / 40.0F)) * 40.0F;
-        ent.rotationPitch = -((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F;
-        ent.rotationYawHead = ent.rotationYaw;
-        ent.prevRotationYawHead = ent.rotationYaw;
+        entity.renderYawOffset = previewCape ? -(float) Math.atan((double) (mouseX / 40.0F)) * 20.0F : (float) Math.atan((double) (mouseX / 40.0F)) * 20.0F;
+        entity.rotationYaw = previewCape ? -(float) Math.atan((double) (mouseX / 40.0F)) * 40.0F : (float) Math.atan((double) (mouseX / 40.0F)) * 40.0F;
+        entity.rotationPitch = -((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F;
+        entity.rotationYawHead = entity.rotationYaw;
+        entity.prevRotationYawHead = entity.rotationYaw;
         GlStateManager.translate(0.0F, 0.0F, 0.0F);
         RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
         rendermanager.setPlayerViewY(previewCape ? 180.0F : 0.0F);
         rendermanager.setRenderShadow(false);
-        rendermanager.doRenderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
+        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
         rendermanager.setRenderShadow(true);
-        ent.renderYawOffset = f;
-        ent.rotationYaw = f1;
-        ent.rotationPitch = f2;
-        ent.prevRotationYawHead = f3;
-        ent.rotationYawHead = f4;
+        entity.renderYawOffset = prevYawOffset;
+        entity.rotationYaw = prevYaw;
+        entity.rotationPitch = prevPitch;
+        entity.prevRotationYawHead = prevYawRotation;
+        entity.rotationYawHead = prevHeadRotation;
 
         GlStateManager.popMatrix();
         RenderHelper.disableStandardItemLighting();

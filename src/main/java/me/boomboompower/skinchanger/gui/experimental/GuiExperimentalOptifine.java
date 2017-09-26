@@ -53,7 +53,7 @@ public class GuiExperimentalOptifine extends ModernGui {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        drawDefaultBackground();
 
         drawCenteredString(this.mc.fontRendererObj,"Names are case sensitive! Ensure you are using the correct name", this.width / 2, this.height / 2 + 8, Color.WHITE.getRGB());
 
@@ -64,6 +64,8 @@ public class GuiExperimentalOptifine extends ModernGui {
         } else {
             drawCenteredString(this.mc.fontRendererObj,ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
         }
+
+        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override

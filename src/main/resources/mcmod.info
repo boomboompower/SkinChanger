@@ -1,6 +1,7 @@
 [
   {
-    "modid": "SkinChanger",
-    "version": "${version}"
+    "modid" : "skinchanger",
+    "name" : "SkinChanger",
+    "version" : "${version}"
   }
 ]
