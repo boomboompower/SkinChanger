@@ -59,15 +59,15 @@ public class GuiExperimentalAllPlayers extends ModernGui {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
 
-        if (this.resetButton.isMouseOver()) {
-            drawHoveringText(Arrays.asList("This button is dangerous and", ChatColor.DARK_RED.toString() + ChatColor.BOLD + "may" + ChatColor.RESET + " be bad for your game"), mouseX, mouseY);
-        }
-
         if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
             drawCenteredString(this.mc.fontRendererObj, ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        if (this.resetButton.isMouseOver()) {
+            drawHoveringText(Arrays.asList("This button is dangerous and", ChatColor.DARK_RED.toString() + ChatColor.BOLD + "may" + ChatColor.RESET + " be bad for your game"), mouseX, mouseY);
+        }
     }
 
     @Override

@@ -49,11 +49,11 @@ public class ExperimentalGui extends ModernGui {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
 
+        super.drawScreen(mouseX, mouseY, partialTicks);
+
         if (this.skinCache.isMouseOver()) {
             drawHoveringText(Arrays.asList("This button is dangerous and", ChatColor.DARK_RED.toString() + ChatColor.BOLD + "may" + ChatColor.RESET + " be bad for your game"), mouseX, mouseY);
         }
-
-        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override
