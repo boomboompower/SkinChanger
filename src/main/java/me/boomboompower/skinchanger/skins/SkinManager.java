@@ -103,6 +103,7 @@ public class SkinManager {
         }
 
         if (location != null) {
+            Minecraft.getMinecraft().renderEngine.deleteTexture((this.normalPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn).getLocationSkin());
             try {
                 ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, location, "locationSkin", "field_178865_e");
             } catch (Exception ex) {
