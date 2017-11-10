@@ -90,7 +90,7 @@ public class RunGui extends JComponent {
         boolean flag = false;
 
         if (pane.getViewport().getView() == area) {
-            flag = (double) jscrollbar.getValue() + jscrollbar.getSize().getHeight() + (double)(serverGuiFont.getSize() * 4) > (double)jscrollbar.getMaximum();
+            flag = (double) jscrollbar.getValue() + jscrollbar.getSize().getHeight() + (double) (serverGuiFont.getSize() * 4) > (double) jscrollbar.getMaximum();
         }
 
         try {

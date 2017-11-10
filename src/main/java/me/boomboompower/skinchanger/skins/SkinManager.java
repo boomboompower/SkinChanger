@@ -96,14 +96,16 @@ public class SkinManager {
         NetworkPlayerInfo playerInfo;
 
         try {
-            playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(this.normalPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn);
+            playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(getPlayer());
         } catch (Throwable ex) {
             log("Could not get the players info!");
             return;
         }
 
         if (location != null) {
-            Minecraft.getMinecraft().renderEngine.deleteTexture((this.normalPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn).getLocationSkin());
+            if (!location.equals(getPlayer().getLocationSkin())) {
+                Minecraft.getMinecraft().renderEngine.deleteTexture(getPlayer().getLocationSkin());
+            }
             try {
                 ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, location, "locationSkin", "field_178865_e");
             } catch (Exception ex) {
@@ -138,6 +140,10 @@ public class SkinManager {
         } else {
             return null;
         }
+    }
+
+    public AbstractClientPlayer getPlayer() {
+        return (this.normalPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn);
     }
 
     protected void log(String message, Object... replace) {

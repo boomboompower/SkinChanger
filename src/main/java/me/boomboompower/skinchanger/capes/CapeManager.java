@@ -54,7 +54,7 @@ public class CapeManager {
 
     public void addCape() {
         this.usingCape = true;
-        Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(SkinChangerMod.MOD_ID,"cape.png")));
+        Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(SkinChangerMod.MOD_ID, "cape.png")));
     }
 
     public void addCape(ResourceLocation location) {
@@ -81,7 +81,7 @@ public class CapeManager {
         NetworkPlayerInfo info = null;
 
         try {
-            info = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(this.isClientPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn);
+            info = (NetworkPlayerInfo) ReflectUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(getPlayer());
         } catch (Throwable ex) {
             log("Could not find player info, issue whilst invoking");
         }
@@ -92,8 +92,8 @@ public class CapeManager {
         }
 
         try {
-            if ((this.isClientPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn).getLocationCape() != null) {
-                Minecraft.getMinecraft().renderEngine.deleteTexture((this.isClientPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn).getLocationCape());
+            if (getPlayer().getLocationCape() != null && !location.equals(getPlayer().getLocationCape())) {
+                Minecraft.getMinecraft().renderEngine.deleteTexture(getPlayer().getLocationCape());
             }
             ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, info, location, "locationCape", "field_178862_f");
         } catch (Throwable x) {
@@ -167,6 +167,10 @@ public class CapeManager {
         } else {
             return null;
         }
+    }
+
+    private AbstractClientPlayer getPlayer() {
+        return (this.isClientPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn);
     }
 
     protected void log(String message, Object... replace) {
