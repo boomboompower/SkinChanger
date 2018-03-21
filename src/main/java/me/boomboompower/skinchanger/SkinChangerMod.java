@@ -17,12 +17,13 @@
 
 package me.boomboompower.skinchanger;
 
-import me.boomboompower.skinchanger.capes.CapeManager;
+import me.boomboompower.skinchanger.utils.models.CapeManager;
 import me.boomboompower.skinchanger.commands.MainCommand;
 import me.boomboompower.skinchanger.config.ConfigLoader;
 import me.boomboompower.skinchanger.events.MainEvents;
-import me.boomboompower.skinchanger.skins.SkinManager;
+import me.boomboompower.skinchanger.utils.models.SkinManager;
 import me.boomboompower.skinchanger.utils.ChatColor;
+import me.boomboompower.skinchanger.utils.MojangHooker;
 import me.boomboompower.skinchanger.utils.WebsiteUtils;
 
 import net.minecraft.client.Minecraft;
@@ -46,32 +47,36 @@ public class SkinChangerMod {
 
     private SkinManager skinManager;
     private CapeManager capeManager;
+    
+    private MojangHooker mojangHooker;
 
     @Mod.Instance
     private static SkinChangerMod instance;
+    
+    public SkinChangerMod() {
+    
+    }
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         ModMetadata data = event.getModMetadata();
-        data.description = ChatColor.AQUA + "An easy way to change your minecraft skin! (Clientside)";
+        data.description = ChatColor.AQUA + "A clientside mod that allows you to change your skin instantly!";
         data.authorList.add("boomboompower");
 
         this.websiteUtils = new WebsiteUtils("SkinChanger");
         this.loader = new ConfigLoader(event.getSuggestedConfigurationFile());
 
-        this.skinManager = new SkinManager(Minecraft.getMinecraft().thePlayer, true);
+        this.skinManager = new SkinManager(this.mojangHooker = new MojangHooker(), Minecraft.getMinecraft().thePlayer, true);
         this.capeManager = new CapeManager(Minecraft.getMinecraft().thePlayer, true);
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        MinecraftForge.EVENT_BUS.register(new MainEvents());
-        ClientCommandHandler.instance.registerCommand(new MainCommand());
-
-        Minecraft.getMinecraft().addScheduledTask(() -> {
-            this.websiteUtils.begin();
-            this.loader.load();
-        });
+        MinecraftForge.EVENT_BUS.register(new MainEvents(this));
+        ClientCommandHandler.instance.registerCommand(new MainCommand(this));
+    
+        this.websiteUtils.begin();
+        this.loader.load();
     }
 
     public SkinManager getSkinManager() {
@@ -89,7 +94,11 @@ public class SkinChangerMod {
     public WebsiteUtils getWebsiteUtils() {
         return this.websiteUtils;
     }
-
+    
+    public MojangHooker getMojangHooker() {
+        return this.mojangHooker;
+    }
+    
     public static SkinChangerMod getInstance() {
         return instance;
     }

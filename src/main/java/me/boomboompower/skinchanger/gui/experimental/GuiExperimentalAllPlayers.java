@@ -21,7 +21,7 @@ import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
 import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
-import me.boomboompower.skinchanger.skins.SkinManager;
+import me.boomboompower.skinchanger.utils.models.SkinManager;
 import me.boomboompower.skinchanger.utils.ChatColor;
 
 import net.minecraft.client.Minecraft;
@@ -38,10 +38,16 @@ import java.util.Random;
 
 public class GuiExperimentalAllPlayers extends ModernGui {
 
+    private final SkinChangerMod mod;
+    
     private ModernTextBox textField;
 
     private ModernButton resetButton;
 
+    public GuiExperimentalAllPlayers(SkinChangerMod theMod) {
+        this.mod = theMod;
+    }
+    
     @Override
     public void initGui() {
         Keyboard.enableRepeatEvents(true);
@@ -59,10 +65,6 @@ public class GuiExperimentalAllPlayers extends ModernGui {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
 
-        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-            drawCenteredString(this.mc.fontRendererObj, ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
-        }
-
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         if (this.resetButton.isMouseOver()) {
@@ -72,16 +74,10 @@ public class GuiExperimentalAllPlayers extends ModernGui {
 
     @Override
     public void buttonPressed(ModernButton button) {
-        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-            sendChatMessage("SkinChangerMod is currently disabled, check back soon!");
-            this.mc.displayGuiScreen(null);
-            return;
-        }
-
         switch (button.id) {
             case 0:
                 for (EntityOtherPlayerMP player : get()) {
-                    new SkinManager(player, false).update(this.textField.getText());
+                    new SkinManager(this.mod.getMojangHooker(), player, false).update(this.textField.getText());
                 }
                 this.mc.displayGuiScreen(null);
                 break;
@@ -92,7 +88,7 @@ public class GuiExperimentalAllPlayers extends ModernGui {
 
                 for (EntityOtherPlayerMP player : get()) {
                     String name = names.get(new Random().nextInt(names.size()));
-                    new SkinManager(player, false).update(name);
+                    new SkinManager(this.mod.getMojangHooker(), player, false).update(name);
                     names.remove(name);
                 }
                 sendChatMessage("All players skins were switched!");
@@ -100,7 +96,7 @@ public class GuiExperimentalAllPlayers extends ModernGui {
                 break;
             case 2:
                 for (EntityOtherPlayerMP player : get()) {
-                    new SkinManager(player, false).reset();
+                    new SkinManager(this.mod.getMojangHooker(), player, false).reset();
                 }
                 sendChatMessage("All players skins have been reset!");
                 this.mc.displayGuiScreen(null);

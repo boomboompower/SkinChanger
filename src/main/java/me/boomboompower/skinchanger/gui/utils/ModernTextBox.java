@@ -105,6 +105,12 @@ public class ModernTextBox extends Gui {
      * Sets the text of the textbox
      */
     public void setText(String text) {
+        if (text == null) {
+            this.text = "";
+            this.setCursorPositionEnd();
+            return;
+        }
+        
         if (format(text).length() > this.maxStringLength) {
             this.text = format(text).substring(0, this.maxStringLength);
         } else {

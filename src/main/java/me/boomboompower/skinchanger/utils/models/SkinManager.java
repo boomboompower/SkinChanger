@@ -15,9 +15,10 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.skins;
+package me.boomboompower.skinchanger.utils.models;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.utils.MojangHooker;
 import me.boomboompower.skinchanger.utils.ReflectUtils;
 
 import net.minecraft.client.Minecraft;
@@ -46,7 +47,7 @@ public class SkinManager {
 
     private boolean normalPlayer = false;
 
-    public SkinManager(AbstractClientPlayer playerIn, boolean normalPlayer) {
+    public SkinManager(MojangHooker hooker, AbstractClientPlayer playerIn, boolean normalPlayer) {
         this.playerIn = playerIn;
         this.normalPlayer = normalPlayer;
     }
@@ -60,7 +61,6 @@ public class SkinManager {
     }
 
     public void updateSkin() {
-        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) return;
 
         Minecraft.getMinecraft().addScheduledTask(() -> replaceSkin(this.skinName));
     }
@@ -71,11 +71,11 @@ public class SkinManager {
     }
 
     public void reset() {
-        update(this.normalPlayer ? Minecraft.getMinecraft().thePlayer.getName() : this.playerIn.getName());
+        update(getPlayer().getName());
     }
 
     public void updatePlayer(AbstractClientPlayer playerIn) {
-        this.playerIn = normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn;
+        this.playerIn = this.normalPlayer ? Minecraft.getMinecraft().thePlayer : playerIn;
     }
 
     /*
@@ -91,7 +91,7 @@ public class SkinManager {
     }
 
     public void replaceSkin(ResourceLocation location) {
-        if (this.skinName == null || this.skinName.isEmpty() || SkinChangerMod.getInstance().getWebsiteUtils().isDisabled() || (this.normalPlayer ? Minecraft.getMinecraft().thePlayer == null : this.playerIn == null)) return;
+        if (this.skinName == null || this.skinName.isEmpty() || (this.normalPlayer ? Minecraft.getMinecraft().thePlayer == null : this.playerIn == null)) return;
 
         NetworkPlayerInfo playerInfo;
 

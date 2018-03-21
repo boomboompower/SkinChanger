@@ -17,9 +17,11 @@
 
 package me.boomboompower.skinchanger.events;
 
+import java.util.Iterator;
+
 import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.gui.utils.FakePlayerUtils;
-import me.boomboompower.skinchanger.renderer.FakePlayerCape;
+import me.boomboompower.skinchanger.utils.fake.FakePlayer;
+import me.boomboompower.skinchanger.utils.fake.FakePlayerCape;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
@@ -35,7 +37,13 @@ import java.util.List;
 
 public class MainEvents {
 
+    private final SkinChangerMod mod;
+    
     private int currentTick = 100;
+    
+    public MainEvents(SkinChangerMod modIn) {
+        this.mod = modIn;
+    }
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
@@ -44,18 +52,17 @@ public class MainEvents {
                 --this.currentTick;
             } else {
                 this.currentTick = 100;
-
-                if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-                    if (!SkinChangerMod.getInstance().getSkinManager().getSkinName().isEmpty()  && SkinChangerMod.getInstance().isRenderingEnabled()) {
-                        SkinChangerMod.getInstance().getSkinManager().updateSkin();
-                    }
-
-                    if (SkinChangerMod.getInstance().getCapeManager().isUsingCape()) {
-                        if (SkinChangerMod.getInstance().getCapeManager().isExperimental()) {
-                            SkinChangerMod.getInstance().getCapeManager().giveOfCape(SkinChangerMod.getInstance().getCapeManager().getOfCapeName());
-                        } else {
-                            SkinChangerMod.getInstance().getCapeManager().addCape();
-                        }
+    
+                if (!this.mod.getSkinManager().getSkinName().isEmpty() && this.mod.isRenderingEnabled()) {
+                    this.mod.getSkinManager().updateSkin();
+                }
+    
+                if (this.mod.getCapeManager().isUsingCape()) {
+                    if (this.mod.getCapeManager().isExperimental()) {
+                        this.mod.getCapeManager().giveOfCape(
+                            this.mod.getCapeManager().getOfCapeName());
+                    } else {
+                        this.mod.getCapeManager().addCape();
                     }
                 }
             }
@@ -64,14 +71,36 @@ public class MainEvents {
 
     @SubscribeEvent
     public void onRender(RenderPlayerEvent.Pre event) {
-        if (event.entityPlayer instanceof FakePlayerUtils.FakePlayer) {
-
+        if (event.entityPlayer instanceof FakePlayer) {
             List<LayerRenderer<?>> layerRenderers = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, event.renderer, "layerRenderers", "field_177097_h");
-
-            layerRenderers.removeIf(layerRenderer -> layerRenderer instanceof LayerCape);
-            layerRenderers.add(new FakePlayerCape(event.renderer));
-
-            ReflectionHelper.setPrivateValue(RendererLivingEntity.class, event.renderer, layerRenderers, "layerRenderers", "field_177097_h");
+            
+            boolean modified = false;
+            boolean hasFakeCape = false;
+    
+            Iterator<LayerRenderer<?>> iterator = layerRenderers.iterator();
+            
+            // Wipe out all cape rendering instances, whilst testing for ours
+            while (iterator.hasNext()) {
+                LayerRenderer<?> layerRenderer = iterator.next();
+                
+                if (layerRenderer instanceof LayerCape) {
+                    modified = true;
+                    
+                    iterator.remove();
+                } else if (layerRenderer instanceof FakePlayerCape) {
+                    hasFakeCape = true;
+                }
+            }
+            
+            if (!hasFakeCape) {
+                modified = true;
+                
+                layerRenderers.add(new FakePlayerCape(event.renderer));
+            }
+            
+            if (modified) {
+                ReflectionHelper.setPrivateValue(RendererLivingEntity.class, event.renderer, layerRenderers, "layerRenderers", "field_177097_h");
+            }
         }
     }
 }

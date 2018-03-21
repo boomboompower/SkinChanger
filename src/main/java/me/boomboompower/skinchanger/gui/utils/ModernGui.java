@@ -19,7 +19,9 @@ package me.boomboompower.skinchanger.gui.utils;
 
 import com.google.common.collect.Lists;
 
-import me.boomboompower.skinchanger.utils.GlobalUtils;
+import java.awt.Color;
+
+import me.boomboompower.skinchanger.utils.ChatColor;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -30,7 +32,17 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.EntityLivingBase;
 
 import java.util.List;
+import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+/**
+ * ModernGui, a better-looking GuiScreen which has more optimizations and features than the normal GuiScreen
+ *
+ * @author boomboompower
+ * @version 3.1
+ */
 public abstract class ModernGui extends GuiScreen {
 
     protected final Minecraft mc = Minecraft.getMinecraft();
@@ -87,6 +99,8 @@ public abstract class ModernGui extends GuiScreen {
                 }
             }
         }
+        
+        // Renders all textboxes
         for (ModernTextBox text : this.textList) {
             text.mouseClicked(mouseX, mouseY, mouseButton);
         }
@@ -102,7 +116,7 @@ public abstract class ModernGui extends GuiScreen {
 
     @Override
     public void drawDefaultBackground() {
-        Gui.drawRect(0, 0, this.width, this.height, 2013265920 + (2 << 16) + (2 << 8) + 2);
+        Gui.drawRect(0, 0, this.width, this.height, new Color(2, 2, 2, 120).getRGB());
     }
 
     @Override
@@ -133,12 +147,33 @@ public abstract class ModernGui extends GuiScreen {
 
     @Override
     public void sendChatMessage(String msg) {
-        GlobalUtils.sendChatMessage(msg);
+        this.mc.ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY + msg));
     }
-
+    
+    public final void display() {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+    
+    @SubscribeEvent
+    public final void onTick(TickEvent.ClientTickEvent event) {
+        MinecraftForge.EVENT_BUS.unregister(this);
+        Minecraft.getMinecraft().displayGuiScreen(this);
+    }
+    
     public void buttonPressed(ModernButton button) {
     }
-
+    
+    /**
+     * Code used to draw an entity on screen, stolen from the Inventory code
+     *
+     * @param posX the x position of the entity
+     * @param posY the y position of the entity
+     * @param scale the scale the entity should be rendered at
+     * @param mouseX the x location of the mouse
+     * @param mouseY the y location of the mouse
+     * @param entity the entity to render on screen
+     * @param previewCape true if the entities cape is being previewed
+     */
     protected void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase entity, boolean previewCape) {
         GlStateManager.enableColorMaterial();
         GlStateManager.pushMatrix();

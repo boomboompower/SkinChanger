@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.capes;
+package me.boomboompower.skinchanger.utils.models;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.utils.ReflectUtils;
@@ -76,7 +76,7 @@ public class CapeManager {
      */
 
     public void setCape(ResourceLocation location) {
-        if ((SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) || (this.isClientPlayer ? Minecraft.getMinecraft().thePlayer == null : this.playerIn == null)) return;
+        if (this.isClientPlayer ? Minecraft.getMinecraft().thePlayer == null : this.playerIn == null) return;
 
         NetworkPlayerInfo info = null;
 

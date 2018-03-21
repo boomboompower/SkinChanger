@@ -31,9 +31,15 @@ import java.io.File;
 import java.util.Arrays;
 
 public class ExperimentalGui extends ModernGui {
-
+    
+    private final SkinChangerMod mod;
+    
     private ModernButton skinCache;
-
+    
+    public ExperimentalGui(SkinChangerMod mod) {
+        this.mod = mod;
+    }
+    
     @Override
     public void initGui() {
         this.buttonList.add(new ModernButton(0, this.width / 2 - 75, this.height / 2 - 22, 150, 20,
@@ -64,7 +70,7 @@ public class ExperimentalGui extends ModernGui {
                 button.setText("Rending: " + (SkinChangerMod.getInstance().isRenderingEnabled() ? ChatColor.GREEN + "On" : ChatColor.GRAY + "Off"));
                 break;
             case 1:
-                this.mc.displayGuiScreen(new GuiExperimentalAllPlayers());
+                this.mc.displayGuiScreen(new GuiExperimentalAllPlayers(this.mod));
                 break;
             case 2:
                 this.mc.displayGuiScreen(new GuiExperimentalOptifine());

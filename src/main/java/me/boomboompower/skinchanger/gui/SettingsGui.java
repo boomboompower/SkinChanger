@@ -18,52 +18,48 @@
 package me.boomboompower.skinchanger.gui;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.capes.CapeManager;
-import me.boomboompower.skinchanger.gui.utils.FakePlayerUtils;
+import me.boomboompower.skinchanger.utils.fake.FakePlayer;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
 import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
-import me.boomboompower.skinchanger.skins.SkinManager;
 import me.boomboompower.skinchanger.utils.ChatColor;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 
 public class SettingsGui extends ModernGui {
 
-    private FakePlayerUtils.FakePlayer fakePlayer = FakePlayerUtils.getFakePlayer();
-    private SkinManager fakePlayerSkinManager = new SkinManager(fakePlayer, false);
-    private CapeManager fakePlayerCapeManager = new CapeManager(fakePlayer, false);
+    private final SkinChangerMod mod;
+    
+    private static final FakePlayer fakePlayer = new FakePlayer();
 
-    private ModernTextBox textField;
+    private static ModernTextBox textField;
 
     private String message = "";
 
     private boolean previewCape = false;
 
-    public SettingsGui() {
-        this("");
+    public SettingsGui(SkinChangerMod modIn) {
+        this(modIn, "");
     }
 
-    public SettingsGui(String message) {
+    public SettingsGui(SkinChangerMod modIn, String message) {
+        this.mod = modIn;
         this.message = message;
 
-        SkinChangerMod.getInstance().getSkinManager().updatePlayer(null);
-        this.fakePlayerSkinManager.replaceSkin(DefaultPlayerSkin.getDefaultSkinLegacy());
+        this.mod.getSkinManager().updatePlayer(null);
+        
+        fakePlayer.getPlayerInfo().setLocationSkin(DefaultPlayerSkin.getDefaultSkinLegacy());
+        fakePlayer.getPlayerInfo().setLocationCape(null);
     }
 
     @Override
     public void initGui() {
         Keyboard.enableRepeatEvents(true);
 
-        this.textList.add(this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
+        this.textList.add(textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
 
         this.buttonList.add(new ModernButton(1, this.width / 2 - 160, this.height / 2 + 26, 150, 20, "Preview skin"));
         this.buttonList.add(new ModernButton(2, this.width / 2 - 160, this.height / 2 + 50, 150, 20, "Reset skin"));
@@ -75,8 +71,8 @@ public class SettingsGui extends ModernGui {
 
         this.buttonList.add(new ModernButton(7, this.width - 105, 10, 85, 20, "Experimental"));
 
-        this.textField.setMaxStringLength(16);
-        this.textField.setText(this.message);
+        textField.setMaxStringLength(1000);
+        textField.setText(this.message);
     }
 
     @Override
@@ -86,19 +82,16 @@ public class SettingsGui extends ModernGui {
         this.fontRendererObj.drawString("Skin Settings", this.width / 2 - 118, this.height / 2 + 8, Color.WHITE.getRGB(), false);
         this.fontRendererObj.drawString("Cape Settings", this.width / 2 + 50, this.height / 2 + 8, Color.WHITE.getRGB(), false);
 
-        drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, this.fakePlayer, this.previewCape);
+        drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, fakePlayer, this.previewCape);
 
         if (this.previewCape) {
             drawCenteredString(this.mc.fontRendererObj,"Preview Cape", this.width / 2, this.height / 2 - 40, Color.WHITE.getRGB());
         } else {
             drawCenteredString(this.mc.fontRendererObj,"Preview Skin", this.width / 2, this.height / 2 - 40, Color.WHITE.getRGB());
         }
-        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-            drawCenteredString(this.mc.fontRendererObj,ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
-        } else {
-            if (this.previewCape) {
-                drawCenteredString(this.mc.fontRendererObj,ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
-            }
+        
+        if (this.previewCape) {
+            drawCenteredString(this.mc.fontRendererObj,ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
@@ -106,29 +99,40 @@ public class SettingsGui extends ModernGui {
 
     @Override
     public void buttonPressed(ModernButton button) {
-        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-            sendChatMessage("SkinChangerMod is currently disabled, check back soon!");
-            this.mc.displayGuiScreen(null);
-            return;
+        if (!textField.getText().isEmpty()) {
+            this.mod.getWebsiteUtils().runAsync(() -> {
+                if (button.id == 1) {
+                    String id = this.mod.getMojangHooker().getIdFromUsername(textField.getText());
+        
+                    textField.setText(this.mod.getMojangHooker().hasSlimSkin(id) + "");
+                } else if (button.id == 2) {
+                    String id = this.mod.getMojangHooker().getIdFromUsername(textField.getText());
+        
+                    textField.setText(this.mod.getMojangHooker().getIdFromUsername(id));
+                } else if (button.id == 3) {
+                    fakePlayer.getPlayerInfo().setLocationCape(this.mod.getMojangHooker().getSkinFromId(this.mod.getMojangHooker().getIdFromUsername("boomboompower")));
+                }
+            });
         }
+        /*
         switch (button.id) {
             case 1:
                 this.previewCape = false;
                 this.fakePlayerCapeManager.removeCape();
-                if (!this.textField.getText().isEmpty() && this.textField.getText().length() >= 2) {
-                    this.fakePlayerSkinManager.update(this.textField.getText());
+                if (!textField.getText().isEmpty() && textField.getText().length() >= 2) {
+                    this.fakePlayerSkinManager.update(textField.getText());
                 }
                 break;
             case 2:
-                SkinChangerMod.getInstance().getSkinManager().reset();
+                this.mod.getSkinManager().reset();
                 sendChatMessage("Your skin has been reset!");
                 this.mc.displayGuiScreen(null);
                 break;
             case 3:
-                if (!this.textField.getText().isEmpty() && this.textField.getText().length() >= 2) {
-                    SkinChangerMod.getInstance().getCapeManager().setExperimental(false);
-                    SkinChangerMod.getInstance().getSkinManager().update(this.textField.getText());
-                    sendChatMessage(String.format("Your skin has been updated to %s!", ChatColor.GOLD + this.textField.getText() + ChatColor.GRAY));
+                if (!textField.getText().isEmpty() && textField.getText().length() >= 2) {
+                    this.mod.getCapeManager().setExperimental(false);
+                    this.mod.getSkinManager().update(textField.getText());
+                    sendChatMessage(String.format("Your skin has been updated to %s!", ChatColor.GOLD + textField.getText() + ChatColor.GRAY));
                 } else {
                     sendChatMessage("Not enough characters provided");
                     sendChatMessage("Use a name between 2 and 16 characters!");
@@ -140,40 +144,30 @@ public class SettingsGui extends ModernGui {
                 this.fakePlayerCapeManager.addCape();
                 break;
             case 5:
-                SkinChangerMod.getInstance().getCapeManager().removeCape();
+                this.mod.getCapeManager().removeCape();
                 sendChatMessage("Your cape has been removed!");
                 this.mc.displayGuiScreen(null);
                 break;
             case 6:
-                SkinChangerMod.getInstance().getCapeManager().setExperimental(false);
-                SkinChangerMod.getInstance().getCapeManager().addCape();
+                this.mod.getCapeManager().setExperimental(false);
+                this.mod.getCapeManager().addCape();
                 sendChatMessage("You now have a cape!");
                 this.mc.displayGuiScreen(null);
                 break;
             case 7:
-                if (SkinChangerMod.getInstance().getWebsiteUtils().isExperimentsEnabled()) {
+                if (this.mod.getWebsiteUtils().isExperimentsEnabled()) {
                     this.mc.displayGuiScreen(new ExperimentalGui());
                 } else {
                     sendChatMessage(ChatColor.RED + "Experimental features are currently disabled!");
                     this.mc.displayGuiScreen(null);
                 }
                 break;
-        }
+        }*/
     }
 
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
-        SkinChangerMod.getInstance().getLoader().save();
-    }
-
-    public void display() {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent event) {
-        MinecraftForge.EVENT_BUS.unregister(this);
-        Minecraft.getMinecraft().displayGuiScreen(this);
+        this.mod.getLoader().save();
     }
 }

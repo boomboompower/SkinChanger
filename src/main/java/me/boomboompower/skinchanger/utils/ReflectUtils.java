@@ -22,58 +22,44 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A nice reflection class, using a mix of forges ReflectionHandler and some
+ * of java's internal reflection implementations whilst remaining sun-free!
+ */
 public class ReflectUtils {
-
-    private static List<String> ab = new ArrayList<>();
-
+    
+    private static List<String> logs = new ArrayList<>();
+    
     public static <T> MethodHandle findMethod(Class<T> clazz, String[] methodNames, Class<?>... methodTypes) {
         final Method method = ReflectionHelper.findMethod(clazz, null, methodNames, methodTypes);
-
+        
         try {
             return MethodHandles.lookup().unreflect(method);
         } catch (Exception e) {
             throw new ReflectionHelper.UnableToFindMethodException(methodNames, e);
         }
     }
-
-    public static MethodHandle findFieldGetter(Class<?> clazz, String... fieldNames) {
-        final Field field = ReflectionHelper.findField(clazz, fieldNames);
-
-        try {
-            return MethodHandles.lookup().unreflectGetter(field);
-        } catch (Exception e) {
-            throw new ReflectionHelper.UnableToAccessFieldException(fieldNames, e);
-        }
-    }
-
-    public static MethodHandle findFieldSetter(Class<?> clazz, String... fieldNames) {
-        final Field field = ReflectionHelper.findField(clazz, fieldNames);
-
-        try {
-            return MethodHandles.lookup().unreflectSetter(field);
-        } catch (IllegalAccessException e) {
-            throw new ReflectionHelper.UnableToAccessFieldException(fieldNames, e);
-        }
-    }
-
+    
     public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, E value, String... fieldNames) {
         try {
-            ReflectionHelper.setPrivateValue(classToAccess, instance, value, ObfuscationReflectionHelper.remapFieldNames(classToAccess.getName(), fieldNames));
+            ReflectionHelper.setPrivateValue(classToAccess, instance, value,
+                ObfuscationReflectionHelper.remapFieldNames(classToAccess.getName(), fieldNames));
         } catch (Throwable e) {
-            a("No methods found for arguments: " + Arrays.toString(fieldNames) + " !");
+            sendLog("No methods found for arguments: %s !", Arrays.toString(fieldNames));
         }
     }
-
-    private static void a(String a, Object... b) {
-        if (ab.contains(a)) return;
-
-        System.out.println(String.format(a, b));
-        ab.add(a);
+    
+    private static void sendLog(String message, Object... formatting) {
+        if (logs.contains(message)) {
+            return;
+        }
+        
+        System.out.println(String.format(message, formatting));
+        logs.add(message);
     }
 }

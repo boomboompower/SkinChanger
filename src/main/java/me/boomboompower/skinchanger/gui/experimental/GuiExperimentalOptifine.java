@@ -18,8 +18,8 @@
 package me.boomboompower.skinchanger.gui.experimental;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.capes.CapeManager;
-import me.boomboompower.skinchanger.gui.utils.FakePlayerUtils;
+import me.boomboompower.skinchanger.utils.models.CapeManager;
+import me.boomboompower.skinchanger.utils.fake.FakePlayer;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
 import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
@@ -31,7 +31,7 @@ import java.awt.*;
 
 public class GuiExperimentalOptifine extends ModernGui {
 
-    private FakePlayerUtils.FakePlayer fakePlayer = FakePlayerUtils.getFakePlayer();
+    private FakePlayer fakePlayer = new FakePlayer();
     private CapeManager fakePlayerCapeManager = new CapeManager(this.fakePlayer, false);
 
     private ModernTextBox textField;
@@ -58,24 +58,14 @@ public class GuiExperimentalOptifine extends ModernGui {
         drawCenteredString(this.mc.fontRendererObj,"Names are case sensitive! Ensure you are using the correct name", this.width / 2, this.height / 2 + 8, Color.WHITE.getRGB());
 
         drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, this.fakePlayer, true);
-
-        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-            drawCenteredString(this.mc.fontRendererObj, ChatColor.RED + "The mod is currently disabled and will not work!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
-        } else {
-            drawCenteredString(this.mc.fontRendererObj,ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
-        }
+    
+        drawCenteredString(this.mc.fontRendererObj,ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override
     public void buttonPressed(ModernButton button) {
-        if (SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-            sendChatMessage("SkinChangerMod is currently disabled, check back soon!");
-            this.mc.displayGuiScreen(null);
-            return;
-        }
-
         switch (button.id) {
             case 0:
                 if (!this.textField.getText().isEmpty() && this.textField.getText().length() >= 2) {

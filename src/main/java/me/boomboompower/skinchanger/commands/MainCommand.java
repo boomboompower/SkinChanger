@@ -20,18 +20,21 @@ package me.boomboompower.skinchanger.commands;
 import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.gui.SettingsGui;
 import me.boomboompower.skinchanger.utils.ChatColor;
-import me.boomboompower.skinchanger.utils.GlobalUtils;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.BlockPos;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MainCommand implements ICommand {
+public class MainCommand extends CommandBase {
 
+    private SkinChangerMod mod;
+    
+    public MainCommand(SkinChangerMod modIn) {
+        this.mod = modIn;
+    }
+    
     @Override
     public String getCommandName() {
         return "skinchanger";
@@ -44,26 +47,15 @@ public class MainCommand implements ICommand {
 
     @Override
     public List<String> getCommandAliases() {
-        return Arrays.asList("changeskin", "changecape", "skin", "cape");
+        return Arrays.asList("changeskin", "changecape");
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-        if (!SkinChangerMod.getInstance().getWebsiteUtils().isDisabled()) {
-            if (args.length == 0) {
-                new SettingsGui().display();
-            } else {
-                if (args[0].equalsIgnoreCase("/toggle")) {
-                    SkinChangerMod.getInstance().getWebsiteUtils().disableMod();
-                    GlobalUtils.sendChatMessage("Master toggle switch activated");
-                    GlobalUtils.sendChatMessage(String.format("Mod is now forced %s.", ChatColor.RED + "off" + ChatColor.GRAY));
-                    return;
-                }
-                new SettingsGui(args[0]).display();
-            }
+    public void processCommand(ICommandSender sender, String[] args) {
+        if (args.length == 0) {
+            new SettingsGui(this.mod).display();
         } else {
-            GlobalUtils.sendChatMessage("SkinChager is currently disabled.", false);
-            GlobalUtils.sendChatMessage("Message boomboompower on the forums for more info!", false);
+            new SettingsGui(this.mod, args[0]).display();
         }
     }
 
@@ -71,19 +63,10 @@ public class MainCommand implements ICommand {
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
         return true;
     }
-
-    @Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
-        return null;
-    }
+    
 
     @Override
     public boolean isUsernameIndex(String[] args, int index) {
         return index == 0;
-    }
-
-    @Override
-    public int compareTo(ICommand o) {
-        return 0;
     }
 }
