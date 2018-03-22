@@ -46,41 +46,57 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 import org.apache.commons.io.IOUtils;
 
+/**
+ * WebsiteUtils, an UpdateChecker created by boomboompower, using json loading
+ *
+ * @author boomboompower
+ * @version 3.1
+ */
 public class WebsiteUtils {
 
-    private Minecraft mc = Minecraft.getMinecraft();
-    private AtomicInteger threadNumber = new AtomicInteger(0);
-
-    private ExecutorService POOL = Executors.newFixedThreadPool(8, r -> new Thread(r, String.format("WebsiteUtils Thread %s", threadNumber.incrementAndGet())));
-    private ScheduledExecutorService RUNNABLE_POOL = Executors.newScheduledThreadPool(2, r -> new Thread(r, "WebsiteUtils Thread " + threadNumber.incrementAndGet()));
-
-    private boolean isRunning = false;
+    private Minecraft mc = Minecraft.getMinecraft(); // The Minecraft instance
+    private AtomicInteger threadNumber = new AtomicInteger(0); // The current ThreadCount
     
-    private boolean isDisabled = false;
+    private ExecutorService POOL = Executors.newFixedThreadPool(8, r -> new Thread(r, String
+        .format("WebsiteUtils Thread %s",
+            this.threadNumber.incrementAndGet()))); // Async task scheduler
     
-    private LinkedList<String> updateMessage = new LinkedList<>();
-    private boolean hasSeenHigherMessage = false;
-    private boolean showUpdateSymbol = true;
-    private boolean showUpdateHeader = true;
-    private boolean higherVersion = false;
-    private boolean needsUpdate = false;
-    private String updateVersion = "0";
+    private ScheduledExecutorService RUNNABLE_POOL = Executors.newScheduledThreadPool(2,
+        r -> new Thread(r, "WebsiteUtils Thread " + this.threadNumber
+            .incrementAndGet())); // Repeating task scheduler
+    
+    private boolean isRunning = false; // Is the checker running?
+    private boolean isDisabled = false; // Is the mod disabled
+    
+    private LinkedList<String> updateMessage = new LinkedList<>(); // A list of messages to send to the player
+    private boolean hasSeenHigherMessage = false; // true if the user should be alerted for having a newer release
+    private boolean showUpdateSymbol = true; // true if a arrow should be shown before every update message
+    private boolean showUpdateHeader = true; // true if the updater should show "this mod is out of date"
+    private boolean higherVersion = false; // Is this mod newer than the latest released version?
+    private boolean needsUpdate = false; // Is this mod an older version than the latest released version?
+    private String updateVersion = "0"; // The newest version availible to download
 
-    private ScheduledFuture<?> modVersionChecker;
+    private ScheduledFuture<?> modVersionChecker; // The repeating runnable for version checking
 
-    private final String modName;
-    private final String sessionId;
-
+    private final String modName; // The id of this mod
+    private final String sessionId; // The uuid of the player
+    
+    // The base link of the site, this can be changed whenever required
     private final String BASE_LINK = "https://gist.githubusercontent.com/boomboompower/a0587ab2ce8e7bc4835fdf43f46f06eb/raw";
 
     public WebsiteUtils(String modName) {
         MinecraftForge.EVENT_BUS.register(this);
 
         this.modName = modName;
-//        this.sessionId = Minecraft.getMinecraft().getSession().getProfile().getId().toString();
-        this.sessionId = "boomboompowerisbad";
+        this.sessionId = Minecraft.getMinecraft().getSession().getProfile().getId().toString();
     }
-
+    
+    /**
+     * Begins the WebsiteUtils updater service, starts all repeating threads,
+     * this can only be used if the service is not already running.
+     *
+     * @throws IllegalStateException if the service is already running
+     */
     public void begin() {
         if (!this.isRunning) {
             this.isRunning = true;
@@ -173,51 +189,110 @@ public class WebsiteUtils {
             throw new IllegalStateException("WebsiteUtils is already running!");
         }
     }
-
+    
+    /**
+     * Stops the WebsiteUtils service. Cancels all running tasks and erases the variables
+     *
+     * @throws IllegalStateException if the service is not running
+     */
     public void stop() {
         if (this.isRunning) {
             this.isRunning = false;
             
             this.modVersionChecker.cancel(true);
+            this.modVersionChecker = null;
         } else {
             throw new IllegalStateException("WebsiteUtils is not running!");
         }
     }
     
+    /**
+     * Disables the mod
+     */
     public void disableMod() {
         this.isDisabled = true;
     }
     
+    /**
+     * Getter for the isDisabled field
+     *
+     * @return true if the mod should be disabled
+     */
     public boolean isDisabled() {
         return this.isDisabled;
     }
     
+    /**
+     * Getter for the isRunning field
+     *
+     * @return true if this service is running
+     */
     public boolean isRunning() {
         return this.isRunning;
     }
-
+    
+    /**
+     * A getter for the higher version field, which will be
+     * true if this mod is newer than the latest released version
+     *
+     * @return true if the version running is newer than the latest release
+     */
     public boolean isRunningNewerVersion() {
         return this.higherVersion;
     }
-
+    
+    /**
+     * Checks to see if this mod needs an update
+     *
+     * @return true if this mod version is older than the newest one
+     */
     public boolean needsUpdate() {
         return this.needsUpdate;
     }
-
+    
+    /**
+     * Getter for the latest availible version of the mod
+     *
+     * @return the latest version or -1 if not availible
+     */
     public String getUpdateVersion() {
         return this.updateVersion;
     }
     
+    /**
+     * Runs a task async to the main thread
+     *
+     * @param runnable the runnable to run
+     */
     public void runAsync(Runnable runnable) {
         this.POOL.execute(runnable);
     }
     
+    /**
+     * Schedules a repeating task that can be cancelled at any time
+     *
+     * @param r the runnable to run
+     * @param initialDelay the delay for the first time ran
+     * @param delay all the other delays
+     * @param unit the time duration type for the task to be executed, eg
+     * a delay of 50 with {@link TimeUnit#MILLISECONDS} will run the task every
+     * 50 milliseconds
+     *
+     * @return the scheduled task
+     */
     public ScheduledFuture<?> schedule(Runnable r, long initialDelay, long delay, TimeUnit unit) {
         return this.RUNNABLE_POOL.scheduleAtFixedRate(r, initialDelay, delay, unit);
     }
 
     // Other things
-
+    
+    /**
+     * Grabs JSON off a site, will return its own JSON if an error occurs,
+     * the format for an error is usually <i>{"success":false,"cause":"exception"}</i>
+     *
+     * @param url the url to grab the json off
+     * @return the json recieved
+     */
     public String rawWithAgent(String url) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -229,13 +304,27 @@ public class WebsiteUtils {
             connection.setDoOutput(true);
             return IOUtils.toString(connection.getInputStream(), "UTF-8");
         } catch (Exception e) {
+            
+            // Generic handling for bad errors, captures the error type and message (if specified)
             JsonObject object = new JsonObject();
             object.addProperty("success", false);
             object.addProperty("cause", "Exception");
+            object.addProperty("exception_type", e.getClass().getName());
+            if (e.getMessage() != null) {
+                object.addProperty("exception_message", e.getMessage());
+            }
             return object.toString();
         }
     }
-
+    
+    /**
+     * Strips all character that are not digits in the version input,
+     * this is a quick solution to update checking. Will probably not be
+     * used in newer versions
+     *
+     * @param input the verision input
+     * @return an integer for the string, or 0 if empty
+     */
     private int formatVersion(String input) {
         StringBuilder builder = new StringBuilder();
         for (char c : input.toCharArray()) {
@@ -311,6 +400,12 @@ public class WebsiteUtils {
         }
     }
     
+    /**
+     * Sends a message to the player, this supports color codes
+     *
+     * @param message the message to send
+     * @param replacements the arguments used to format the string
+     */
     private void sendMessage(String message, Object... replacements) {
         if (Minecraft.getMinecraft().thePlayer == null) return; // Safety first! :)
         
@@ -320,6 +415,9 @@ public class WebsiteUtils {
         Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(ChatColor.translateAlternateColorCodes('&', message)));
     }
     
+    /**
+     * Sends a clickable link to the user containing all updating information
+     */
     private void sendLinkText() {
         if (Minecraft.getMinecraft().thePlayer == null) return; // Safety first! :)
         
