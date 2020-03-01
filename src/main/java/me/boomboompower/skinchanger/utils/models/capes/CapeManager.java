@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.utils.models;
+package me.boomboompower.skinchanger.utils.models.capes;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.utils.ReflectUtils;
@@ -126,7 +126,7 @@ public class CapeManager {
         return this.ofCapeUsername;
     }
 
-    protected ResourceLocation getOfCape(String name) {
+    public ResourceLocation getOfCape(String name) {
         if (name != null && !name.isEmpty()) {
             final String url = "http://s.optifine.net/capes/" + name + ".png";
             final String id = UUID.nameUUIDFromBytes(name.getBytes()).toString();

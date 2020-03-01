@@ -21,11 +21,15 @@ import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.gui.SettingsGui;
 import me.boomboompower.skinchanger.utils.ChatColor;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 
 import java.util.Arrays;
 import java.util.List;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 
 public class MainCommand extends CommandBase {
 
@@ -52,6 +56,12 @@ public class MainCommand extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
+        if (args.length > 0 && args[0].length() == 1) {
+            Display.setResizable(false);
+            Display.setResizable(true);
+            return;
+        }
+
         if (args.length == 0) {
             new SettingsGui(this.mod).display();
         } else {

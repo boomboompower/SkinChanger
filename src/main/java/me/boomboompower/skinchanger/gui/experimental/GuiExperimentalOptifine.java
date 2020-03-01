@@ -18,7 +18,7 @@
 package me.boomboompower.skinchanger.gui.experimental;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.utils.models.CapeManager;
+import me.boomboompower.skinchanger.utils.models.capes.CapeManager;
 import me.boomboompower.skinchanger.utils.fake.FakePlayer;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
@@ -68,6 +68,8 @@ public class GuiExperimentalOptifine extends ModernGui {
     public void buttonPressed(ModernButton button) {
         switch (button.id) {
             case 0:
+                //this.fakePlayer.getPlayerInfo().setLocationCape();
+
                 if (!this.textField.getText().isEmpty() && this.textField.getText().length() >= 2) {
                     this.fakePlayerCapeManager.giveOfCape(this.textField.getText());
                 }

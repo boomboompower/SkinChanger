@@ -1,0 +1,9 @@
+{
+  "package": "me.boomboompower.skinchanger.mixins",
+  "refmap": "mixins.skinchanger.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "verbose": true,
+  "mixins": [
+    "tweaks.MixinAbstractClientPlayer"
+  ]
+}

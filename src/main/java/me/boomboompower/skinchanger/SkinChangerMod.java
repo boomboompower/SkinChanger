@@ -17,11 +17,11 @@
 
 package me.boomboompower.skinchanger;
 
-import me.boomboompower.skinchanger.utils.models.CapeManager;
+import me.boomboompower.skinchanger.utils.models.capes.CapeManager;
 import me.boomboompower.skinchanger.commands.MainCommand;
 import me.boomboompower.skinchanger.config.ConfigLoader;
 import me.boomboompower.skinchanger.events.MainEvents;
-import me.boomboompower.skinchanger.utils.models.SkinManager;
+import me.boomboompower.skinchanger.utils.models.skins.SkinManager;
 import me.boomboompower.skinchanger.utils.ChatColor;
 import me.boomboompower.skinchanger.utils.MojangHooker;
 import me.boomboompower.skinchanger.utils.WebsiteUtils;

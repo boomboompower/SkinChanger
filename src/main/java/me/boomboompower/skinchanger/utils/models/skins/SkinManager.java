@@ -15,9 +15,10 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.utils.models;
+package me.boomboompower.skinchanger.utils.models.skins;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.mixins.Tweaker;
 import me.boomboompower.skinchanger.utils.MojangHooker;
 import me.boomboompower.skinchanger.utils.ReflectUtils;
 
@@ -45,7 +46,11 @@ public class SkinManager {
 
     private String skinName = "";
 
+    private PlayerSkinType skinType = PlayerSkinType.STEVE;
+
     private boolean normalPlayer = false;
+
+    private boolean shouldUse = false;
 
     public SkinManager(MojangHooker hooker, AbstractClientPlayer playerIn, boolean normalPlayer) {
         this.playerIn = playerIn;
@@ -66,11 +71,15 @@ public class SkinManager {
     }
 
     public void update(String skinName) {
+        this.shouldUse = true;
+
         setSkinName(skinName);
         updateSkin();
     }
 
     public void reset() {
+        this.shouldUse = false;
+
         update(getPlayer().getName());
     }
 
@@ -91,6 +100,10 @@ public class SkinManager {
     }
 
     public void replaceSkin(ResourceLocation location) {
+        if (Tweaker.MIXINS_ENABLED) {
+            return;
+        }
+
         if (this.skinName == null || this.skinName.isEmpty() || (this.normalPlayer ? Minecraft.getMinecraft().thePlayer == null : this.playerIn == null)) return;
 
         NetworkPlayerInfo playerInfo;
@@ -144,6 +157,22 @@ public class SkinManager {
 
     public AbstractClientPlayer getPlayer() {
         return (this.normalPlayer ? Minecraft.getMinecraft().thePlayer : this.playerIn);
+    }
+
+    public PlayerSkinType getSkinType() {
+        return this.skinType;
+    }
+
+    public void setSkinType(PlayerSkinType type) {
+        this.skinType = type;
+    }
+
+    public boolean getShouldUse() {
+        return this.shouldUse;
+    }
+
+    public void setShouldUse(boolean shouldUse) {
+        this.shouldUse = shouldUse;
     }
 
     protected void log(String message, Object... replace) {

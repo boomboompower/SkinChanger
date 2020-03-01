@@ -20,6 +20,7 @@ package me.boomboompower.skinchanger.events;
 import java.util.Iterator;
 
 import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.mixins.Tweaker;
 import me.boomboompower.skinchanger.utils.fake.FakePlayer;
 import me.boomboompower.skinchanger.utils.fake.FakePlayerCape;
 
@@ -47,6 +48,10 @@ public class MainEvents {
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
+        if (Tweaker.MIXINS_ENABLED) {
+            return;
+        }
+
         if (Minecraft.getMinecraft().currentScreen == null) {
             if (this.currentTick > 0) {
                 --this.currentTick;
@@ -71,6 +76,10 @@ public class MainEvents {
 
     @SubscribeEvent
     public void onRender(RenderPlayerEvent.Pre event) {
+        if (Tweaker.MIXINS_ENABLED) {
+            return;
+        }
+
         if (event.entityPlayer instanceof FakePlayer) {
             List<LayerRenderer<?>> layerRenderers = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, event.renderer, "layerRenderers", "field_177097_h");
             

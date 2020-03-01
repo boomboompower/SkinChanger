@@ -21,22 +21,25 @@ import me.boomboompower.skinchanger.SkinChangerMod;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
 import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
-import me.boomboompower.skinchanger.utils.models.SkinManager;
+import me.boomboompower.skinchanger.mixins.Tweaker;
+import me.boomboompower.skinchanger.utils.models.skins.SkinManager;
 import me.boomboompower.skinchanger.utils.ChatColor;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
 
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class GuiExperimentalAllPlayers extends ModernGui {
+
+    public static ResourceLocation forcedAllSkins;
 
     private final SkinChangerMod mod;
     
@@ -55,7 +58,6 @@ public class GuiExperimentalAllPlayers extends ModernGui {
         this.textList.add(this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
 
         this.buttonList.add(new ModernButton(0, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Give skin to everyone"));
-        this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 50, 150, 20, "Switch skins around"));
         this.buttonList.add(this.resetButton = new ModernButton(2, this.width / 2 - 75, this.height / 2 + 74, 150, 20, "Reset all skins"));
 
         this.resetButton.setBackEnabled(new Color(255, 0, 0, 75));
@@ -76,28 +78,26 @@ public class GuiExperimentalAllPlayers extends ModernGui {
     public void buttonPressed(ModernButton button) {
         switch (button.id) {
             case 0:
-                for (EntityOtherPlayerMP player : get()) {
-                    new SkinManager(this.mod.getMojangHooker(), player, false).update(this.textField.getText());
+                if (Tweaker.MIXINS_ENABLED) {
+                    forcedAllSkins = this.mod.getSkinManager().getSkin(this.textField.getText());
+                } else {
+                    for (EntityOtherPlayerMP player : get()) {
+                        new SkinManager(this.mod.getMojangHooker(), player, false).update(this.textField.getText());
+                    }
                 }
+
                 this.mc.displayGuiScreen(null);
                 break;
-            case 1:
-                List<String> names = new ArrayList<>();
 
-                get().forEach(p -> names.add(p.getName()));
-
-                for (EntityOtherPlayerMP player : get()) {
-                    String name = names.get(new Random().nextInt(names.size()));
-                    new SkinManager(this.mod.getMojangHooker(), player, false).update(name);
-                    names.remove(name);
-                }
-                sendChatMessage("All players skins were switched!");
-                this.mc.displayGuiScreen(null);
-                break;
             case 2:
-                for (EntityOtherPlayerMP player : get()) {
-                    new SkinManager(this.mod.getMojangHooker(), player, false).reset();
+                if (Tweaker.MIXINS_ENABLED) {
+                    forcedAllSkins = null;
+                } else {
+                    for (EntityOtherPlayerMP player : get()) {
+                        new SkinManager(this.mod.getMojangHooker(), player, false).reset();
+                    }
                 }
+
                 sendChatMessage("All players skins have been reset!");
                 this.mc.displayGuiScreen(null);
                 break;

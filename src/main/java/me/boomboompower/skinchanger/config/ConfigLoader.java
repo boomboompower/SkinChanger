@@ -25,6 +25,7 @@ import me.boomboompower.skinchanger.SkinChangerMod;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import me.boomboompower.skinchanger.utils.models.skins.PlayerSkinType;
 
 public class ConfigLoader {
 
@@ -59,6 +60,13 @@ public class ConfigLoader {
             if (this.configJson.has("experimental") && this.configJson.get("experimental").getAsBoolean() && this.configJson.has("ofCapeName")) {
                 SkinChangerMod.getInstance().getCapeManager().giveOfCape(this.configJson.get("ofCapeName").getAsString());
             }
+
+            if (this.configJson.has("mixins")) {
+                JsonObject mixinSettings = this.configJson.getAsJsonObject("mixins");
+
+                SkinChangerMod.getInstance().getSkinManager().setSkinType(mixinSettings.has("skinType") ? PlayerSkinType
+                    .getTypeFromString(mixinSettings.get("skinType").getAsString()) : PlayerSkinType.STEVE);
+            }
         } else {
             log("Config doesn\'t exist. Saving.", this.configFile.getName());
             save();
@@ -78,6 +86,11 @@ public class ConfigLoader {
             if (SkinChangerMod.getInstance().getCapeManager().isExperimental()) {
                 this.configJson.addProperty("ofCapeName", SkinChangerMod.getInstance().getCapeManager().getOfCapeName());
             }
+
+            JsonObject mixinSettings = new JsonObject();
+            mixinSettings.addProperty("skinType", SkinChangerMod.getInstance().getSkinManager().getSkinType().getDisplayName());
+
+            this.configJson.add("mixins", mixinSettings);
 
             bufferedWriter.write(this.configJson.toString());
             bufferedWriter.close();
