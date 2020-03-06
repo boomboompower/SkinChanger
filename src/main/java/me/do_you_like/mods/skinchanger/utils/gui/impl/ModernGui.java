@@ -18,26 +18,23 @@
 package me.do_you_like.mods.skinchanger.utils.gui.impl;
 
 import com.google.common.collect.Lists;
+
 import java.awt.Color;
-import java.io.IOException;
 import java.util.List;
-import me.boomboompower.skinchanger.utils.ChatColor;
+
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.UISkeleton;
 import me.do_you_like.mods.skinchanger.utils.gui.lock.UILock;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiLabel;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;

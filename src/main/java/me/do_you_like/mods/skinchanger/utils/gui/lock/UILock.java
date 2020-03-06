@@ -20,7 +20,7 @@ package me.do_you_like.mods.skinchanger.utils.gui.lock;
 import java.awt.Color;
 import java.io.IOException;
 
-import me.boomboompower.skinchanger.utils.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

@@ -20,11 +20,11 @@ package me.boomboompower.skinchanger.gui.experimental;
 import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.utils.models.capes.CapeManager;
 import me.boomboompower.skinchanger.utils.fake.FakePlayer;
-import me.boomboompower.skinchanger.gui.utils.ModernButton;
-import me.boomboompower.skinchanger.gui.utils.ModernGui;
-import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
-import me.boomboompower.skinchanger.utils.ChatColor;
 
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -41,7 +41,7 @@ public class GuiExperimentalOptifine extends ModernGui {
     }
 
     @Override
-    public void initGui() {
+    public void onGuiOpen() {
         Keyboard.enableRepeatEvents(true);
 
         this.textList.add(this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
@@ -52,21 +52,21 @@ public class GuiExperimentalOptifine extends ModernGui {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void onRender(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
 
         drawCenteredString(this.mc.fontRendererObj,"Names are case sensitive! Ensure you are using the correct name", this.width / 2, this.height / 2 + 8, Color.WHITE.getRGB());
 
         drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, this.fakePlayer, true);
     
-        drawCenteredString(this.mc.fontRendererObj,ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
+        drawCenteredString(this.mc.fontRendererObj, ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override
     public void buttonPressed(ModernButton button) {
-        switch (button.id) {
+        switch (button.getId()) {
             case 0:
                 //this.fakePlayer.getPlayerInfo().setLocationCape();
 
@@ -91,7 +91,7 @@ public class GuiExperimentalOptifine extends ModernGui {
     }
 
     @Override
-    public void onGuiClosed() {
+    public void onGuiClose() {
         Keyboard.enableRepeatEvents(false);
         SkinChangerModOld.getInstance().getLoader().save();
     }

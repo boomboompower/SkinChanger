@@ -19,12 +19,12 @@ package me.boomboompower.skinchanger.gui;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.utils.fake.FakePlayer;
-import me.boomboompower.skinchanger.gui.utils.ModernButton;
-import me.boomboompower.skinchanger.gui.utils.ModernGui;
-import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
-import me.boomboompower.skinchanger.utils.ChatColor;
 import me.boomboompower.skinchanger.utils.models.skins.PlayerSkinType;
 
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
@@ -59,7 +59,7 @@ public class SettingsGui extends ModernGui {
     }
 
     @Override
-    public void initGui() {
+    public void onGuiOpen() {
         Keyboard.enableRepeatEvents(true);
 
         this.textList.add(textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
@@ -80,7 +80,7 @@ public class SettingsGui extends ModernGui {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void onRender(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
 
         this.fontRendererObj.drawString("Skin Settings", this.width / 2 - 118, this.height / 2 + 8, Color.WHITE.getRGB(), false);
@@ -95,7 +95,7 @@ public class SettingsGui extends ModernGui {
         }
         
         if (this.previewCape) {
-            drawCenteredString(this.mc.fontRendererObj,ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
+            drawCenteredString(this.mc.fontRendererObj, ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
@@ -103,34 +103,7 @@ public class SettingsGui extends ModernGui {
 
     @Override
     public void buttonPressed(ModernButton button) {
-        if (button.id == 8) {
-            System.out.println(String.format("Current index: %s / %s", this.mod.getSkinManager().getSkinType().ordinal(), PlayerSkinType.values().length));
-
-            this.mod.getSkinManager().setSkinType(this.mod.getSkinManager().getSkinType().getNextSkin());
-
-            PlayerSkinType type = this.mod.getSkinManager().getSkinType();
-            button.setText("Skin Type: " + type.getDisplayName());
-
-            return;
-        }
-
-//        if (!textField.getText().isEmpty()) {
-//            this.mod.getWebsiteUtils().runAsync(() -> {
-//                if (button.id == 1) {
-//                    String id = this.mod.getMojangHooker().getIdFromUsername(textField.getText());
-//
-//                    textField.setText(this.mod.getMojangHooker().hasSlimSkin(id) + "");
-//                } else if (button.id == 2) {
-//                    String id = this.mod.getMojangHooker().getIdFromUsername(textField.getText());
-//
-//                    textField.setText(this.mod.getMojangHooker().getIdFromUsername(id));
-//                } else if (button.id == 3) {
-//                    fakePlayer.getPlayerInfo().setLocationCape(this.mod.getMojangHooker().getSkinFromId(this.mod.getMojangHooker().getIdFromUsername("boomboompower")));
-//                }
-//            });
-//        }
-
-        switch (button.id) {
+        switch (button.getId()) {
             case 1:
                 this.previewCape = false;
                 fakePlayer.getPlayerInfo().setLocationCape(null);
@@ -178,12 +151,22 @@ public class SettingsGui extends ModernGui {
             case 7:
                 this.mc.displayGuiScreen(new ExperimentalGui(this.mod));
                 break;
+            case 8:
+                System.out.println(String.format("Current index: %s / %s", this.mod.getSkinManager().getSkinType().ordinal(), PlayerSkinType.values().length));
+
+                this.mod.getSkinManager().setSkinType(this.mod.getSkinManager().getSkinType().getNextSkin());
+
+                PlayerSkinType type = this.mod.getSkinManager().getSkinType();
+                button.setText("Skin Type: " + type.getDisplayName());
+
+                break;
         }
     }
 
     @Override
-    public void onGuiClosed() {
+    public void onGuiClose() {
         Keyboard.enableRepeatEvents(false);
+
         this.mod.getLoader().save();
     }
 }

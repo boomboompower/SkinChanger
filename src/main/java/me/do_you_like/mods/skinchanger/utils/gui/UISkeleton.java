@@ -19,27 +19,79 @@ package me.do_you_like.mods.skinchanger.utils.gui;
 
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 
+/**
+ * Provides the base methods for a Gui, these methods are designed to be applicable to multiple Minecraft versions.
+ * <br />
+ * It should be noted that all render methods are ran in sandboxed environments meaning if an error occurs, the game will not crash.
+ *
+ * @version 1.0
+ * @author boomboompower
+ */
 public interface UISkeleton {
 
-    void onGuiOpen();
+    /**
+     * Called when the GUI is first opened. Equivalent to initGui
+     */
+    public void onGuiOpen();
 
-    default void onGuiClose() {
+    /**
+     * Called when the GUI is closed.
+     */
+    public default void onGuiClose() {
     }
 
-    default void preRender() {
+    /**
+     * Called just before the render method is called.
+     * <br />
+     * This method is sandboxed.
+     */
+    public default void preRender() {
     }
 
-    void onRender(int mouseX, int mouseY, float partialTicks);
+    /**
+     * Called during the render method
+     * <br />
+     * This method is sandboxed.
+     *
+     * @param mouseX the x position of the mouse
+     * @param mouseY the y position of the mouse
+     * @param partialTicks from timer - jow much time has elapsed since the last tick, in ticks, for
+     *     use by display rendering routines (range: 0.0 - * 1.0). This field is frozen if the display
+     *     is paused to eliminate jitter.
+     */
+    public void onRender(int mouseX, int mouseY, float partialTicks);
 
-    default void postRender() {
+    /**
+     * Called after the render method
+     * <br />
+     * This method is sandboxed.
+     */
+    public default void postRender() {
     }
 
-    default void buttonPressed(ModernButton button) {
+    /**
+     * Called when a {@link ModernButton} is left clicked.
+     *
+     * @param button the button that was left clicked.
+     */
+    public default void buttonPressed(ModernButton button) {
     }
 
-    default void rightClicked(ModernButton button) {
+    /**
+     * Called when a {@link ModernButton} is right clicked.
+     *
+     * @param button the button that was right clicked.
+     */
+    public default void rightClicked(ModernButton button) {
     }
 
-    default void onKeyTyped(int keyCode, char keyCharacter) {
-    }
+    /**
+     * Called when a character is typed. Mimics the GuiScreen keyTyped functionality.
+     *
+     * @param keyCode the keyCode of the character. See {@link org.lwjgl.input.Keyboard} to get codes.
+     * @param keyCharacter the character representation of the key. Example: if {@link
+     *     org.lwjgl.input.Keyboard#KEY_A} was pressed * then 'a' would be the character that is
+     *     returned.
+     */
+    public default void onKeyTyped(int keyCode, char keyCharacter) {}
 }

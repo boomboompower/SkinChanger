@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
@@ -30,8 +31,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import me.boomboompower.skinchanger.SkinChangerModOld;
-import me.boomboompower.skinchanger.utils.ChatColor;
+
+import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
@@ -156,7 +159,7 @@ public class WebsiteUtils {
                     this.showUpdateHeader = object.get("updateheader").getAsBoolean();
                 }
     
-                int currentVersion = formatVersion(SkinChangerModOld.VERSION);
+                int currentVersion = formatVersion(SkinChangerMod.VERSION);
                 int latestVersion = object.has("latest-version") ? formatVersion(object.get("latest-version").getAsString()) : -1;
                 
                 if (currentVersion < latestVersion && latestVersion > 0) {
@@ -408,7 +411,7 @@ public class WebsiteUtils {
         
         try {
             message = String.format(message, replacements);
-        } catch (Exception ex) { }
+        } catch (Exception ignored) { }
         Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(ChatColor.translateAlternateColorCodes('&', message)));
     }
     
@@ -429,7 +432,7 @@ public class WebsiteUtils {
             text.appendSibling(url).appendText(ChatColor.YELLOW + "!");
             
             Minecraft.getMinecraft().thePlayer.addChatComponentMessage(text);
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
     }
 }

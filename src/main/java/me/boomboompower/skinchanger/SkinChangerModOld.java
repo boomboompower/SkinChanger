@@ -17,6 +17,7 @@
 
 package me.boomboompower.skinchanger;
 
+import java.util.Random;
 import me.boomboompower.skinchanger.utils.models.capes.CapeManager;
 import me.boomboompower.skinchanger.config.ConfigLoader;
 import me.boomboompower.skinchanger.utils.models.skins.SkinManager;
@@ -79,13 +80,13 @@ public class SkinChangerModOld {
     }
     
     public static SkinChangerModOld getInstance() {
-        return null;
+        return new SkinChangerModOld();
     }
 
     public void setRenderingEnabled(boolean toggledIn) {
     }
 
     public boolean isRenderingEnabled() {
-        return false;
+        return new Random().nextBoolean();
     }
 }

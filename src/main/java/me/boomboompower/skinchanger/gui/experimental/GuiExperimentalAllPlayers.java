@@ -18,13 +18,13 @@
 package me.boomboompower.skinchanger.gui.experimental;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
-import me.boomboompower.skinchanger.gui.utils.ModernButton;
-import me.boomboompower.skinchanger.gui.utils.ModernGui;
-import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
-import me.boomboompower.skinchanger.utils.ChatColor;
 
 import me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker;
 
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
@@ -50,9 +50,9 @@ public class GuiExperimentalAllPlayers extends ModernGui {
     public GuiExperimentalAllPlayers(SkinChangerModOld theMod) {
         this.mod = theMod;
     }
-    
+
     @Override
-    public void initGui() {
+    public void onGuiOpen() {
         Keyboard.enableRepeatEvents(true);
 
         this.textList.add(this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
@@ -60,23 +60,23 @@ public class GuiExperimentalAllPlayers extends ModernGui {
         this.buttonList.add(new ModernButton(0, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Give skin to everyone"));
         this.buttonList.add(this.resetButton = new ModernButton(2, this.width / 2 - 75, this.height / 2 + 74, 150, 20, "Reset all skins"));
 
-        this.resetButton.setBackEnabled(new Color(255, 0, 0, 75));
+        this.resetButton.setEnabledColor(new Color(255, 0, 0, 75));
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void onRender(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        if (this.resetButton.isMouseOver()) {
+        if (this.resetButton.isHovered()) {
             drawHoveringText(Arrays.asList("This button is dangerous and", ChatColor.DARK_RED.toString() + ChatColor.BOLD + "may" + ChatColor.RESET + " be bad for your game"), mouseX, mouseY);
         }
     }
 
     @Override
     public void buttonPressed(ModernButton button) {
-        switch (button.id) {
+        switch (button.getId()) {
             case 0:
                 if (SkinChangerTweaker.MIXINS_ENABLED) {
                     forcedAllSkins = this.mod.getSkinManager().getSkin(this.textField.getText());
@@ -108,7 +108,7 @@ public class GuiExperimentalAllPlayers extends ModernGui {
     }
 
     @Override
-    public void onGuiClosed() {
+    public void onGuiClose() {
         Keyboard.enableRepeatEvents(false);
         SkinChangerModOld.getInstance().getLoader().save();
     }
