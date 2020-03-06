@@ -18,18 +18,17 @@
 package me.boomboompower.skinchanger.utils.models.capes;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
-import me.boomboompower.skinchanger.utils.ReflectUtils;
+
+import me.do_you_like.mods.skinchanger.utils.general.ReflectUtils;
+import me.do_you_like.mods.skinchanger.utils.resources.CapeBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,29 +138,7 @@ public class CapeManager {
 
             TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
 
-            IImageBuffer imageBuffer = new IImageBuffer() {
-                @Override
-                public BufferedImage parseUserSkin(BufferedImage img) {
-                    int imageWidth = 64;
-                    int imageHeight = 32;
-                    int srcWidth = img.getWidth();
-
-                    for (int srcHeight = img.getHeight(); imageWidth < srcWidth || imageHeight < srcHeight; imageHeight *= 2) {
-                        imageWidth *= 2;
-                    }
-
-                    BufferedImage imgNew = new BufferedImage(imageWidth, imageHeight, 2);
-                    Graphics g = imgNew.getGraphics();
-                    g.drawImage(img, 0, 0, null);
-                    g.dispose();
-                    return imgNew;
-                }
-
-                @Override
-                public void skinAvailable() {
-                }
-            };
-            ThreadDownloadImageData textureCape = new ThreadDownloadImageData(file2, url, null, imageBuffer);
+            ThreadDownloadImageData textureCape = new ThreadDownloadImageData(file2, url, null, new CapeBuffer());
             textureManager.loadTexture(rl, textureCape);
 
             return rl;

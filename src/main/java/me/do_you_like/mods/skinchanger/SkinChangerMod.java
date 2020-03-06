@@ -53,7 +53,7 @@ public class SkinChangerMod {
         data.description = ChatColor.AQUA + "A client-side mod that allows you to change your skin instantly!";
         data.authorList.add("boomboompower");
 
-        this.modConfigDirectory = event.getModConfigurationDirectory();
+        this.modConfigDirectory = new File(event.getModConfigurationDirectory(), "skinchanger");
 
         this.cacheRetriever = new CacheRetriever(this);
         this.configurationHandler = new ConfigurationHandler(this);

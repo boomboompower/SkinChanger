@@ -17,7 +17,6 @@
 
 package me.do_you_like.mods.skinchanger.utils.mod;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,19 +26,26 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
+import lombok.Getter;
+
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IImageBuffer;
-import net.minecraft.client.renderer.ImageBufferDownload;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
 public class CacheRetriever {
 
+    private static final boolean FORCE_HTTPS = true;
+
     private HashMap<String, String> cachedValues = new HashMap<>();
 
+    @Getter
     private final SkinChangerMod mod;
+
+    @Getter
     private final File cacheDirectory;
 
     public CacheRetriever(SkinChangerMod mod) {
@@ -65,25 +71,18 @@ public class CacheRetriever {
 
         File dataFile = new File(cacheDirectory, cacheDirectory.getName() + ".png");
 
-        IImageBuffer imageBuffer = new ImageBufferDownload();
+        // Force HTTPS on resources.
+        if (FORCE_HTTPS && url.startsWith("http://")) {
+            url = "https://" + url.substring("http://".length());
+        }
 
-        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, DefaultPlayerSkin.getDefaultSkinLegacy(), new IImageBuffer() {
-            @Override
-            public BufferedImage parseUserSkin(BufferedImage image) {
-                return imageBuffer.parseUserSkin(image);
-            }
+        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, DefaultPlayerSkin.getDefaultSkinLegacy(), new SkinBuffer());
 
-            @Override
-            public void skinAvailable() {
-                imageBuffer.skinAvailable();
-            }
+        Minecraft.getMinecraft().addScheduledTask(() -> {
+            Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
         });
 
-        Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
-
-        if (!cacheFileExists) {
-            generateCacheFiles(name);
-        }
+        generateCacheFiles(name);
 
         return location;
     }
@@ -115,22 +114,20 @@ public class CacheRetriever {
             if (!cacheFile.exists()) {
                 if (!cacheFile.createNewFile()) {
                     System.err.println("Failed to create a cache file.");
+                } else {
+                    // Write the cache information
+                    FileWriter writer = new FileWriter(cacheFile);
+                    BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+                    long expirationTime = System.currentTimeMillis();
+
+                    // Current time + 1 day
+                    expirationTime += 24 * 60 * 60 * 1000;
+
+                    // Write the one line.
+                    bufferedWriter.write(expirationTime + System.lineSeparator());
+                    bufferedWriter.close();
                 }
-            }
-
-            // Write the cache information
-            if (cacheFile.exists()) {
-                FileWriter writer = new FileWriter(cacheFile);
-                BufferedWriter bufferedWriter = new BufferedWriter(writer);
-
-                long expirationTime = System.currentTimeMillis();
-
-                // Current time + 1 day
-                expirationTime += 24 * 60 * 60 * 1000;
-
-                // Write the one line.
-                bufferedWriter.write(expirationTime + System.lineSeparator());
-                bufferedWriter.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -194,6 +191,10 @@ public class CacheRetriever {
      * @return true if the cache file exists
      */
     public boolean doesCacheExist(String name) {
+        if (!genCacheDirectory()) {
+            return false;
+        }
+
         File cacheDirectory = getCacheDirForName(name);
 
         if (!cacheDirectory.exists()) {

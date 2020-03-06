@@ -17,18 +17,16 @@
 
 package me.boomboompower.skinchanger.utils.models.skins;
 
-import me.boomboompower.skinchanger.utils.ReflectUtils;
+import me.do_you_like.mods.skinchanger.utils.general.ReflectUtils;
+import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.renderer.IImageBuffer;
-import net.minecraft.client.renderer.ImageBufferDownload;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,20 +125,7 @@ public class SkinManager {
             File file1 = new File(new File("./mods/skinchanger".replace("/", File.separator), "skins"), UUID.nameUUIDFromBytes(name.getBytes()).toString());
             File file2 = new File(file1, UUID.nameUUIDFromBytes(name.getBytes()).toString() + ".png");
 
-            final IImageBuffer imageBuffer = new ImageBufferDownload();
-            ThreadDownloadImageData imageData = new ThreadDownloadImageData(file2, String.format("https://minotar.net/skin/%s", name), DefaultPlayerSkin.getDefaultSkinLegacy(), new IImageBuffer() {
-                public BufferedImage parseUserSkin(BufferedImage image) {
-                    if (imageBuffer != null) {
-                        image = imageBuffer.parseUserSkin(image);
-                    }
-                    return image;
-                }
-                public void skinAvailable() {
-                    if (imageBuffer != null) {
-                        imageBuffer.skinAvailable();
-                    }
-                }
-            });
+            ThreadDownloadImageData imageData = new ThreadDownloadImageData(file2, String.format("https://minotar.net/skin/%s", name), DefaultPlayerSkin.getDefaultSkinLegacy(), new SkinBuffer());
             Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
             return location;
         } else {

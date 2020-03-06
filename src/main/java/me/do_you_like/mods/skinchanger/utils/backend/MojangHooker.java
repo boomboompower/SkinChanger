@@ -122,6 +122,10 @@ public class MojangHooker {
 
         getIdFromUsername(nameIn);
 
+        if (idCaches.get(nameIn) == null) {
+            return null;
+        }
+
         return idCaches.get(nameIn)[1];
     }
 

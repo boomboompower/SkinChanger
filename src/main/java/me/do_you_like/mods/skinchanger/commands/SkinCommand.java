@@ -17,18 +17,28 @@
 
 package me.do_you_like.mods.skinchanger.commands;
 
+import java.awt.FileDialog;
+import java.awt.Frame;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.utils.backend.InternetConnection;
+import me.do_you_like.mods.skinchanger.utils.resources.LocalFileData;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.mod.ModCommand;
+import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.command.ICommandSender;
 
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * NOTE: This class is temporary & it's methods will eventually be tuned into a new gui.
+ */
 public class SkinCommand extends ModCommand {
 
     public static ResourceLocation VERY_BIG_TEMPORARY_SKIN = null;
@@ -51,10 +61,44 @@ public class SkinCommand extends ModCommand {
     @Override
     public void onCommand(ICommandSender sender, String[] args) {
         // TODO remove this during production.
-        if (args.length > 0 && args[0].equalsIgnoreCase("fix")) {
-            org.lwjgl.opengl.Display.setResizable(false);
-            org.lwjgl.opengl.Display.setResizable(true);
-            return;
+        if (args.length > 0) {
+            if (args[0].equalsIgnoreCase("fix")) {
+                org.lwjgl.opengl.Display.setResizable(false);
+                org.lwjgl.opengl.Display.setResizable(true);
+
+                return;
+            } else if (args[0].equalsIgnoreCase("file")) {
+                FileDialog dialog = new FileDialog((Frame) null, "Select File to Open");
+                dialog.setMode(FileDialog.LOAD);
+                dialog.setFile("*.png;*.jpg;*.jpeg");
+                dialog.setMultipleMode(false);
+
+                dialog.setVisible(true);
+
+                if (dialog.getFiles().length > 0) {
+                    File f = dialog.getFiles()[0];
+
+                    ResourceLocation customResource = new ResourceLocation("skins/" + f.getName());
+
+                    Minecraft.getMinecraft().addScheduledTask(() -> {
+                        Minecraft.getMinecraft().renderEngine.loadTexture(customResource, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), f, new SkinBuffer()));
+
+                        VERY_BIG_TEMPORARY_SKIN = customResource;
+                    });
+
+                    sendMessage(ChatColor.AQUA + "Your skin has been updated!");
+                } else {
+                    sendMessage(ChatColor.RED + "No file was selected.");
+                }
+
+                return;
+            } else if (args[0].equalsIgnoreCase("slim")) {
+                IS_SLIM_SKIN = !IS_SLIM_SKIN;
+
+                sendMessage(ChatColor.AQUA + "Your skin is now " + (IS_SLIM_SKIN ? "slim" : "normal"));
+
+                return;
+            }
         }
 
         if (args.length == 0) {
@@ -70,7 +114,11 @@ public class SkinCommand extends ModCommand {
                 return;
             }
 
-            String id = this.mod.getMojangHooker().getIdFromUsername(args[0]);
+            String id = this.mod.getMojangHooker().getRealNameFromName(args[0]);
+
+            if (id == null) {
+                id = args[0];
+            }
 
             VERY_BIG_TEMPORARY_SKIN = this.mod.getMojangHooker().getSkinFromId(id);
             IS_SLIM_SKIN = this.mod.getMojangHooker().hasSlimSkin(id);
