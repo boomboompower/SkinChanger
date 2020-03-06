@@ -1,29 +1,40 @@
-package me.boomboompower.skinchanger.utils;
+/*
+ *     Copyright (C) 2020 boomboompower
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package me.do_you_like.mods.skinchanger.utils.backend;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
-
+import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.utils.general.BetterJsonObject;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IImageBuffer;
-import net.minecraft.client.renderer.ImageBufferDownload;
-import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
-
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -40,7 +51,7 @@ public class MojangHooker {
         ".mojang.com"
     };
     
-    private static final HashMap<String, String> idCaches = new HashMap<>(); // Store the id
+    private static final HashMap<String, String[]> idCaches = new HashMap<>(); // Store the id
     
     private static final HashMap<String, String> responses = new HashMap<>(); // Store responses
     
@@ -64,23 +75,56 @@ public class MojangHooker {
         if (nameIn == null) {
             return null;
         }
+
+        if (idCaches.containsKey(nameIn)) {
+            return idCaches.get(nameIn)[0];
+        }
         
         if (nameIn.isEmpty()) {
-            return idCaches.put(nameIn, "");
+            idCaches.put("", new String[] {"", ""});
+
+            return "";
         }
     
         BetterJsonObject profile = getProfileFromUsername(nameIn);
     
         if (profile.has("success") && !profile.get("success").getAsBoolean()) {
-            return idCaches.put(nameIn, "");
+            idCaches.put(nameIn.toLowerCase(), new String[] {"", ""});
+
+            return "";
         }
     
         if (profile.has("id")) {
-            return idCaches.put(nameIn, profile.get("id").getAsString());
+            idCaches.put(nameIn.toLowerCase(), new String[] { profile.get("id").getAsString(), profile.get("name").getAsString() });
+
+            return profile.get("id").getAsString();
         }
-        return idCaches.put(nameIn, "");
+
+        idCaches.put(nameIn, new String[] {"", ""});
+
+        return "";
     }
-    
+
+    /**
+     * Gets the real name from an input
+     *
+     * @param nameIn the name
+     * @return the real name of the player
+     */
+    public String getRealNameFromName(String nameIn) {
+        if (nameIn == null) {
+            return null;
+        }
+
+        if (idCaches.containsKey(nameIn)) {
+            return idCaches.get(nameIn)[1];
+        }
+
+        getIdFromUsername(nameIn);
+
+        return idCaches.get(nameIn)[1];
+    }
+
     /**
      * Gets the Textures of a player from a username
      *
@@ -157,17 +201,22 @@ public class MojangHooker {
             if (property.has("name") && property.get("name").getAsString().equals("textures") && property.has("value")) {
                 // We need to decode the Base64 value property
                 byte[] decoded = Base64.getDecoder().decode(property.get("value").getAsString());
-                JsonObject decodedObj = new JsonParser().parse(new String(decoded, "UTF-8")).getAsJsonObject();
+                JsonObject decodedObj = new JsonParser().parse(new String(decoded, StandardCharsets.UTF_8)).getAsJsonObject();
             
                 // We have a match!
                 if (decodedObj.has("textures") && decodedObj.has("profileId") && decodedObj.get("profileId").getAsString().equals(texturesIn.get("id").getAsString())) {
-                    return idEncryptedTextures.put(id, new BetterJsonObject(decodedObj.get("textures").getAsJsonObject()));
+                    idEncryptedTextures.put(id, new BetterJsonObject(decodedObj.get("textures").getAsJsonObject()));
+
+                    return idEncryptedTextures.get(id);
                 }
             }
         }
-        return idEncryptedTextures.put(id, new BetterJsonObject());
+
+        idEncryptedTextures.put(id, new BetterJsonObject());
+
+        return idEncryptedTextures.get(id);
     }
-    
+
     /**
      * Silent version of {@link #hasSlimSkinUnsafe(String)}
      *
@@ -182,7 +231,7 @@ public class MojangHooker {
             return false;
         }
     }
-    
+
     /**
      * Is the textures provided a slim skin?
      * "slim" = ALEX
@@ -195,48 +244,54 @@ public class MojangHooker {
         if (id == null) {
             return false;
         }
-        
+
         if (slimSkins.containsKey(id)) {
             return slimSkins.get(id);
         }
-    
+
         JsonObject realTextures = getEncryptedTexturesUnsafe(id).getData();
-    
+
         // Should never happen
         if (!realTextures.has("SKIN")) {
-            return slimSkins.put(id, false);
+            slimSkins.put(id, false);
+
+            return false;
         }
-    
+
         JsonObject skinData = realTextures.get("SKIN").getAsJsonObject();
-    
+
         if (skinData.has("metadata")) {
             JsonObject metaData = skinData.get("metadata").getAsJsonObject();
-        
-            return slimSkins.put(id, metaData.has("model") && metaData.get("model").getAsString().equals("slim"));
+
+            slimSkins.put(id, metaData.has("model"));
+
+            return metaData.has("model") && metaData.get("model").getAsString().equals("slim");
         }
-        
-        return slimSkins.put(id, false);
+
+        slimSkins.put(id, false);
+
+        return false;
     }
-    
+
     /**
      * The safe version of skin loading, this will return the Steve model if any issues occur
      *
      * @param id the id of the user
-     * @return the {@link net.minecraft.util.ResourceLocation} of the given id
+     * @return the {@link ResourceLocation} of the given id
      */
     public ResourceLocation getSkinFromId(String id) {
         try {
             return getSkinFromIdUnsafe(id);
-        } catch (UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException | IllegalArgumentException ex) {
             return DefaultPlayerSkin.getDefaultSkinLegacy();
         }
     }
-    
+
     /**
      * The unsafe version of skin loading & caching
      *
      * @param id the id of the profile, to be used in decryption
-     * @return the {@link net.minecraft.util.ResourceLocation} of the given id
+     * @return the {@link ResourceLocation} of the given id
      *
      * @throws UnsupportedEncodingException if the encrypted resource cannot be decrypted
      */
@@ -244,7 +299,7 @@ public class MojangHooker {
         if (id != null && !id.isEmpty()) {
             if (skins.containsKey(id)) {
                 ResourceLocation loc = skins.get(id);
-                
+
                 // Test if the resource is still loaded
                 if (Minecraft.getMinecraft().getTextureManager().getTexture(loc) != null) {
                     return loc;
@@ -252,53 +307,41 @@ public class MojangHooker {
                     skins.remove(id);
                 }
             }
-            
+
             JsonObject realTextures = getEncryptedTexturesUnsafe(id).getData();
-    
+
             // Should never happen
             if (!realTextures.has("SKIN")) {
-                return skins.put(id, DefaultPlayerSkin.getDefaultSkinLegacy());
+                skins.put(id, DefaultPlayerSkin.getDefaultSkinLegacy());
+
+                return DefaultPlayerSkin.getDefaultSkinLegacy();
             }
-    
+
             JsonObject skinData = realTextures.get("SKIN").getAsJsonObject();
-            
+
             if (!skinData.has("url")) {
-                return skins.put(id, DefaultPlayerSkin.getDefaultSkinLegacy());
+                skins.put(id, DefaultPlayerSkin.getDefaultSkinLegacy());
+
+                return DefaultPlayerSkin.getDefaultSkinLegacy();
             }
-            
+
             String url = skinData.get("url").getAsString();
-            
+
+            // Ensures minecraft servers are not hacked :)
             if (!isTrustedDomain(url)) {
                 // Spoofed payload? Does not use an official Mojang network...
                 throw new IllegalArgumentException("Invalid payload, the domain issued was not trusted.");
             }
-            
+
             String segment = getLastSegment(url);
-            
-            final ResourceLocation location = new ResourceLocation("skinchanger/" + segment);
-            
-            File directory = new File(new File("./mods/skinchanger".replace("/", File.separator), "skins"), attemptSubstring(segment, 0, 2));
-            File fileLocation = new File(directory, segment + ".png");
-            
-            final IImageBuffer imageBuffer = new ImageBufferDownload();
-            ThreadDownloadImageData imageData = new ThreadDownloadImageData(fileLocation, url, DefaultPlayerSkin
-                .getDefaultSkinLegacy(), new IImageBuffer() {
-                public BufferedImage parseUserSkin(BufferedImage image) {
-                    if (imageBuffer != null) {
-                        image = imageBuffer.parseUserSkin(image);
-                    }
-                    return image;
-                }
-                public void skinAvailable() {
-                    if (imageBuffer != null) {
-                        imageBuffer.skinAvailable();
-                    }
-                }
-            });
-            Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
-            return skins.put(id, location);
+
+            ResourceLocation playerSkin = SkinChangerMod.getInstance().getCacheRetriever().loadIntoGame(id, url);
+
+            skins.put(id, playerSkin);
+
+            return playerSkin;
         } else {
-            return null;
+            return DefaultPlayerSkin.getDefaultSkinLegacy();
         }
     }
     
@@ -312,6 +355,7 @@ public class MojangHooker {
         if (org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_L)) {
             responses.clear();
         }
+
         if (responses.containsKey(url)) {
             return responses.get(url);
         }

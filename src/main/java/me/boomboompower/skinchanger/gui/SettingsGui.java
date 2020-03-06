@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,15 +17,14 @@
 
 package me.boomboompower.skinchanger.gui;
 
-import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.mixins.Tweaker;
+import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.utils.fake.FakePlayer;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
 import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
 import me.boomboompower.skinchanger.utils.ChatColor;
-
 import me.boomboompower.skinchanger.utils.models.skins.PlayerSkinType;
+
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
@@ -34,7 +33,7 @@ import java.awt.*;
 
 public class SettingsGui extends ModernGui {
 
-    private final SkinChangerMod mod;
+    private final SkinChangerModOld mod;
     
     private static final FakePlayer fakePlayer = new FakePlayer();
     private static final ResourceLocation defaultCape = new ResourceLocation("assets/skinchanger/cape.png");
@@ -45,11 +44,11 @@ public class SettingsGui extends ModernGui {
 
     private boolean previewCape = false;
 
-    public SettingsGui(SkinChangerMod modIn) {
+    public SettingsGui(SkinChangerModOld modIn) {
         this(modIn, "");
     }
 
-    public SettingsGui(SkinChangerMod modIn, String message) {
+    public SettingsGui(SkinChangerModOld modIn, String message) {
         this.mod = modIn;
         this.message = message;
 
@@ -143,11 +142,8 @@ public class SettingsGui extends ModernGui {
                 }
                 break;
             case 2:
-                if (Tweaker.MIXINS_ENABLED) {
+                this.mod.getSkinManager().reset();
 
-                } else {
-                    this.mod.getSkinManager().reset();
-                }
                 sendChatMessage("Your skin has been reset!");
                 this.mc.displayGuiScreen(null);
                 break;

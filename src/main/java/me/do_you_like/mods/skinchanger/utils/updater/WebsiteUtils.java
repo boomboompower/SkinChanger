@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -15,13 +15,12 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.utils;
+package me.do_you_like.mods.skinchanger.utils.updater;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
@@ -31,9 +30,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import me.boomboompower.skinchanger.SkinChangerMod;
-
+import me.boomboompower.skinchanger.SkinChangerModOld;
+import me.boomboompower.skinchanger.utils.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
@@ -43,7 +41,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -159,7 +156,7 @@ public class WebsiteUtils {
                     this.showUpdateHeader = object.get("updateheader").getAsBoolean();
                 }
     
-                int currentVersion = formatVersion(SkinChangerMod.VERSION);
+                int currentVersion = formatVersion(SkinChangerModOld.VERSION);
                 int latestVersion = object.has("latest-version") ? formatVersion(object.get("latest-version").getAsString()) : -1;
                 
                 if (currentVersion < latestVersion && latestVersion > 0) {
@@ -339,7 +336,7 @@ public class WebsiteUtils {
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onJoin(FMLNetworkEvent.ClientConnectedToServerEvent event) {
-        WebsiteUtils utils = SkinChangerMod.getInstance().getWebsiteUtils();
+        WebsiteUtils utils = this;
         
         if (utils.isDisabled()) return;
         

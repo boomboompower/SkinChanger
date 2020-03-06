@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,9 +17,6 @@
 
 package me.boomboompower.skinchanger.utils.models.skins;
 
-import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.mixins.Tweaker;
-import me.boomboompower.skinchanger.utils.MojangHooker;
 import me.boomboompower.skinchanger.utils.ReflectUtils;
 
 import net.minecraft.client.Minecraft;
@@ -52,7 +49,7 @@ public class SkinManager {
 
     private boolean shouldUse = false;
 
-    public SkinManager(MojangHooker hooker, AbstractClientPlayer playerIn, boolean normalPlayer) {
+    public SkinManager(AbstractClientPlayer playerIn, boolean normalPlayer) {
         this.playerIn = playerIn;
         this.normalPlayer = normalPlayer;
     }
@@ -100,10 +97,6 @@ public class SkinManager {
     }
 
     public void replaceSkin(ResourceLocation location) {
-        if (Tweaker.MIXINS_ENABLED) {
-            return;
-        }
-
         if (this.skinName == null || this.skinName.isEmpty() || (this.normalPlayer ? Minecraft.getMinecraft().thePlayer == null : this.playerIn == null)) return;
 
         NetworkPlayerInfo playerInfo;

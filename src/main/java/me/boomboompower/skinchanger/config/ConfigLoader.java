@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package me.boomboompower.skinchanger.config;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.SkinChangerModOld;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -53,18 +53,22 @@ public class ConfigLoader {
                 log("Could not read log properly, saving.", this.configFile.getName());
                 save();
             }
-            SkinChangerMod.getInstance().getSkinManager().setSkinName(this.configJson.has("skinname") ? this.configJson.get("skinname").getAsString() : null);
-            SkinChangerMod.getInstance().getCapeManager().setUsingCape(this.configJson.has("usingcape") && this.configJson.get("usingcape").getAsBoolean());
-            SkinChangerMod.getInstance().getCapeManager().setExperimental(this.configJson.has("experimental") && this.configJson.get("experimental").getAsBoolean());
-            SkinChangerMod.getInstance().setRenderingEnabled(this.configJson.has("rendering") && this.configJson.get("rendering").getAsBoolean());
+            SkinChangerModOld
+                .getInstance().getSkinManager().setSkinName(this.configJson.has("skinname") ? this.configJson.get("skinname").getAsString() : null);
+            SkinChangerModOld
+                .getInstance().getCapeManager().setUsingCape(this.configJson.has("usingcape") && this.configJson.get("usingcape").getAsBoolean());
+            SkinChangerModOld.getInstance().getCapeManager().setExperimental(this.configJson.has("experimental") && this.configJson.get("experimental").getAsBoolean());
+            SkinChangerModOld.getInstance().setRenderingEnabled(this.configJson.has("rendering") && this.configJson.get("rendering").getAsBoolean());
             if (this.configJson.has("experimental") && this.configJson.get("experimental").getAsBoolean() && this.configJson.has("ofCapeName")) {
-                SkinChangerMod.getInstance().getCapeManager().giveOfCape(this.configJson.get("ofCapeName").getAsString());
+                SkinChangerModOld
+                    .getInstance().getCapeManager().giveOfCape(this.configJson.get("ofCapeName").getAsString());
             }
 
             if (this.configJson.has("mixins")) {
                 JsonObject mixinSettings = this.configJson.getAsJsonObject("mixins");
 
-                SkinChangerMod.getInstance().getSkinManager().setSkinType(mixinSettings.has("skinType") ? PlayerSkinType
+                SkinChangerModOld
+                    .getInstance().getSkinManager().setSkinType(mixinSettings.has("skinType") ? PlayerSkinType
                     .getTypeFromString(mixinSettings.get("skinType").getAsString()) : PlayerSkinType.STEVE);
             }
         } else {
@@ -78,17 +82,17 @@ public class ConfigLoader {
         try {
             this.configFile.createNewFile();
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(this.configFile));
-            this.configJson.addProperty("skinname", SkinChangerMod.getInstance().getSkinManager().getSkinName());
-            this.configJson.addProperty("usingcape", SkinChangerMod.getInstance().getCapeManager().isUsingCape());
-            this.configJson.addProperty("experimental", SkinChangerMod.getInstance().getCapeManager().isExperimental());
-            this.configJson.addProperty("rendering", SkinChangerMod.getInstance().isRenderingEnabled());
+            this.configJson.addProperty("skinname", SkinChangerModOld.getInstance().getSkinManager().getSkinName());
+            this.configJson.addProperty("usingcape", SkinChangerModOld.getInstance().getCapeManager().isUsingCape());
+            this.configJson.addProperty("experimental", SkinChangerModOld.getInstance().getCapeManager().isExperimental());
+            this.configJson.addProperty("rendering", SkinChangerModOld.getInstance().isRenderingEnabled());
 
-            if (SkinChangerMod.getInstance().getCapeManager().isExperimental()) {
-                this.configJson.addProperty("ofCapeName", SkinChangerMod.getInstance().getCapeManager().getOfCapeName());
+            if (SkinChangerModOld.getInstance().getCapeManager().isExperimental()) {
+                this.configJson.addProperty("ofCapeName", SkinChangerModOld.getInstance().getCapeManager().getOfCapeName());
             }
 
             JsonObject mixinSettings = new JsonObject();
-            mixinSettings.addProperty("skinType", SkinChangerMod.getInstance().getSkinManager().getSkinType().getDisplayName());
+            mixinSettings.addProperty("skinType", SkinChangerModOld.getInstance().getSkinManager().getSkinType().getDisplayName());
 
             this.configJson.add("mixins", mixinSettings);
 

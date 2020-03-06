@@ -1,5 +1,5 @@
 {
-  "package": "me.boomboompower.skinchanger.mixins",
+  "package": "me.do_you_like.mods.skinchanger.methods.impl.mixins",
   "refmap": "mixins.skinchanger.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "verbose": true,

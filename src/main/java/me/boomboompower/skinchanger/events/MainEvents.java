@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -19,10 +19,11 @@ package me.boomboompower.skinchanger.events;
 
 import java.util.Iterator;
 
-import me.boomboompower.skinchanger.SkinChangerMod;
-import me.boomboompower.skinchanger.mixins.Tweaker;
+import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.utils.fake.FakePlayer;
 import me.boomboompower.skinchanger.utils.fake.FakePlayerCape;
+
+import me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
@@ -38,17 +39,17 @@ import java.util.List;
 
 public class MainEvents {
 
-    private final SkinChangerMod mod;
+    private final SkinChangerModOld mod;
     
     private int currentTick = 100;
     
-    public MainEvents(SkinChangerMod modIn) {
+    public MainEvents(SkinChangerModOld modIn) {
         this.mod = modIn;
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
-        if (Tweaker.MIXINS_ENABLED) {
+        if (SkinChangerTweaker.MIXINS_ENABLED) {
             return;
         }
 
@@ -76,7 +77,7 @@ public class MainEvents {
 
     @SubscribeEvent
     public void onRender(RenderPlayerEvent.Pre event) {
-        if (Tweaker.MIXINS_ENABLED) {
+        if (SkinChangerTweaker.MIXINS_ENABLED) {
             return;
         }
 

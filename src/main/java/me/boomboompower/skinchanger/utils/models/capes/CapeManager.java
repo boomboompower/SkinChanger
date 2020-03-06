@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package me.boomboompower.skinchanger.utils.models.capes;
 
-import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.utils.ReflectUtils;
 
 import net.minecraft.client.Minecraft;
@@ -54,7 +54,8 @@ public class CapeManager {
 
     public void addCape() {
         this.usingCape = true;
-        Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(SkinChangerMod.MOD_ID, "cape.png")));
+        Minecraft.getMinecraft().addScheduledTask(() -> setCape(new ResourceLocation(
+            SkinChangerModOld.MOD_ID, "cape.png")));
     }
 
     public void addCape(ResourceLocation location) {

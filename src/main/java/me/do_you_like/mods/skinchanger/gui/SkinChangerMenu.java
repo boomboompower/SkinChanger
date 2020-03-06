@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -15,20 +15,42 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.utils;
+package me.do_you_like.mods.skinchanger.gui;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
 
-public class GlobalUtils {
+public class SkinChangerMenu extends ModernGui {
 
-    public static final String PREFIX = ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY;
+    @Override
+    public void onGuiOpen() {
 
-    public static void sendChatMessage(String msg) {
-        sendChatMessage(msg, true);
     }
 
-    public static void sendChatMessage(String msg, boolean usePrefix) {
-        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText((usePrefix ? PREFIX : ChatColor.GRAY) + msg));
+    @Override
+    public void preRender() {
+
     }
+
+    @Override
+    public void onRender(int mouseX, int mouseY, float partialTicks) {
+
+    }
+
+    @Override
+    public void postRender() {
+
+    }
+
+    @Override
+    public void buttonPressed(ModernButton button) {
+
+    }
+
+    @Override
+    public void onKeyTyped(int keyCode, char keyCharacter) {
+
+    }
+
+
 }

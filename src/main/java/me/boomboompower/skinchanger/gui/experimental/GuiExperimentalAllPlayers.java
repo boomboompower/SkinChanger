@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,19 +17,19 @@
 
 package me.boomboompower.skinchanger.gui.experimental;
 
-import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
 import me.boomboompower.skinchanger.gui.utils.ModernGui;
 import me.boomboompower.skinchanger.gui.utils.ModernTextBox;
-import me.boomboompower.skinchanger.mixins.Tweaker;
-import me.boomboompower.skinchanger.utils.models.skins.SkinManager;
 import me.boomboompower.skinchanger.utils.ChatColor;
+
+import me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
-
 import net.minecraft.util.ResourceLocation;
+
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -41,13 +41,13 @@ public class GuiExperimentalAllPlayers extends ModernGui {
 
     public static ResourceLocation forcedAllSkins;
 
-    private final SkinChangerMod mod;
+    private final SkinChangerModOld mod;
     
     private ModernTextBox textField;
 
     private ModernButton resetButton;
 
-    public GuiExperimentalAllPlayers(SkinChangerMod theMod) {
+    public GuiExperimentalAllPlayers(SkinChangerModOld theMod) {
         this.mod = theMod;
     }
     
@@ -78,11 +78,11 @@ public class GuiExperimentalAllPlayers extends ModernGui {
     public void buttonPressed(ModernButton button) {
         switch (button.id) {
             case 0:
-                if (Tweaker.MIXINS_ENABLED) {
+                if (SkinChangerTweaker.MIXINS_ENABLED) {
                     forcedAllSkins = this.mod.getSkinManager().getSkin(this.textField.getText());
                 } else {
                     for (EntityOtherPlayerMP player : get()) {
-                        new SkinManager(this.mod.getMojangHooker(), player, false).update(this.textField.getText());
+                        //new SkinManager(this.mod.getMojangHooker(), player, false).update(this.textField.getText());
                     }
                 }
 
@@ -90,11 +90,11 @@ public class GuiExperimentalAllPlayers extends ModernGui {
                 break;
 
             case 2:
-                if (Tweaker.MIXINS_ENABLED) {
+                if (SkinChangerTweaker.MIXINS_ENABLED) {
                     forcedAllSkins = null;
                 } else {
                     for (EntityOtherPlayerMP player : get()) {
-                        new SkinManager(this.mod.getMojangHooker(), player, false).reset();
+                        //new SkinManager(this.mod.getMojangHooker(), player, false).reset();
                     }
                 }
 
@@ -110,7 +110,7 @@ public class GuiExperimentalAllPlayers extends ModernGui {
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
-        SkinChangerMod.getInstance().getLoader().save();
+        SkinChangerModOld.getInstance().getLoader().save();
     }
 
     private List<EntityOtherPlayerMP> get() {

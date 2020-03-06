@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2017 boomboompower
+ *     Copyright (C) 2020 boomboompower
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package me.boomboompower.skinchanger.gui.experimental;
 
-import me.boomboompower.skinchanger.SkinChangerMod;
+import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.utils.models.capes.CapeManager;
 import me.boomboompower.skinchanger.utils.fake.FakePlayer;
 import me.boomboompower.skinchanger.gui.utils.ModernButton;
@@ -37,7 +37,7 @@ public class GuiExperimentalOptifine extends ModernGui {
     private ModernTextBox textField;
 
     public GuiExperimentalOptifine() {
-        SkinChangerMod.getInstance().getSkinManager().updatePlayer(null);
+        SkinChangerModOld.getInstance().getSkinManager().updatePlayer(null);
     }
 
     @Override
@@ -75,13 +75,13 @@ public class GuiExperimentalOptifine extends ModernGui {
                 }
                 break;
             case 1:
-                SkinChangerMod.getInstance().getCapeManager().setExperimental(false);
-                SkinChangerMod.getInstance().getCapeManager().removeCape();
+                SkinChangerModOld.getInstance().getCapeManager().setExperimental(false);
+                SkinChangerModOld.getInstance().getCapeManager().removeCape();
                 this.mc.displayGuiScreen(null);
                 break;
             case 2:
                 if (!this.textField.getText().isEmpty() && this.textField.getText().length() >= 2) {
-                    SkinChangerMod.getInstance().getCapeManager().giveOfCape(this.textField.getText());
+                    SkinChangerModOld.getInstance().getCapeManager().giveOfCape(this.textField.getText());
                     this.mc.displayGuiScreen(null);
                 }
                 break;
@@ -93,6 +93,6 @@ public class GuiExperimentalOptifine extends ModernGui {
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
-        SkinChangerMod.getInstance().getLoader().save();
+        SkinChangerModOld.getInstance().getLoader().save();
     }
 }
