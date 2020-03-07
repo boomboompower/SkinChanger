@@ -100,4 +100,17 @@ public class Prerequisites {
         // Hit em with the fat exception
         throw new IllegalArgumentException(errorMessage);
     }
+
+    public static void conditionMet(boolean condition) {
+        conditionMet(condition, "Condition was not met.");
+    }
+
+    public static void conditionMet(boolean condition, String errorMessage) {
+        if (condition) {
+            return;
+        }
+
+        // Hit em with the fat exception
+        throw new IllegalArgumentException(errorMessage);
+    }
 }

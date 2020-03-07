@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.gui.SkinChangerMenu;
 import me.do_you_like.mods.skinchanger.utils.backend.InternetConnection;
 import me.do_you_like.mods.skinchanger.utils.resources.LocalFileData;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
@@ -96,6 +97,10 @@ public class SkinCommand extends ModCommand {
                 IS_SLIM_SKIN = !IS_SLIM_SKIN;
 
                 sendMessage(ChatColor.AQUA + "Your skin is now " + (IS_SLIM_SKIN ? "slim" : "normal"));
+
+                return;
+            } else if (args[0].equalsIgnoreCase("ui") || args[0].equalsIgnoreCase("gui")) {
+                new SkinChangerMenu().display();
 
                 return;
             }

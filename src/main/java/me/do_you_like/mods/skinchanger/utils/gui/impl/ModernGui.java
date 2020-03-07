@@ -24,6 +24,7 @@ import java.util.List;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.UISkeleton;
 import me.do_you_like.mods.skinchanger.utils.gui.lock.UILock;
 
@@ -53,13 +54,18 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
     protected List<ModernTextBox> textList = Lists.newArrayList();
     protected List<ModernButton> buttonList = Lists.newArrayList();
+    protected List<ModernHeader> headerList = Lists.newArrayList();
+    protected List<ModernSlider> sliderList = Lists.newArrayList();
 
     private ModernButton selectedButton;
+    private ModernSlider selectedSlider;
 
     @Override
     public final void initGui() {
         this.textList.clear();
         this.buttonList.clear();
+        this.sliderList.clear();
+        this.headerList.clear();
 
         onGuiOpen();
     }
@@ -100,7 +106,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
 
         for (ModernButton button : this.buttonList) {
-            button.drawButton(this.mc, mouseX, mouseY);
+            button.render(mouseX, mouseY);
         }
 
         for (GuiLabel label : this.labelList) {
@@ -109,6 +115,18 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
         for (ModernTextBox text : this.textList) {
             text.drawTextBox();
+        }
+
+        for (ModernSlider slider : this.sliderList) {
+            slider.drawButton(this.mc, mouseX, mouseY);
+        }
+
+        for (ModernHeader header : this.headerList) {
+            GlStateManager.pushMatrix();
+
+            header.render(mouseX, mouseY);
+
+            GlStateManager.popMatrix();
         }
 
         try {
@@ -144,6 +162,24 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         if (mouseButton == 0) {
+            for (ModernHeader header : this.headerList) {
+                if (header.getSubDrawables().size() > 0) {
+                    for (ModernDrawable drawable : header.getSubDrawables()) {
+                        if (drawable instanceof ModernButton) {
+                            ModernButton button = (ModernButton) drawable;
+
+                            if (button.mousePressed(this.mc, mouseX, mouseY)) {
+                                this.selectedButton = button;
+
+                                button.playPressSound(this.mc.getSoundHandler());
+
+                                buttonPressed(button);
+                            }
+                        }
+                    }
+                }
+            }
+
             for (ModernButton button : this.buttonList) {
                 if (button.mousePressed(this.mc, mouseX, mouseY)) {
                     this.selectedButton = button;
@@ -156,6 +192,20 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
 
         if (mouseButton == 1) {
+            for (ModernHeader header : this.headerList) {
+                if (header.getSubDrawables().size() > 0) {
+                    for (ModernDrawable drawable : header.getSubDrawables()) {
+                        if (drawable instanceof ModernButton) {
+                            ModernButton button = (ModernButton) drawable;
+
+                            if (button.mousePressed(this.mc, mouseX, mouseY)) {
+                                rightClicked(button);
+                            }
+                        }
+                    }
+                }
+            }
+
             for (ModernButton button : this.buttonList) {
                 if (button != null) {
                     if (button.mousePressed(this.mc, mouseX, mouseY)) {
@@ -167,6 +217,12 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
         for (ModernTextBox text : this.textList) {
             text.mouseClicked(mouseX, mouseY, mouseButton);
+        }
+
+        for (ModernSlider slider : this.sliderList) {
+            if (slider.mousePressed(this.mc, mouseX, mouseY)) {
+                this.selectedSlider = slider;
+            }
         }
     }
 
@@ -181,6 +237,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
         this.textList.clear();
         this.buttonList.clear();
+        this.headerList.clear();
 
         initGui();
     }
@@ -197,6 +254,11 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         if (this.selectedButton != null && state == 0) {
             this.selectedButton.mouseReleased(mouseX, mouseY);
             this.selectedButton = null;
+        }
+
+        if (this.selectedSlider != null && state == 0) {
+            this.selectedSlider.mouseReleased(mouseX, mouseY);
+            this.selectedSlider = null;
         }
     }
 

@@ -52,6 +52,10 @@ public class CacheRetriever {
         this.mod = mod;
         this.cacheDirectory = new File(mod.getModConfigDirectory(), "cache");
 
+        for (int i = 0; i < 50; i++) {
+            System.out.println(this.cacheDirectory);
+        }
+
         genCacheDirectory();
     }
 

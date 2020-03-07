@@ -20,11 +20,14 @@ package me.do_you_like.mods.skinchanger.utils.gui.impl;
 import lombok.Getter;
 import lombok.Setter;
 
+import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
@@ -36,7 +39,7 @@ import java.awt.*;
  * @author boomboompower
  * @version 2.0
  */
-public class ModernButton extends Gui {
+public class ModernButton extends Gui implements ModernDrawable {
 
     protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
 
@@ -74,6 +77,11 @@ public class ModernButton extends Gui {
 
     @Getter
     private Object buttonData;
+
+    @Getter
+    private boolean partOfHeader;
+
+    private ModernHeader parentHeader;
 
     public ModernButton(int buttonId, int x, int y, String buttonText) {
         this(buttonId, "", x, y, 200, 20, buttonText);
@@ -116,34 +124,47 @@ public class ModernButton extends Gui {
         return i;
     }
 
-    /**
-     * Draws this button to the screen.
-     */
-    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+    @Override
+    public int getX() {
+        return this.xPosition;
+    }
+
+    @Override
+    public int getY() {
+        return this.yPosition;
+    }
+
+    @Override
+    public void render(int mouseX, int mouseY) {
         if (this.visible) {
-            FontRenderer fontrenderer = mc.fontRendererObj;
+            FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
+
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+
+            int xPosition = this.xPosition;
+            int yPosition = this.yPosition;
+
+            this.hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
             int i = this.getHoverState(this.hovered);
 
             int j = 14737632;
 
-            boolean modern = true; //SkinChangerMod.getInstance().getConfigurationHandler().isModernButton();
+            boolean modern = false; //SkinChangerMod.getInstance().getConfigurationHandler().isModernButton();
 
             if (modern) {
-                mc.getTextureManager().bindTexture(buttonTextures);
+                Minecraft.getMinecraft().getTextureManager().bindTexture(buttonTextures);
 
                 GlStateManager.enableBlend();
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
                 GlStateManager.blendFunc(770, 771);
 
-                this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
-                this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+                this.drawTexturedModalRect(xPosition, yPosition, 0, 46 + i * 20, this.width / 2, this.height);
+                this.drawTexturedModalRect(xPosition + this.width / 2, yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
             } else {
                 if (this.enabled) {
-                    drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + height, getEnabledColor().getRGB());
+                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getEnabledColor().getRGB());
                 } else {
-                    drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + height, getDisabledColor().getRGB());
+                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
                 }
             }
 
@@ -154,15 +175,82 @@ public class ModernButton extends Gui {
             }
 
             if (this.enabled && this.favourite) {
-                fontrenderer.drawString("\u2726", this.xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, this.yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
+                fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
             }
 
-            fontrenderer.drawString(this.displayString, (this.xPosition + this.width / 2 - fontrenderer.getStringWidth(this.displayString) / 2), this.yPosition + (this.height - 8) / 2, j, modern);
+            fontrenderer.drawString(this.displayString, (xPosition + this.width / 2 - fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, modern);
         }
     }
 
+    @Override
+    public void renderFromHeader(int xPos, int yPos, int mouseX, int mouseY, int recommendedYOffset) {
+        if (this.visible) {
+            FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
+
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+            int xPosition = xPos + 5;
+            int yPosition = yPos + recommendedYOffset;
+
+            this.hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
+            int i = this.getHoverState(this.hovered);
+
+            int j = 14737632;
+
+            boolean modern = false; //SkinChangerMod.getInstance().getConfigurationHandler().isModernButton();
+
+            if (modern) {
+                Minecraft.getMinecraft().getTextureManager().bindTexture(buttonTextures);
+
+                GlStateManager.enableBlend();
+                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                GlStateManager.blendFunc(770, 771);
+
+                this.drawTexturedModalRect(xPosition, yPosition, 0, 46 + i * 20, this.width / 2, this.height);
+                this.drawTexturedModalRect(xPosition + this.width / 2, yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+            } else {
+                if (this.enabled) {
+                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getEnabledColor().getRGB());
+                } else {
+                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
+                }
+            }
+
+            if (!this.enabled) {
+                j = 10526880;
+            } else if (this.hovered) {
+                j = 16777120;
+            }
+
+            if (this.enabled && this.favourite) {
+                fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
+            }
+
+            fontrenderer.drawString(this.displayString, (xPosition + this.width / 2 - fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, modern);
+        }
+    }
+
+    @Override
+    public ModernDrawable setAsPartOfHeader(ModernHeader parent) {
+        this.partOfHeader = true;
+
+        this.parentHeader = parent;
+
+        return this;
+    }
+
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-        return this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+        int xPosition = this.xPosition;
+        int yPosition = this.yPosition;
+
+        if (this.partOfHeader) {
+            XYPosition realPosition = this.parentHeader.getScreenPositionFromLocal(this);
+
+            xPosition = (int) realPosition.getX();
+            yPosition = (int) realPosition.getY();
+        }
+
+        return this.enabled && this.visible && mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
     }
 
     public void mouseReleased(int mouseX, int mouseY) {
