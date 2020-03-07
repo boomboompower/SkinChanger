@@ -13,10 +13,12 @@ Featuring:
 * Accessability across different versions.
 
 ### Features
+Skin-wise: 
 * Skin from file
 * Skin from URL
 * Skin from a player's name/UUID
 
+Cape-wise: 
 * Cape from file
 * Cape from a URL
 * Cape from optifine
