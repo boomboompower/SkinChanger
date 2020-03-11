@@ -19,12 +19,30 @@ package me.do_you_like.mods.skinchanger.gui;
 
 import java.awt.Color;
 
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.gui.options.SelectionOptions;
+import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
+import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernHeader;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernSlider;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.util.ResourceLocation;
+
 public class SkinChangerMenu extends ModernGui {
+
+    private FakePlayer fakePlayer = new FakePlayer(this.mc.thePlayer);
+    private SelectionOptions selectionOptions = new SelectionOptions();
+
+    // Store the basic values.
+    private ResourceLocation originalSkin = Minecraft.getMinecraft().thePlayer.getLocationSkin();
+    private ResourceLocation originalCape = Minecraft.getMinecraft().thePlayer.getLocationCape();
 
     // ModernHeader hack
     //
@@ -36,67 +54,98 @@ public class SkinChangerMenu extends ModernGui {
 
     @Override
     public void onGuiOpen() {
-        ModernHeader title = new ModernHeader((int) ((this.width / 2) / 1.5F), 12, "SkinChanger", 1.5F, false);
+        int buttonWidth = getWidthOfString("Load from Player") + 5;
 
-        title.setDrawCentered(true);
+        ModernHeader skinSettings = new ModernHeader(15, 30, "Skin Settings", 1.24F, true, Color.RED);
 
-        // ----------------------------------
+        skinSettings.setOffsetBetweenDrawables(24F);
 
-        ModernHeader skinSettings = new ModernHeader(95, 165, "Skin Settings", 1.20F, true, Color.RED);
-
-        skinSettings.setOffsetBetweenDrawables(32F);
-
-        skinSettings.getSubDrawables().add(new ModernButton(12, 5, 20, "Load from Player").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(13, 5, 20, "Load from URL").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(14, 5, 20, "Load from File").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(15, 5, 20, "Reset Skin").setAsPartOfHeader(skinSettings));
+        skinSettings.getSubDrawables().add(new ModernButton(12, 5, 20, buttonWidth, 20, "Load from Player").setAsPartOfHeader(skinSettings));
+        skinSettings.getSubDrawables().add(new ModernButton(13, 5, 20, buttonWidth, 20, "Load from URL").setAsPartOfHeader(skinSettings));
+        skinSettings.getSubDrawables().add(new ModernButton(14, 5, 20, buttonWidth, 20, "Load from File").setAsPartOfHeader(skinSettings));
+        skinSettings.getSubDrawables().add(new ModernButton(15, 5, 20, buttonWidth, 20, "Reset Skin").setAsPartOfHeader(skinSettings));
 
         // ----------------------------------
 
-        ModernHeader capeSettings = new ModernHeader(95, 585, "Cape Settings", 1.25F, true, Color.GREEN);
+        int capeSettingY = this.height / 2;
 
-        capeSettings.getSubDrawables().add(new ModernButton(12, 5, 20, "Load from Player").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(13, 5, 20, "Load from URL").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(14, 5, 20, "Load from File").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(15, 5, 20, "Reset Skin").setAsPartOfHeader(capeSettings));
+        if (skinSettings.getY() + skinSettings.getHeightOfHeader() > capeSettingY) {
+            capeSettingY = skinSettings.getY() + skinSettings.getHeightOfHeader() + 24;
+        }
+
+        ModernHeader capeSettings = new ModernHeader(15, capeSettingY, "Cape Settings", 1.24F, true, Color.GREEN);
+
+        capeSettings.setOffsetBetweenDrawables(24F);
+
+        capeSettings.getSubDrawables().add(new ModernButton(16, 5, 20, buttonWidth, 20, "Load from Player").setAsPartOfHeader(capeSettings));
+        capeSettings.getSubDrawables().add(new ModernButton(17, 5, 20, buttonWidth, 20, "Load from URL").setAsPartOfHeader(capeSettings));
+        capeSettings.getSubDrawables().add(new ModernButton(18, 5, 20, buttonWidth, 20, "Load from File").setAsPartOfHeader(capeSettings));
+        capeSettings.getSubDrawables().add(new ModernButton(19, 5, 20, buttonWidth, 20, "Reset Cape").setAsPartOfHeader(capeSettings));
 
         // ----------------------------------
 
-        ModernHeader recentSkins = new ModernHeader(525, 165, "Recent Skins", 1.3F, true, Color.YELLOW);
+        ModernHeader recentSkins = new ModernHeader(skinSettings.getX() + skinSettings.getWidthOfHeader() + 20, 30, "Recent Skins", 1.24F, true, Color.YELLOW);
 
         // ----------------------------------
 
-        ModernHeader recentCapes = new ModernHeader(525, 585, "Recent Capes", 1.33F, true, Color.LIGHT_GRAY);
+        ModernHeader recentCapes = new ModernHeader(capeSettings.getX() + capeSettings.getWidthOfHeader() + 20, capeSettingY, "Recent Capes", 1.24F, true, Color.LIGHT_GRAY);
 
         // ----------------------------------
 
-        this.headerList.add(title);
         this.headerList.add(skinSettings);
         this.headerList.add(capeSettings);
         this.headerList.add(recentSkins);
         this.headerList.add(recentCapes);
 
-        this.sliderList.add(new ModernSlider(5, this.width / 2 - 100, this.height / 2 + 74, 200, 20, "Scale: ", 1.0F, 200.0F, 100.0F) {
+//        this.sliderList.add(new ModernSlider(5, this.width / 2 - 100, this.height / 2 + 74, 200, 20, "Scale: ", 1.0F, 200.0F, 100.0F) {
+//            @Override
+//            public void onSliderUpdate() {
+//                System.out.println(getValue() / 100);
+//
+//                for (ModernHeader header : SkinChangerMenu.this.headerList) {
+//                    if (header == title) {
+//                        continue;
+//                    }
+//
+//                    header.setScaleSize((float) (getValue() / 100.0D));
+//                }
+//            }
+//        });
+
+        float bottomPosBox = this.height - 20;
+
+        bottomPosBox -= 5;
+
+        float leftPosBox = this.width / 2 + 20;
+        float rightPosBox = this.width - 20;
+
+        // 20 pixel margins.
+        leftPosBox += 20;
+        rightPosBox -= 20;
+
+        float baseButtonWidth = ((rightPosBox - leftPosBox) / 2) - 2;
+
+        float buttonLeftXPos = ((leftPosBox + rightPosBox) / 2) - baseButtonWidth;
+        float buttonRightXPos = rightPosBox - baseButtonWidth;
+
+        ModernButton revertButton = new ModernButton(50, (int) buttonLeftXPos - 2, (int) bottomPosBox - 20,(int) baseButtonWidth, 20, "Revert");
+        ModernButton confirmButton = new ModernButton(51, (int) buttonRightXPos, (int) bottomPosBox - 20,(int) baseButtonWidth, 20, "Confirm");
+
+        this.buttonList.add(revertButton);
+        this.buttonList.add(confirmButton);
+
+        bottomPosBox -= 25;
+
+        float sliderHeight = 20;
+        float sliderWidth = rightPosBox - leftPosBox;
+
+        float sliderXPos = ((leftPosBox + rightPosBox) / 2) - sliderWidth / 2;
+        float sliderYPos = bottomPosBox - sliderHeight;
+
+        this.sliderList.add(new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, "Rotation: ", "\u00B0", 0.0F, 360.0F, this.rotation) {
             @Override
             public void onSliderUpdate() {
-                System.out.println(getValue() / 100);
-
-                for (ModernHeader header : SkinChangerMenu.this.headerList) {
-                    if (header == title) {
-                        continue;
-                    }
-
-                    header.setScaleSize((float) (getValue() / 100.0D));
-                }
-            }
-        });
-
-        this.sliderList.add(new ModernSlider(6, this.width / 2 - 100, this.height / 2 + 98, 200, 20, "Offset: ", 1.0F, 100.0F, 50.0F) {
-            @Override
-            public void onSliderUpdate() {
-                skinSettings.getWidth();
-
-                //skinSettings.setOffsetBetweenDrawables((float) (getValue() / 1.0D));
+                SkinChangerMenu.this.rotation = (float) getValue();
             }
         });
     }
@@ -107,24 +156,95 @@ public class SkinChangerMenu extends ModernGui {
     }
 
     @Override
-    public void preRender() {
+    public XYPosition preRender(int mouseX, int mouseY) {
+        drawDefaultBackground();
+
+        GlStateManager.pushMatrix();
+
+        return null;
     }
+
+    private float rotation = 0;
 
     @Override
     public void onRender(int mouseX, int mouseY, float partialTicks) {
-        drawDefaultBackground();
+        drawCenteredString(this.fontRendererObj, "by boomboompower", this.width / 3, 20, Color.CYAN.getRGB());
 
-        drawCenteredString(this.fontRendererObj, "by boomboompower", this.width / 2, 16, Color.CYAN.getRGB());
+        GlStateManager.pushMatrix();
+
+        GlStateManager.scale(1.5F, 1.5F, 0F);
+        drawCenteredString(this.fontRendererObj, "SkinChanger", (int) (this.width / (3 * 1.5)), 6, Color.WHITE.getRGB());
+
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
+
+        // 20 pixel margin.
+        drawRect(this.width / 2 + 20, 20, this.width - 20, this.height - 20, new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB());
+
+        drawCenteredString(this.fontRendererObj, "Player Model", ((this.width / 2 + 20) + (this.width - 20)) / 2, 30, Color.WHITE.getRGB());
+
+        GlStateManager.popMatrix();
     }
 
     @Override
     public void postRender() {
+        GlStateManager.popMatrix();
 
+        GlStateManager.pushMatrix();
+
+        int scale = (int) ((1.5 * this.width) / 10);
+
+        drawEntityWithRot(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, this.rotation);
+
+        GlStateManager.popMatrix();
     }
 
     @Override
     public void buttonPressed(ModernButton button) {
+        switch (button.getId()) {
+            case 12:
+               // Minecraft.getMinecraft().getRenderManager().getSkinMap().get(this.fakePlayer.getPlayerInfo().getSkinType()).addLayer()
 
+                break;
+            case 13:
+                break;
+            case 14:
+                this.selectionOptions.loadFromFile((location) -> SkinChangerMenu.this.fakePlayer.getPlayerInfo().setLocationSkin(location));
+
+                break;
+            case 15:
+                SkinChangerMenu.this.fakePlayer.getPlayerInfo().setLocationSkin(this.originalSkin);
+
+                break;
+
+            // Cape Settings
+            case 16:
+                break;
+            case 17:
+                break;
+            case 18:
+                this.selectionOptions.loadFromFile((location) -> SkinChangerMenu.this.fakePlayer.getPlayerInfo().setLocationCape(location));
+
+                break;
+            case 19:
+                SkinChangerMenu.this.fakePlayer.getPlayerInfo().setLocationCape(this.originalCape);
+
+                break;
+            case 50:
+                this.fakePlayer.copyFrom(this.mc.thePlayer);
+
+                break;
+            case 51:
+                this.selectionOptions.setCape(this.mc.thePlayer, this.fakePlayer.getPlayerInfo().getLocationSkin(), null);
+                this.selectionOptions.setCape(this.mc.thePlayer, this.fakePlayer.getPlayerInfo().getLocationCape(), null);
+
+                sendChatMessage(ChatColor.GREEN + "Your skin & cape have been applied!");
+                break;
+            default:
+                System.out.println(button.getText() + " : " + button.getId());
+                break;
+        }
     }
 
     @Override
@@ -132,5 +252,108 @@ public class SkinChangerMenu extends ModernGui {
 
     }
 
+    @Override
+    public void onScrollUp() {
+        this.yTranslation += 6;
+    }
 
+    @Override
+    public void onScrollDown() {
+        this.yTranslation -= 6;
+    }
+
+    private void drawEntityWithRot(int posX, int posY, int scale, float rotation) {
+        FakePlayer entity = this.fakePlayer;
+
+        GlStateManager.enableColorMaterial();
+
+        GlStateManager.pushMatrix();
+
+        GlStateManager.translate((float) posX, (float) posY, 50.0F);
+        GlStateManager.scale((float) (-scale), (float) scale, (float) scale);
+
+        GlStateManager.rotate(180.0F, 0.0F, 0.0F , 1.0F);
+
+        // Rotates based on the rotation variable
+        GlStateManager.rotate(rotation, 0F, 270F, 0F);
+
+        // Store original values
+        //float prevSwingProgress = entity.swingProgress;
+        float prevYawOffset = entity.renderYawOffset;
+        float prevYaw = entity.rotationYaw;
+        float prevPitch = entity.rotationPitch;
+        float prevYawRotation = entity.prevRotationYawHead;
+        float prevHeadRotation = entity.rotationYawHead;
+
+        GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
+
+        RenderHelper.enableStandardItemLighting();
+
+        GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(0.0F, 1.0F, 0.0F, 0.0F);
+
+        //entity.swingProgress = System.currentTimeMillis() % 15 / 100;
+        entity.renderYawOffset = 0.0F;
+        entity.rotationYaw = 0.0F;
+        entity.rotationPitch = 0.0F;
+        entity.rotationYawHead = entity.rotationYaw;
+        entity.prevRotationYawHead = entity.rotationYaw;
+
+        entity.prevChasingPosX = 2;
+        entity.chasingPosX = 0;
+
+        entity.prevChasingPosY = 0;
+        entity.chasingPosY = 0;
+
+        entity.prevChasingPosZ = 0;
+        entity.chasingPosZ = 0;
+
+        entity.prevRenderYawOffset = 0;
+        entity.prevCameraYaw = 0;
+
+        entity.prevDistanceWalkedModified = 1;
+        entity.distanceWalkedModified = 0;
+
+        // Simulate player movement
+        entity.limbSwingAmount += (0.6F - entity.limbSwingAmount) * 0.4F;
+        entity.limbSwing += (entity.limbSwingAmount) / 6;
+
+        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+
+        GlStateManager.disableLighting();
+
+        rendermanager.setPlayerViewY(rotation);
+        rendermanager.setRenderShadow(false);
+        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
+        rendermanager.setRenderShadow(true);
+
+        // Attempt natural movement
+        //player.getMainModel().setRotationAngles(entity.limbSwing, entity.limbSwingAmount, entity.getAge(), entity.rotationYawHead, entity.rotationPitch, 1.0F, entity);
+
+        GlStateManager.enableLighting();
+
+        //entity.swingProgress = prevSwingProgress;
+        entity.renderYawOffset = prevYawOffset;
+        entity.rotationYaw = prevYaw;
+        entity.rotationPitch = prevPitch;
+        entity.prevRotationYawHead = prevYawRotation;
+        entity.rotationYawHead = prevHeadRotation;
+
+        GlStateManager.popMatrix();
+
+        RenderHelper.disableStandardItemLighting();
+
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        GlStateManager.disableTexture2D();
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+    }
+
+    public void handleIncomingInput(String playerName) {
+
+    }
+
+    private int getWidthOfString(String str) {
+        return this.mc.fontRendererObj.getStringWidth(str);
+    }
 }

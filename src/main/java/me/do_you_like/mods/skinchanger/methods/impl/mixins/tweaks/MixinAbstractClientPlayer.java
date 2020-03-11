@@ -54,11 +54,7 @@ public abstract class MixinAbstractClientPlayer extends EntityPlayer {
      */
     @Overwrite
     public ResourceLocation getLocationSkin() {
-        if (getEntityId() == Minecraft.getMinecraft().thePlayer.getEntityId()) {
-            if (SkinChangerTweaker.MIXINS_ENABLED && SkinCommand.VERY_BIG_TEMPORARY_SKIN != null) {
-                return SkinCommand.VERY_BIG_TEMPORARY_SKIN;
-            }
-        }
+
 
         NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
         return networkplayerinfo == null ? DefaultPlayerSkin.getDefaultSkin(this.getUniqueID()) : networkplayerinfo.getLocationSkin();
@@ -82,12 +78,6 @@ public abstract class MixinAbstractClientPlayer extends EntityPlayer {
      */
     @Overwrite
     public String getSkinType() {
-        if (getEntityId() == Minecraft.getMinecraft().thePlayer.getEntityId()) {
-            if (SkinChangerTweaker.MIXINS_ENABLED && SkinCommand.VERY_BIG_TEMPORARY_SKIN != null) {
-                return SkinCommand.IS_SLIM_SKIN ? "slim" : "default";
-            }
-        }
-
         NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
         return networkplayerinfo == null ? DefaultPlayerSkin.getSkinType(this.getUniqueID()) : networkplayerinfo.getSkinType();
     }

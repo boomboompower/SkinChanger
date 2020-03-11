@@ -18,7 +18,7 @@
 package me.boomboompower.skinchanger.gui;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
-import me.boomboompower.skinchanger.utils.fake.FakePlayer;
+import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 import me.boomboompower.skinchanger.utils.models.skins.PlayerSkinType;
 
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
@@ -86,7 +86,7 @@ public class SettingsGui extends ModernGui {
         this.fontRendererObj.drawString("Skin Settings", this.width / 2 - 118, this.height / 2 + 8, Color.WHITE.getRGB(), false);
         this.fontRendererObj.drawString("Cape Settings", this.width / 2 + 50, this.height / 2 + 8, Color.WHITE.getRGB(), false);
 
-        drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, fakePlayer, this.previewCape);
+        //drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, fakePlayer, this.previewCape);
 
         if (this.previewCape) {
             drawCenteredString(this.mc.fontRendererObj,"Preview Cape", this.width / 2, this.height / 2 - 40, Color.WHITE.getRGB());

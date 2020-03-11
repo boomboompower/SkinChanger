@@ -19,7 +19,7 @@ package me.boomboompower.skinchanger.gui.experimental;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.utils.models.capes.CapeManager;
-import me.boomboompower.skinchanger.utils.fake.FakePlayer;
+import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
@@ -57,7 +57,7 @@ public class GuiExperimentalOptifine extends ModernGui {
 
         drawCenteredString(this.mc.fontRendererObj,"Names are case sensitive! Ensure you are using the correct name", this.width / 2, this.height / 2 + 8, Color.WHITE.getRGB());
 
-        drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, this.fakePlayer, true);
+        //drawEntityOnScreen(this.width / 2, this.height / 2 - 45, 35, this.width / 2 - mouseX, (this.height / 2 - 90) - mouseY, this.fakePlayer, true);
     
         drawCenteredString(this.mc.fontRendererObj, ChatColor.WHITE + "Hold Left-Alt to flip the cape!", this.width / 2, this.height / 2 + 100, Color.WHITE.getRGB());
 

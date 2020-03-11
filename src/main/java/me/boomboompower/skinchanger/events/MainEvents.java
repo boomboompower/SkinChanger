@@ -20,8 +20,8 @@ package me.boomboompower.skinchanger.events;
 import java.util.Iterator;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
-import me.boomboompower.skinchanger.utils.fake.FakePlayer;
-import me.boomboompower.skinchanger.utils.fake.FakePlayerCape;
+import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
+import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayerCape;
 
 import me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker;
 

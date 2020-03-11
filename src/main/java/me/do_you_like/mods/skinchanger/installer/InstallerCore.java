@@ -86,6 +86,13 @@ public class InstallerCore {
                 return;
             }
 
+            // Remove the file from the current directory.
+            try {
+                currentPath.deleteOnExit();
+            } catch (SecurityException ignored) {
+                // Had no permission to delete the file.
+            }
+
             JOptionPane.showMessageDialog(null, MOD_NAME + " has been installed at: \n " + mcModDir.getAbsolutePath() + "\n\nFrom: \n" + currentPath.getAbsolutePath(), "Installation Successful", JOptionPane.INFORMATION_MESSAGE);
         }
     }

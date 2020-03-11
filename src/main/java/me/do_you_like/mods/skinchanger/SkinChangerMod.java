@@ -23,7 +23,7 @@ import me.do_you_like.mods.skinchanger.commands.SkinCommand;
 import me.do_you_like.mods.skinchanger.configuration.ConfigurationHandler;
 import me.do_you_like.mods.skinchanger.utils.backend.MojangHooker;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
-import me.do_you_like.mods.skinchanger.utils.mod.CacheRetriever;
+import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever;
 
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Mod;

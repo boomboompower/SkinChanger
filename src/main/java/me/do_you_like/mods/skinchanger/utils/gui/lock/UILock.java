@@ -110,11 +110,6 @@ public class UILock extends GuiScreen {
     }
 
     @Override
-    public final void handleMouseInput() throws IOException {
-        super.handleMouseInput();
-    }
-
-    @Override
     public final void onResize(Minecraft mcIn, int w, int h) {
         super.onResize(mcIn, w, h);
     }
@@ -134,5 +129,15 @@ public class UILock extends GuiScreen {
     @Override
     protected final void drawGradientRect(int left, int top, int right, int bottom, int startColor, int endColor) {
         super.drawGradientRect(left, top, right, bottom, startColor, endColor);
+    }
+
+    @Override
+    public final void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+
+        onMouse();
+    }
+
+    protected void onMouse() {
     }
 }

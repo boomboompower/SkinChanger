@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.do_you_like.mods.skinchanger.utils.mod;
+package me.do_you_like.mods.skinchanger.utils.backend;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

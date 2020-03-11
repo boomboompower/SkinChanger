@@ -82,6 +82,10 @@ public class ModernButton extends Gui implements ModernDrawable {
     private boolean partOfHeader;
 
     private ModernHeader parentHeader;
+    private int recommendedYPosition;
+
+    @Getter
+    private boolean translatable;
 
     public ModernButton(int buttonId, int x, int y, String buttonText) {
         this(buttonId, "", x, y, 200, 20, buttonText);
@@ -136,6 +140,10 @@ public class ModernButton extends Gui implements ModernDrawable {
 
     @Override
     public void render(int mouseX, int mouseY) {
+        render(mouseX, mouseY, 0);
+    }
+
+    public void render(int mouseX, int mouseY, int yTranslation) {
         if (this.visible) {
             FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
 
@@ -192,6 +200,8 @@ public class ModernButton extends Gui implements ModernDrawable {
             int xPosition = xPos + 5;
             int yPosition = yPos + recommendedYOffset;
 
+            this.recommendedYPosition = yPosition;
+
             this.hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
             int i = this.getHoverState(this.hovered);
 
@@ -239,15 +249,19 @@ public class ModernButton extends Gui implements ModernDrawable {
         return this;
     }
 
+    @Override
+    public ModernDrawable disableTranslatable() {
+        this.translatable = false;
+
+        return this;
+    }
+
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
         int xPosition = this.xPosition;
         int yPosition = this.yPosition;
 
         if (this.partOfHeader) {
-            XYPosition realPosition = this.parentHeader.getScreenPositionFromLocal(this);
-
-            xPosition = (int) realPosition.getX();
-            yPosition = (int) realPosition.getY();
+            yPosition = this.recommendedYPosition;
         }
 
         return this.enabled && this.visible && mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;

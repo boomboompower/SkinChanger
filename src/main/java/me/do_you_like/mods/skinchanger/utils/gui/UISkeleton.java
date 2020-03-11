@@ -17,6 +17,7 @@
 
 package me.do_you_like.mods.skinchanger.utils.gui;
 
+import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 
 /**
@@ -41,28 +42,33 @@ public interface UISkeleton {
     }
 
     /**
-     * Called just before the render method is called.
-     * <br />
-     * This method is sandboxed.
-     */
-    public default void preRender() {
-    }
-
-    /**
-     * Called during the render method
+     * Called just before the render method is called. Should not be used for rendering. Use for logic methods.
      * <br />
      * This method is sandboxed.
      *
      * @param mouseX the x position of the mouse
      * @param mouseY the y position of the mouse
-     * @param partialTicks from timer - jow much time has elapsed since the last tick, in ticks, for
+     * @return null if the parameter should not be modified or a {@link XYPosition} for what mouseX and mouseY should be changed to.
+     */
+    public default XYPosition preRender(int mouseX, int mouseY) {
+        return null;
+    }
+
+    /**
+     * Called during the render method. Use this for rendering.
+     * <br />
+     * This method is sandboxed.
+     *
+     * @param mouseX the x position of the mouse
+     * @param mouseY the y position of the mouse
+     * @param partialTicks from timer - how much time has elapsed since the last tick, in ticks, for
      *     use by display rendering routines (range: 0.0 - * 1.0). This field is frozen if the display
      *     is paused to eliminate jitter.
      */
     public void onRender(int mouseX, int mouseY, float partialTicks);
 
     /**
-     * Called after the render method
+     * Called after the render method. Use this for any post-processing / post-render logic.
      * <br />
      * This method is sandboxed.
      */
@@ -83,6 +89,12 @@ public interface UISkeleton {
      * @param button the button that was right clicked.
      */
     public default void rightClicked(ModernButton button) {
+    }
+
+    public default void onScrollDown() {
+    }
+
+    public default void onScrollUp() {
     }
 
     /**

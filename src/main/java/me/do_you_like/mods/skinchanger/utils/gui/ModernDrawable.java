@@ -25,6 +25,8 @@ public interface ModernDrawable {
 
     public int getY();
 
+    public int getWidth();
+
     /**
      * Calls the render function for the drawable.
      *
@@ -45,6 +47,24 @@ public interface ModernDrawable {
     public boolean isEnabled();
 
     public ModernDrawable setAsPartOfHeader(ModernHeader parent);
+
+    /**
+     * Stops this drawable being translatable
+     *
+     * @return this translatable
+     */
+    public default ModernDrawable disableTranslatable() {
+        return this;
+    }
+
+    /**
+     * Should this Drawable be translated (up/down)
+     *
+     * @return true if it should be translated.
+     */
+    public default boolean isTranslatable() {
+        return true;
+    }
 
     /**
      * Should this drawable be rendered relative to its header (if its part of one)?

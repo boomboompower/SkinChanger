@@ -17,9 +17,8 @@
 
 package me.do_you_like.mods.skinchanger.utils.gui.impl;
 
-import com.google.common.collect.Lists;
-
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
@@ -44,9 +43,11 @@ import net.minecraft.client.renderer.GlStateManager;
 public class ModernHeader extends Gui implements ModernDrawable {
 
     @Getter
+    @Setter
     private int x;
 
     @Getter
+    @Setter
     private int y;
 
     @Getter
@@ -77,6 +78,8 @@ public class ModernHeader extends Gui implements ModernDrawable {
     @Getter
     @Setter
     private float offsetBetweenDrawables = 12;
+
+    private int widthOfSub = 0;
 
     private ScaledResolution scaledResolution;
 
@@ -151,11 +154,26 @@ public class ModernHeader extends Gui implements ModernDrawable {
         this.headerColor = color;
 
         this.scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
-        this.subDrawables = Lists.newArrayList();
+        this.subDrawables = new ArrayList<ModernDrawable>() {
+            @Override
+            public boolean add(ModernDrawable o) {
+                if (o.getWidth() > ModernHeader.this.widthOfSub) {
+                    ModernHeader.this.widthOfSub = o.getWidth();
+                }
+
+                return super.add(o);
+            }
+        };
+
+        this.widthOfSub = Minecraft.getMinecraft().fontRendererObj.getStringWidth(header);
     }
 
     @Override
     public void render(int mouseX, int mouseY) {
+        render(mouseX, mouseY, 0);
+    }
+
+    public void render(int mouseX, int mouseY, int yTranslation) {
         if (!this.visible) {
             return;
         }
@@ -220,7 +238,7 @@ public class ModernHeader extends Gui implements ModernDrawable {
 
                         GlStateManager.popMatrix();
                     } else {
-                        drawable.renderFromHeader((int) xPos, (int) yPos, mouseX, mouseY, (int) yOffset);
+                        drawable.render(mouseX, mouseY);
                     }
                 }
 
@@ -289,6 +307,24 @@ public class ModernHeader extends Gui implements ModernDrawable {
      */
     public void updateResolution() {
         this.scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
+    }
+
+    public int getWidthOfHeader() {
+        return this.widthOfSub;
+    }
+
+    public int getHeightOfHeader() {
+        if (this.subDrawables.size() == 0) {
+            FontRenderer fontRenderer = getFontRenderer();
+
+            if (fontRenderer == null) {
+                return 0;
+            }
+
+            return (int) (fontRenderer.FONT_HEIGHT * this.scaleSize);
+        }
+
+        return (int) (((12 * this.scaleSize) + this.offsetBetweenDrawables / 2) * this.subDrawables.size());
     }
 
     public XYPosition getScreenPositionFromLocal(ModernDrawable drawable) {

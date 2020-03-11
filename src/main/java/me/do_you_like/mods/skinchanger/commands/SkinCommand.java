@@ -17,33 +17,24 @@
 
 package me.do_you_like.mods.skinchanger.commands;
 
-import java.awt.FileDialog;
-import java.awt.Frame;
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.gui.SkinChangerMenu;
-import me.do_you_like.mods.skinchanger.utils.backend.InternetConnection;
-import me.do_you_like.mods.skinchanger.utils.resources.LocalFileData;
+import me.do_you_like.mods.skinchanger.utils.installing.InternetConnection;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
-import me.do_you_like.mods.skinchanger.utils.mod.ModCommand;
-import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
+import me.do_you_like.mods.skinchanger.utils.command.ModCommand;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.command.ICommandSender;
-
-import net.minecraft.util.ResourceLocation;
 
 /**
  * NOTE: This class is temporary & it's methods will eventually be tuned into a new gui.
  */
 public class SkinCommand extends ModCommand {
-
-    public static ResourceLocation VERY_BIG_TEMPORARY_SKIN = null;
     public static boolean IS_SLIM_SKIN = false;
+
+    private SkinChangerMenu mainMenu = null;
     
     public SkinCommand(SkinChangerMod modIn) {
         super(modIn);
@@ -68,31 +59,6 @@ public class SkinCommand extends ModCommand {
                 org.lwjgl.opengl.Display.setResizable(true);
 
                 return;
-            } else if (args[0].equalsIgnoreCase("file")) {
-                FileDialog dialog = new FileDialog((Frame) null, "Select File to Open");
-                dialog.setMode(FileDialog.LOAD);
-                dialog.setFile("*.png;*.jpg;*.jpeg");
-                dialog.setMultipleMode(false);
-
-                dialog.setVisible(true);
-
-                if (dialog.getFiles().length > 0) {
-                    File f = dialog.getFiles()[0];
-
-                    ResourceLocation customResource = new ResourceLocation("skins/" + f.getName());
-
-                    Minecraft.getMinecraft().addScheduledTask(() -> {
-                        Minecraft.getMinecraft().renderEngine.loadTexture(customResource, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), f, new SkinBuffer()));
-
-                        VERY_BIG_TEMPORARY_SKIN = customResource;
-                    });
-
-                    sendMessage(ChatColor.AQUA + "Your skin has been updated!");
-                } else {
-                    sendMessage(ChatColor.RED + "No file was selected.");
-                }
-
-                return;
             } else if (args[0].equalsIgnoreCase("slim")) {
                 IS_SLIM_SKIN = !IS_SLIM_SKIN;
 
@@ -100,7 +66,7 @@ public class SkinCommand extends ModCommand {
 
                 return;
             } else if (args[0].equalsIgnoreCase("ui") || args[0].equalsIgnoreCase("gui")) {
-                new SkinChangerMenu().display();
+                getMenu(args.length > 1 ? args[1] : "").display();
 
                 return;
             }
@@ -109,7 +75,6 @@ public class SkinCommand extends ModCommand {
         if (args.length == 0) {
             sendMessage(ChatColor.RED + "Incorrect usage, try: /skinchanger <name>");
         } else if (args[0].equalsIgnoreCase("null")) {
-            VERY_BIG_TEMPORARY_SKIN = null;
             IS_SLIM_SKIN = false;
 
             sendMessage(ChatColor.AQUA + "Your skin has been reset!");
@@ -125,7 +90,6 @@ public class SkinCommand extends ModCommand {
                 id = args[0];
             }
 
-            VERY_BIG_TEMPORARY_SKIN = this.mod.getMojangHooker().getSkinFromId(id);
             IS_SLIM_SKIN = this.mod.getMojangHooker().hasSlimSkin(id);
 
             sendMessage(ChatColor.AQUA + "Set skin to " + id + "\'s skin!");
@@ -146,5 +110,17 @@ public class SkinCommand extends ModCommand {
     @Override
     public boolean isUsernameIndex(String[] args, int index) {
         return index == 0;
+    }
+
+    private SkinChangerMenu getMenu(String playerName) {
+        if (this.mainMenu == null) {
+            this.mainMenu = new SkinChangerMenu();
+        }
+
+        if (playerName != null) {
+            this.mainMenu.handleIncomingInput(playerName);
+        }
+
+        return this.mainMenu;
     }
 }

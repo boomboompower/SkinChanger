@@ -15,9 +15,10 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.utils.fake;
+package me.do_you_like.mods.skinchanger.utils.gui.player;
 
 import com.google.common.base.Objects;
+
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -25,7 +26,7 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
 /**
- * The NetworkPlayerInfo of the {@link me.boomboompower.skinchanger.utils.fake.FakePlayer}
+ * The NetworkPlayerInfo of the {@link FakePlayer}
  *
  * Provids many extra methods not included in the normal NetworkPlayerInfo class
  */
@@ -89,7 +90,7 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
     }
     
     @Override
-    protected void loadPlayerTextures() {
+    public void loadPlayerTextures() {
         this.locationSkin = DefaultPlayerSkin.getDefaultSkinLegacy();
         this.locationCape = null;
         this.skinType = "default";

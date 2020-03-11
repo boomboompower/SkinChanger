@@ -17,42 +17,108 @@
 
 package me.do_you_like.mods.skinchanger.utils.gui.impl;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 
 import java.awt.*;
+import net.minecraft.client.renderer.GlStateManager;
 
-public class ModernSlider extends GuiButton {
+public class ModernSlider implements ModernDrawable {
+
+    @Getter
+    private int id;
+
+    @Getter
+    private int x;
+
+    @Getter
+    private int y;
+
+    @Getter
+    private int width;
+
+    @Getter
+    private int height;
+
+    @Getter
+    private String prefix;
+
+    @Getter
+    private String suffix;
+
+    @Getter
+    private String displayString;
+
+    @Getter
+    @Setter
+    private boolean visible = true;
+
+    @Getter
+    @Setter
+    private boolean enabled = true;
+
+    @Getter
+    private boolean hovered = false;
+
+    @Getter
+    private boolean translatable;
 
     private boolean dragging = false;
 
-    private double sliderValue = 1F;
-    private double minValue = 0D;
-    private double maxValue = 5D;
+    private double sliderValue;
+    private double minValue;
+    private double maxValue;
 
-    private String prefix = "";
+    public ModernSlider(int id, int xPos, int yPos, int width, int height, String prefix) {
+        this(id, xPos, yPos, width, height, prefix, "", 0, 1, 0.5);
+    }
 
     public ModernSlider(int id, int xPos, int yPos, int width, int height, String prefix, double minVal, double maxVal, double currentVal) {
-        super(id, xPos, yPos, width, height, prefix);
+        this(id, xPos, yPos, width, height, prefix, "", minVal, maxVal, currentVal);
+    }
+
+    public ModernSlider(int id, int xPos, int yPos, int width, int height, String prefix, String suffix, double minVal, double maxVal, double currentVal) {
+        this.id = id;
+        this.x = xPos;
+        this.y = yPos;
+
+        this.width = width;
+        this.height = height;
+
         this.minValue = minVal;
         this.maxValue = maxVal;
-        this.sliderValue = (currentVal - minValue) / (maxValue - minValue);
-        this.prefix = prefix;
+        this.sliderValue = (currentVal - this.minValue) / (this.maxValue - this.minValue);
 
-        this.displayString = prefix + (int) Math.round(sliderValue * (maxValue - minValue) + minValue);
+        this.prefix = prefix;
+        this.suffix = suffix;
+
+        updateSlider(false);
     }
 
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+    public void render(int mouseX, int mouseY) {
+        render(mouseX, mouseY, 0);
+    }
+
+    public void render(int mouseX, int mouseY, int yTranslation) {
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.enableAlpha();
+
         if (this.visible) {
-            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+            this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
             if (this.enabled) {
-                drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height, new Color(95, 255, 95, 75).getRGB());
+                ModernGui.drawRect(this.x, this.y, this.x + this.width, this.y + this.height, new Color(95, 255, 95, 75).getRGB());
             } else {
-                drawRect(this.xPosition, this.yPosition, this.xPosition + width, this.yPosition + height,  new Color(67, 175, 67, 75).getRGB());
+                ModernGui.drawRect(this.x, this.y, this.x + this.width, this.y + this.height,  new Color(67, 175, 67, 75).getRGB());
             }
-            this.mouseDragged(mc, mouseX, mouseY);
+
+            mouseDragged(mouseX, mouseY);
 
             int color = 14737632;
             if (!this.enabled) {
@@ -61,48 +127,69 @@ public class ModernSlider extends GuiButton {
                 color = 16777120;
             }
 
+            Minecraft mc = Minecraft.getMinecraft();
+
             String buttonText = this.displayString;
 
             int strWidth = mc.fontRendererObj.getStringWidth(buttonText);
             int ellipsisWidth = mc.fontRendererObj.getStringWidth("...");
 
-            if (strWidth > width - 6 && strWidth > ellipsisWidth)
+            if (strWidth > this.width - 6 && strWidth > ellipsisWidth) {
                 buttonText = mc.fontRendererObj.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
 
-            mc.fontRendererObj.drawString(buttonText, (this.xPosition + this.width / 2 - mc.fontRendererObj.getStringWidth(buttonText) / 2), this.yPosition + (this.height - 8) / 2, color, false);
-        }
-    }
-
-    @Override
-    public int getHoverState(boolean mouseOver) {
-        return 0;
-    }
-
-    @Override
-    protected void mouseDragged(Minecraft par1Minecraft, int mouseX, int mouseY) {
-        if (this.visible) {
-            if (this.dragging) {
-                this.sliderValue = (mouseX - (this.xPosition + 4)) / (float) (this.width - 8);
-                updateSlider();
+                strWidth = mc.fontRendererObj.getStringWidth(buttonText);
             }
 
-            drawRect(this.xPosition + (int) (this.sliderValue * (float) (this.width - 4)), this.yPosition, this.xPosition + (int) (this.sliderValue * (float) (this.width - 4)) + 4, this.yPosition + this.height, Color.WHITE.getRGB());
+            mc.fontRendererObj.drawString(buttonText, (this.x + ((float) this.width / 2) - (float) strWidth / 2), this.y + (this.height - 8) / 2, color, false);
         }
+
+        GlStateManager.disableAlpha();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
     }
 
     @Override
-    public boolean mousePressed(Minecraft minecraft, int mouseX, int mouseY) {
-        if (super.mousePressed(minecraft, mouseX, mouseY)) {
-            this.sliderValue = (float) (mouseX - (this.xPosition + 4)) / (float) (this.width - 8);
-            updateSlider();
-            this.dragging = true;
-            return true;
-        } else {
-            return false;
+    public ModernDrawable setAsPartOfHeader(ModernHeader parent) {
+        return this;
+    }
+
+    @Override
+    public ModernDrawable disableTranslatable() {
+        this.translatable = false;
+
+        return this;
+    }
+
+    private void mouseDragged(int mouseX, int mouseY) {
+        if (this.visible) {
+            if (this.dragging) {
+                this.sliderValue = (mouseX - (this.x + 4)) / (float) (this.width - 8);
+                updateSlider(true);
+            }
+
+            ModernGui.drawRect(this.x + (int) (this.sliderValue * (float) (this.width - 4)), this.y, this.x + (int) (this.sliderValue * (float) (this.width - 4)) + 4, this.y + this.height, Color.WHITE.getRGB());
         }
     }
 
-    protected final void updateSlider() {
+    public boolean onMousePressed(int mouseX, int mouseY) {
+        if (!isMousePressed(mouseX, mouseY)) {
+            return false;
+        }
+
+        this.sliderValue = (float) (mouseX - (this.x + 4)) / (float) (this.width - 8);
+
+        updateSlider(true);
+
+        this.dragging = true;
+
+        return true;
+    }
+
+    private boolean isMousePressed(int mouseX, int mouseY) {
+        return this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+    }
+
+    private void updateSlider(boolean triggerUpdate) {
         if (this.sliderValue < 0.0F) {
             this.sliderValue = 0.0F;
         }
@@ -111,9 +198,11 @@ public class ModernSlider extends GuiButton {
             this.sliderValue = 1.0F;
         }
 
-        displayString = prefix + (int) Math.round(sliderValue * (maxValue - minValue) + minValue);
+        this.displayString = this.prefix + (int) Math.round(this.sliderValue * (this.maxValue - this.minValue) + this.minValue) + this.suffix;
 
-        onSliderUpdate();
+        if (triggerUpdate) {
+            onSliderUpdate();
+        }
     }
 
     /**
@@ -122,16 +211,15 @@ public class ModernSlider extends GuiButton {
     public void onSliderUpdate() {
     }
 
-    @Override
     public void mouseReleased(int mouseX, int mouseY) {
         this.dragging = false;
     }
 
     public double getValue() {
-        return sliderValue * (maxValue - minValue) + minValue;
+        return this.sliderValue * (this.maxValue - this.minValue) + this.minValue;
     }
 
     public void setValue(double value) {
-        this.sliderValue = (value - minValue) / (maxValue - minValue);
+        this.sliderValue = (value - this.minValue) / (this.maxValue - this.minValue);
     }
 }

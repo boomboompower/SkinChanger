@@ -24,6 +24,7 @@ import java.util.List;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.UISkeleton;
 import me.do_you_like.mods.skinchanger.utils.gui.lock.UILock;
@@ -32,13 +33,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+import org.lwjgl.input.Mouse;
 
 /**
  * ModernGui, a better-looking GuiScreen which has more optimizations and features than the normal GuiScreen
@@ -46,6 +45,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
  * @author boomboompower
  * @version 4.0
  */
+@SuppressWarnings("WeakerAccess") // This is an API class. Weaker Access doesn't matter
 public abstract class ModernGui extends UILock implements UISkeleton {
 
     protected final Minecraft mc = Minecraft.getMinecraft();
@@ -59,6 +59,8 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
     private ModernButton selectedButton;
     private ModernSlider selectedSlider;
+
+    protected int yTranslation = 0;
 
     @Override
     public final void initGui() {
@@ -76,68 +78,145 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     }
 
     @Override
-    public final void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         try {
-            preRender();
-        } catch (Exception ex) {
-            drawCenteredString(this.fontRendererObj, "An error occurred during preRender();", 0, 0, Color.RED.getRGB());
+            XYPosition position = preRender(mouseX, mouseY);
 
-            for (int i = 0; i < ex.getStackTrace().length; i++) {
+            if (position != null) {
+                mouseX = position.getX_Int();
+                mouseY = position.getY_Int();
+            }
+        } catch (Exception ex) {
+            drawString(this.fontRendererObj, "An error occurred during preRender();", 5, 5, Color.RED.getRGB());
+
+            int startCount = 0;
+
+            if (ex.getMessage() != null) {
+                startCount = 1;
+
+                drawString(this.fontRendererObj, ex.getMessage(), 10, 16, Color.RED.getRGB());
+            }
+
+            for (int i = startCount; i < ex.getStackTrace().length; i++) {
                 StackTraceElement element = ex.getStackTrace()[i];
 
-                drawCenteredString(this.fontRendererObj, element.toString(), 5, 12 + (i * 12), Color.RED.getRGB());
+                drawString(this.fontRendererObj, element.toString(), 10, 16 + (i * 12), Color.RED.getRGB());
             }
 
             return;
         }
 
         try {
+            GlStateManager.pushMatrix();
+
             onRender(mouseX, mouseY, partialTicks);
-        } catch (Exception ex) {
-            drawCenteredString(this.fontRendererObj, "An error occurred during onRender();", 0, 0, Color.RED.getRGB());
 
-            for (int i = 0; i < ex.getStackTrace().length; i++) {
+            GlStateManager.popMatrix();
+        } catch (Exception ex) {
+            drawString(this.fontRendererObj, "An error occurred during onRender();", 5, 5, Color.RED.getRGB());
+
+            int startCount = 0;
+
+            if (ex.getMessage() != null) {
+                startCount = 1;
+
+                drawString(this.fontRendererObj, ex.getMessage(), 10, 16, Color.RED.getRGB());
+            }
+
+            for (int i = startCount; i < ex.getStackTrace().length; i++) {
                 StackTraceElement element = ex.getStackTrace()[i];
 
-                drawCenteredString(this.fontRendererObj, element.toString(), 5, 12 + (i * 12), Color.RED.getRGB());
+                drawString(this.fontRendererObj, element.toString(), 10, 16 + (i * 12), Color.RED.getRGB());
             }
 
             return;
         }
+
+        GlStateManager.pushMatrix();
 
         for (ModernButton button : this.buttonList) {
-            button.render(mouseX, mouseY);
+            if (button.isTranslatable()) {
+                GlStateManager.translate(0, this.yTranslation, 0);
+            }
+
+            button.render(mouseX, mouseY, this.yTranslation);
+
+            if (button.isTranslatable()) {
+                GlStateManager.translate(0, -this.yTranslation, 0);
+            }
         }
+
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
 
         for (GuiLabel label : this.labelList) {
             label.drawLabel(this.mc, mouseX, mouseY);
         }
 
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
+
         for (ModernTextBox text : this.textList) {
             text.drawTextBox();
         }
 
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
+
         for (ModernSlider slider : this.sliderList) {
-            slider.drawButton(this.mc, mouseX, mouseY);
+            if (slider.isTranslatable()) {
+                GlStateManager.translate(0, this.yTranslation, 0);
+            }
+
+            slider.render(mouseX, mouseY, this.yTranslation);
+
+            if (slider.isTranslatable()) {
+                GlStateManager.translate(0, -this.yTranslation, 0);
+            }
         }
+
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
 
         for (ModernHeader header : this.headerList) {
             GlStateManager.pushMatrix();
 
-            header.render(mouseX, mouseY);
+            if (header.isTranslatable()) {
+                GlStateManager.translate(0, this.yTranslation, 0);
+            }
+
+            header.render(mouseX, mouseY, this.yTranslation);
+
+            if (header.isTranslatable()) {
+                GlStateManager.translate(0, -this.yTranslation, 0);
+            }
 
             GlStateManager.popMatrix();
         }
 
+        GlStateManager.popMatrix();
+
         try {
             postRender();
         } catch (Exception ex) {
-            drawCenteredString(this.fontRendererObj, "An error occurred during postRender();", 0, 0, Color.RED.getRGB());
+            drawString(this.fontRendererObj, "An error occurred during postRender();", 5, 5, Color.RED.getRGB());
 
-            for (int i = 0; i < ex.getStackTrace().length; i++) {
+            int startCount = 0;
+
+            if (ex.getMessage() != null) {
+                startCount = 1;
+
+                drawString(this.fontRendererObj, ex.getMessage(), 10, 16, Color.RED.getRGB());
+            }
+
+            for (int i = startCount; i < ex.getStackTrace().length; i++) {
                 StackTraceElement element = ex.getStackTrace()[i];
 
-                drawCenteredString(this.fontRendererObj, element.toString(), 5, 12 + (i * 12), Color.RED.getRGB());
+                drawString(this.fontRendererObj, element.toString(), 10, 16 + (i * 12), Color.RED.getRGB());
             }
         }
     }
@@ -159,8 +238,19 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
     }
 
+    protected XYPosition preMouseClicked(int mouseX, int mouseY, int mouseButton) {
+        return null;
+    }
+
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+        XYPosition position = preMouseClicked(mouseX, mouseY, mouseButton);
+
+        if (position != null) {
+            mouseX = position.getX_Int();
+            mouseY = position.getY_Int();
+        }
+
         if (mouseButton == 0) {
             for (ModernHeader header : this.headerList) {
                 if (header.getSubDrawables().size() > 0) {
@@ -174,6 +264,12 @@ public abstract class ModernGui extends UILock implements UISkeleton {
                                 button.playPressSound(this.mc.getSoundHandler());
 
                                 buttonPressed(button);
+                            }
+                        } else if (drawable instanceof ModernCheckbox) {
+                            ModernCheckbox checkbox = (ModernCheckbox) drawable;
+
+                            if (checkbox.isInside(mouseX, mouseY)) {
+                                checkbox.onClick();
                             }
                         }
                     }
@@ -220,7 +316,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
 
         for (ModernSlider slider : this.sliderList) {
-            if (slider.mousePressed(this.mc, mouseX, mouseY)) {
+            if (slider.onMousePressed(mouseX, mouseY)) {
                 this.selectedSlider = slider;
             }
         }
@@ -259,6 +355,17 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         if (this.selectedSlider != null && state == 0) {
             this.selectedSlider.mouseReleased(mouseX, mouseY);
             this.selectedSlider = null;
+        }
+    }
+
+    @Override
+    public final void onMouse() {
+        int i = Mouse.getEventDWheel();
+
+        if (i < 0) {
+            onScrollDown();
+        } else if (i > 0) {
+            onScrollUp();
         }
     }
 
@@ -314,58 +421,63 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         MinecraftForge.EVENT_BUS.unregister(this);
         Minecraft.getMinecraft().displayGuiScreen(this);
     }
-    
-    /**
-     * Code used to draw an entity on screen, stolen from the Inventory code
-     *
-     * @param posX the x position of the entity
-     * @param posY the y position of the entity
-     * @param scale the scale the entity should be rendered at
-     * @param mouseX the x location of the mouse
-     * @param mouseY the y location of the mouse
-     * @param entity the entity to render on screen
-     * @param previewCape true if the entities cape is being previewed
-     */
-    protected final void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase entity, boolean previewCape) {
-        GlStateManager.enableColorMaterial();
-        GlStateManager.pushMatrix();
-        GlStateManager.translate((float) posX, (float) posY, 50.0F);
-        GlStateManager.scale((float) (-scale), (float) scale, (float) scale);
-        GlStateManager.rotate(180.0F, 0.0F, 0.0F , 1.0F);
-        if (previewCape) {
-            GlStateManager.rotate(180F, 0F, 360F, 0F);
-        }
-        float prevYawOffset = entity.renderYawOffset;
-        float prevYaw = entity.rotationYaw;
-        float prevPitch = entity.rotationPitch;
-        float prevYawRotation = entity.prevRotationYawHead;
-        float prevHeadRotation = entity.rotationYawHead;
-        GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
-        RenderHelper.enableStandardItemLighting();
-        GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(-((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
-        entity.renderYawOffset = previewCape ? -(float) Math.atan((double) (mouseX / 40.0F)) * 20.0F : (float) Math.atan((double) (mouseX / 40.0F)) * 20.0F;
-        entity.rotationYaw = previewCape ? -(float) Math.atan((double) (mouseX / 40.0F)) * 40.0F : (float) Math.atan((double) (mouseX / 40.0F)) * 40.0F;
-        entity.rotationPitch = -((float) Math.atan((double) (mouseY / 40.0F))) * 20.0F;
-        entity.rotationYawHead = entity.rotationYaw;
-        entity.prevRotationYawHead = entity.rotationYaw;
-        GlStateManager.translate(0.0F, 0.0F, 0.0F);
-        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
-        rendermanager.setPlayerViewY(previewCape ? 180.0F : 0.0F);
-        rendermanager.setRenderShadow(false);
-        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
-        rendermanager.setRenderShadow(true);
-        entity.renderYawOffset = prevYawOffset;
-        entity.rotationYaw = prevYaw;
-        entity.rotationPitch = prevPitch;
-        entity.prevRotationYawHead = prevYawRotation;
-        entity.rotationYawHead = prevHeadRotation;
 
-        GlStateManager.popMatrix();
-        RenderHelper.disableStandardItemLighting();
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GlStateManager.disableTexture2D();
-        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+    protected void forceSet(ModernDrawable drawable) {
+        if (drawable instanceof ModernSlider) {
+            if (this.selectedSlider != null) {
+                this.selectedSlider.mouseReleased(0, 0);
+            }
+
+            this.selectedSlider = (ModernSlider) drawable;
+        } else if (drawable instanceof ModernButton) {
+            if (this.selectedButton != null) {
+                this.selectedButton.mouseReleased(0, 0);
+            }
+
+            this.selectedButton = (ModernButton) drawable;
+        }
     }
+
+    public static void drawRectF(float startX, float startY, float endX, float endY, int color) {
+        drawRect((int) startX, (int) startY, (int) endX, (int) endY, color);
+    }
+
+    public static void drawRectangleOutlineF(float startX, float startY, float endX, float endY, int color) {
+        drawRectangleOutline((int) startX, (int) startY, (int) endX, (int) endY, color);
+    }
+
+    public static void drawRectangleOutline(int startX, int startY, int endX, int endY, int color) {
+        // Top
+        drawHorizontalLine_(startX, endX, startY, color);
+
+        // Right
+        drawVerticalLine_(endX, startY, endY, color);
+
+        // Bottom
+        drawHorizontalLine_(startX, endX, endY, color);
+
+        // Left
+        drawVerticalLine_(startX, startY, endY, color);
+    }
+
+    public static void drawHorizontalLine_(int startX, int endX, int y, int color) {
+        if (endX < startX) {
+            int i = startX;
+            startX = endX;
+            endX = i;
+        }
+
+        drawRect(startX, y, endX + 1, y + 1, color);
+    }
+
+    public static void drawVerticalLine_(int x, int startY, int endY, int color) {
+        if (endY < startY) {
+            int i = startY;
+            startY = endY;
+            endY = i;
+        }
+
+        drawRect(x, startY + 1, x + 1, endY, color);
+    }
+
 }

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.utils.fake;
+package me.do_you_like.mods.skinchanger.utils.gui.player;
 
 import com.mojang.authlib.GameProfile;
 
@@ -50,6 +50,14 @@ public class FakePlayer extends AbstractClientPlayer {
      */
     public FakePlayer() {
         this(Minecraft.getMinecraft().thePlayer.worldObj);
+    }
+
+    public FakePlayer(AbstractClientPlayer player) {
+        this(Minecraft.getMinecraft().thePlayer.worldObj);
+
+        getPlayerInfo().setLocationSkin(player.getLocationSkin());
+        getPlayerInfo().setLocationCape(player.getLocationCape());
+        getPlayerInfo().setSkinType(player.getSkinType());
     }
     
     public FakePlayer(World world) {
@@ -113,6 +121,12 @@ public class FakePlayer extends AbstractClientPlayer {
     
     @Override
     public void travelToDimension(int dim) {
+    }
+
+    public void copyFrom(AbstractClientPlayer player) {
+        getPlayerInfo().setLocationSkin(player.getLocationSkin());
+        getPlayerInfo().setLocationCape(player.getLocationCape());
+        getPlayerInfo().setSkinType(player.getSkinType());
     }
     
     public GameProfile getFakeGameProfile() {
