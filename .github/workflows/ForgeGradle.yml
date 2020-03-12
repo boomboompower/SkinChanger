@@ -29,8 +29,8 @@ jobs:
 
     - name: Clean directories
       run: |
-        rm -R out
-        rm -R build
+        rm -f -R out
+        rm -f -R build
 
     - name: Build with Gradle
       run: ./gradlew build jar --stacktrace
