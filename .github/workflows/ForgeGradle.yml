@@ -25,10 +25,10 @@ jobs:
       run: chmod +x gradlew
 
     - name: Launch Forge Workspace
-      run: ./gradlew setupCIWorkspace
+      run: ./gradlew setupCIWorkspace clean
 
     - name: Build with Gradle
-      run: ./gradlew build --stacktrace
+      run: ./gradlew build jar --stacktrace
 
     - name: Publish to GitHub Packages
       run: ./gradlew publish
