@@ -19,20 +19,17 @@ package me.do_you_like.mods.skinchanger.methods.impl.mixins.tweaks;
 
 import com.mojang.authlib.GameProfile;
 
-import me.do_you_like.mods.skinchanger.commands.SkinCommand;
-import me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractClientPlayer.class)
 public abstract class MixinAbstractClientPlayer extends EntityPlayer {
@@ -52,12 +49,9 @@ public abstract class MixinAbstractClientPlayer extends EntityPlayer {
      *
      * @reason Hooking the location of the skin to force set it in the game code
      */
-    @Overwrite
-    public ResourceLocation getLocationSkin() {
+    @Inject(method = "getLocationSkin()Lnet/minecraft/util/ResourceLocation;", at = @At("HEAD"), cancellable = true)
+    public void getLocationSkin(CallbackInfoReturnable<ResourceLocation> callback) {
 
-
-        NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
-        return networkplayerinfo == null ? DefaultPlayerSkin.getDefaultSkin(this.getUniqueID()) : networkplayerinfo.getLocationSkin();
     }
 
     /**
@@ -65,10 +59,8 @@ public abstract class MixinAbstractClientPlayer extends EntityPlayer {
      *
      * @reason Hooking the location of the cape to force set it in the game code
      */
-    @Overwrite
-    public ResourceLocation getLocationCape() {
-        NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
-        return networkplayerinfo == null ? null : networkplayerinfo.getLocationCape();
+    @Inject(method = "getLocationCape()Lnet/minecraft/util/ResourceLocation;", at = @At("HEAD"), cancellable = true)
+    public void getLocationCape(CallbackInfoReturnable<ResourceLocation> callback) {
     }
 
     /**
@@ -76,10 +68,8 @@ public abstract class MixinAbstractClientPlayer extends EntityPlayer {
      *
      * @reason We're adding a hook to the skin type so the player can change the display type of the skin
      */
-    @Overwrite
-    public String getSkinType() {
-        NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
-        return networkplayerinfo == null ? DefaultPlayerSkin.getSkinType(this.getUniqueID()) : networkplayerinfo.getSkinType();
+    @Inject(method = "getSkinType", at = @At("HEAD"), cancellable = true)
+    public void getSkinType(CallbackInfoReturnable<String> callback) {
     }
 
     @Shadow
