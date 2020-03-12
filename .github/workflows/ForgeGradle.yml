@@ -28,8 +28,9 @@ jobs:
       run: ./gradlew setupCIWorkspace clean
 
     - name: Clean directories
-      run: rm -R out
-      run: rm -R build
+      run: |
+        rm -R out
+        rm -R build
 
     - name: Build with Gradle
       run: ./gradlew build jar --stacktrace
