@@ -42,15 +42,27 @@ public class UILock extends GuiScreen {
 
     @Override
     public final void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+
         fontRendererIn.drawString(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y, color, false);
     }
 
     public final void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color, boolean shadow) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+
         fontRendererIn.drawString(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y, color, shadow);
     }
 
     @Override
     public final void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+
         fontRendererIn.drawString(text, (float) x, (float) y, color, false);
     }
 

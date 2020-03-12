@@ -65,41 +65,35 @@ public class SkinCommand extends ModCommand {
                 sendMessage(ChatColor.AQUA + "Your skin is now " + (IS_SLIM_SKIN ? "slim" : "normal"));
 
                 return;
-            } else if (args[0].equalsIgnoreCase("ui") || args[0].equalsIgnoreCase("gui")) {
-                getMenu(args.length > 1 ? args[1] : "").display();
+            }
+        }
+
+        if (args.length > 0) {
+            if (args[0].equalsIgnoreCase("null") || args[0].equalsIgnoreCase("reset")) {
+                IS_SLIM_SKIN = false;
+
+                sendMessage(ChatColor.AQUA + "Your skin has been reset!");
+            } else {
+                if (!InternetConnection.hasInternetConnection()) {
+                    sendMessage(ChatColor.RED + "Could not connect to the internet. " + ChatColor.RED + "Make sure you have a stable internet connection!");
+                    return;
+                }
+
+                String id = this.mod.getMojangHooker().getRealNameFromName(args[0]);
+
+                if (id == null) {
+                    id = args[0];
+                }
+
+                IS_SLIM_SKIN = this.mod.getMojangHooker().hasSlimSkin(id);
+
+                sendMessage(ChatColor.AQUA + "Set skin to " + id + "\'s skin!");
 
                 return;
             }
         }
 
-        if (args.length == 0) {
-            sendMessage(ChatColor.RED + "Incorrect usage, try: /skinchanger <name>");
-        } else if (args[0].equalsIgnoreCase("null")) {
-            IS_SLIM_SKIN = false;
-
-            sendMessage(ChatColor.AQUA + "Your skin has been reset!");
-        } else {
-            if (!InternetConnection.hasInternetConnection()) {
-                sendMessage(ChatColor.RED + "Could not connect to the internet. " + ChatColor.RED + "Make sure you have a stable internet connection!");
-                return;
-            }
-
-            String id = this.mod.getMojangHooker().getRealNameFromName(args[0]);
-
-            if (id == null) {
-                id = args[0];
-            }
-
-            IS_SLIM_SKIN = this.mod.getMojangHooker().hasSlimSkin(id);
-
-            sendMessage(ChatColor.AQUA + "Set skin to " + id + "\'s skin!");
-        }
-
-//        if (args.length == 0) {
-//            new SettingsGui(this.mod).display();
-//        } else {
-//            new SettingsGui(this.mod, args[0]).display();
-//        }
+        getMenu(args.length > 0 ? args[0] : "").display();
     }
 
     @Override
