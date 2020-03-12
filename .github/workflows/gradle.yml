@@ -1,7 +1,7 @@
-# This workflow will build a Java project with Gradle
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+# This workflow will build a Java project with Gradle and Forge
+# The workflow will generate a mod file and publish it to Github
 
-name: Java CI with Gradle
+name: Java CI with Forge
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
       run: ./gradlew setupCIWorkspace
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build --debug --stacktrace
 
     - name: Publish to GitHub Packages
       run: ./gradlew publish
