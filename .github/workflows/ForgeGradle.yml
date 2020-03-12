@@ -28,7 +28,7 @@ jobs:
       run: ./gradlew setupCIWorkspace
 
     - name: Build with Gradle
-      run: ./gradlew build --debug --stacktrace
+      run: ./gradlew build --stacktrace
 
     - name: Publish to GitHub Packages
       run: ./gradlew publish
