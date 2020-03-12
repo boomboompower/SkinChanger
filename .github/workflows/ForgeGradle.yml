@@ -27,6 +27,10 @@ jobs:
     - name: Launch Forge Workspace
       run: ./gradlew setupCIWorkspace clean
 
+    - name: Clean directories
+      run: rm -R out
+      run: rm -R build
+
     - name: Build with Gradle
       run: ./gradlew build jar --stacktrace
 
