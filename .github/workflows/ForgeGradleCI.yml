@@ -69,17 +69,10 @@ jobs:
 
         if: success()
         with:
-          name: SkinChangerMod-{{ github.run_id }}
-          path: ./build/libs/SkinChangerMod.jar
-
-      # Upload the sources to the artifacts tab
-      - name: Upload Mod Sources
-        uses: actions/upload-artifact@v1
-
-        if: success()
-        with:
-          name: SkinChangerMod-Sources-{{ github.run_id }}
-          path: ./build/libs/SkinChangerMod-sources.jar
+          name: SkinChanger-${{ github.run_id }}
+          paths:
+            - './build/libs/SkinChangerMod.jar'
+            - './build/libs/SkinChangerMod-sources.jar'
 
   macOS:
     name: macOS Mod CI
