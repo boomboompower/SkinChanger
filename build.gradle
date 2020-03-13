@@ -42,7 +42,7 @@ apply plugin: 'org.spongepowered.mixin'
 
 version = "2.0.0-SNAPSHOT"
 group = "me.boomboompower.skinchanger"
-archivesBaseName = "SkinChanger"
+archivesBaseName = "SkinChangerMod"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -82,6 +82,7 @@ dependencies {
         exclude module: 'gson'
         exclude module: 'commons-io'
         exclude module: 'log4j-core'
+
     }
 
     provided 'org.projectlombok:lombok:1.16.20'
@@ -107,7 +108,12 @@ processResources {
 }
 
 jar {
+    archiveName = "$baseName.$extension"
+
     from configurations.provided.asFileTree.files.collect {
+        // Fixes an issue where Mixin's copies a duplicate file into the build jar...
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+
         zipTree(it)
     }
 
@@ -120,6 +126,11 @@ jar {
     )
 }
 
+sourceJar {
+    // Rename the jar so it doesn't contain "SNAPSHOT"
+    archiveName = "$baseName-sources.$extension"
+}
+
 configurations {
     provided
     compile.extendsFrom(provided)
@@ -127,5 +138,4 @@ configurations {
 
 mixin {
     defaultObfuscationEnv searge
-    add sourceSets.main, "mixins.skinchanger.refmap.json"
 }

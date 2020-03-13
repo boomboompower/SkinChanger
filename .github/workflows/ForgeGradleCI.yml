@@ -1,8 +1,5 @@
 # The workflow will build a Forge Mod with Gradle
 #
-# gradlew build is ran without the reobfJar because we don't care
-# about mappings & it causes issues with the CI building
-#
 # creator: boomboompower
 # version: 1.0
 
@@ -31,18 +28,8 @@ jobs:
         run: ./gradlew setupCIWorkspace clean
 
         # Uses ForgeGradle to build the jar
-        # A deobfuscated jar is built, without mappings
       - name: Build with Gradle
         run: ./gradlew build -x reobfJar
-      
-        # Upload the artifacts to the atrifacts tab
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2-preview
-        
-        if: success()
-        with:
-          name: SkinChangerMod
-          path: ./build/libs/*.jar
 
   linux:
     name: Linux Mod CI
@@ -73,9 +60,26 @@ jobs:
           rm -f -R build
 
         # Uses ForgeGradle to build the jar
-        # A deobfuscated jar is built, without mappings
       - name: Build with Gradle
-        run: ./gradlew build -x reobfJar
+        run: ./gradlew build
+
+      # Upload the main mod to the artifacts tab
+      - name: Upload Mod
+        uses: actions/upload-artifact@v1
+
+        if: success()
+        with:
+          name: SkinChangerMod
+          path: ./build/libs/SkinChangerMod.jar
+
+      # Upload the sources to the artifacts tab
+      - name: Upload Mod Sources
+        uses: actions/upload-artifact@v1
+
+        if: success()
+        with:
+          name: SkinChangerMod-Sources
+          path: ./build/libs/SkinChangerMod-sources.jar
 
   macOS:
     name: macOS Mod CI
@@ -99,7 +103,6 @@ jobs:
         run: ./gradlew setupCIWorkspace clean
 
         # Uses ForgeGradle to build the jar
-        # A deobfuscated jar is built, without mappings
       - name: Build with Gradle
         run: ./gradlew build -x reobfJar
 
