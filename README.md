@@ -1,6 +1,9 @@
 # SkinChanger
 A Minecraft mod which allows players to change their cape and skin directly from an in-game menu. Skins can be retrieved from files, urls and directly from player names and UUIDs.
 
+##### Build Status
+![Java CI with Forge](https://github.com/boomboompower/SkinChanger/workflows/Java%20CI%20with%20Forge/badge.svg)
+
 ### Why?
 The SkinChanger mod was initially created when many mods offered capes in their clients/mods if the user pays for them. Minecraft's EULA did not (and still doesn't) allow for mods/clients to profit from exclusive goods they've created in the game. Since mods with payable capes kept popping up, I decided to create SkinChanger; a free alternative to those mods. I intially intended it to be a skin-only mod however soon it also grew to support cape modification due to popular demand. 
 
