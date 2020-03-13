@@ -37,7 +37,7 @@ jobs:
       
         # Upload the artifacts to the atrifacts tab
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2-preview
         
         if: success()
         with:
