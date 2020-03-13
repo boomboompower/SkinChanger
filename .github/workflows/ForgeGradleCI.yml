@@ -10,10 +10,32 @@ on:
     branches: [ master, Legacy ]
 
 jobs:
+  happy:
+    name:  Introduction
+    
+    runs-on: [windows-latest]
+    
+    steps:
+      - name: Intro
+        run: |
+          echo # # # # # # # # # # # # # # # # # # # # # # #
+          echo                SkinChanger  
+          echo        https://do-you-like.me/mods 
+          echo        
+          echo             by boomboompower
+          echo # # # # # # # # # # # # # # # # # # # # # # #
+      - name: Build
+        run: |
+          echo :setupBuild
+          echo :cleanBuild
+          echo :complete
+          echo 
+          echo Have a nice day!
+          
   build:
     name: CI Build Mod
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -22,8 +44,8 @@ jobs:
       with:
         java-version: 1.8
 
-    #- name: Grant execute permission for gradlew
-    #  run: chmod +x gradlew
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
     - name: Launch Forge Workspace
       run: ./gradlew setupCIWorkspace clean
