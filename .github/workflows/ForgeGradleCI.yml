@@ -29,7 +29,7 @@ jobs:
 
         # Uses ForgeGradle to build the jar
       - name: Build with Gradle
-        run: ./gradlew build -x reobfJar
+        run: ./gradlew build
 
   linux:
     name: Linux Mod CI
@@ -70,9 +70,15 @@ jobs:
         if: success()
         with:
           name: SkinChanger-${{ github.run_id }}
-          paths:
-            - './build/libs/SkinChangerMod.jar'
-            - './build/libs/SkinChangerMod-sources.jar'
+          path: './build/libs/SkinChangerMod.jar'
+
+      - name: Upload Mod Source
+        uses: actions/upload-artifact@v1
+
+        if: success()
+        with:
+          name: SkinChanger-sources-${{ github.run_id }}
+          path: './build/libs/SkinChangerMod-sources.jar'
 
   macOS:
     name: macOS Mod CI
@@ -99,4 +105,19 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x reobfJar
 
+      # Upload the main mod to the artifacts tab
+      - name: Upload Mod
+        uses: actions/upload-artifact@v1
 
+        if: success()
+        with:
+          name: SkinChanger-Deobfuscated-${{ github.run_id }}
+          path: './build/libs/SkinChangerMod.jar'
+
+      - name: Upload Mod Source
+        uses: actions/upload-artifact@v1
+
+        if: success()
+        with:
+          name: SkinChanger-Deobfuscated-sources-${{ github.run_id }}
+          path: './build/libs/SkinChangerMod-sources.jar'
