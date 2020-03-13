@@ -1,0 +1,28 @@
+# Default owners, will be overriden by other rules
+* @boomboompower
+
+# Entries below here will override any above tags
+# Here is a list of valid formats. All @USERNAME 
+# tags can be replaced by an email address and Github 
+# will find and link the account automatically.
+# 
+# Codeowners will be automatically requested for 
+# review when any new pull requests modifying their 
+# "owned" code are created on this repository.
+#
+# ------
+#
+# Makes @global-owner1 and @global-owner2 codeowner of everything by default
+# * @global-owner1 @global-owner2
+#
+# Makes @js-owner the owner of any files extending .js
+# *.js @js-owner
+#
+# Makes @dir-owner the owner of every file AND directory under the src/main directory (including subfolders)
+# /src/main @dir-owner
+#
+# Makes @dir-owner the owner of every file NOT directories under the src/main directory (won't include subfolders)
+# /src/main/* @dir-owner
+#
+# Makes @build-owner the owner of any directory with this name
+# build/ @build-owner
