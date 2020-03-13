@@ -103,21 +103,4 @@ jobs:
 
         # Uses ForgeGradle to build the jar
       - name: Build with Gradle
-        run: ./gradlew build -x reobfJar
-
-      # Upload the main mod to the artifacts tab
-      - name: Upload Mod
-        uses: actions/upload-artifact@v1
-
-        if: success()
-        with:
-          name: SkinChanger-Deobfuscated-${{ github.run_id }}
-          path: './build/libs/SkinChangerMod.jar'
-
-      - name: Upload Mod Source
-        uses: actions/upload-artifact@v1
-
-        if: success()
-        with:
-          name: SkinChanger-Deobfuscated-sources-${{ github.run_id }}
-          path: './build/libs/SkinChangerMod-sources.jar'
+        run: ./gradlew build
