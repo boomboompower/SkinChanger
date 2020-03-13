@@ -12,8 +12,8 @@ After two years of inactivity, I decided it was time for an overhaul. Which is w
 Featuring:
 * A new UI focusing more on the player aspect
 * More ways to get skins/capes (urls, local files)
-* Compatability with other mods
-* Accessability across different versions.
+* Compatibility with other mods
+* Accessibility across different versions.
 
 ### Features
 Skin-wise: 
@@ -67,7 +67,8 @@ This has been tested for the following OS's
 6. Run the installer
 
 #### IntelliJ
-1.  Clone the repo: `git clone https://github.com/boomboompowee/SkinChanger`
+1.  Clone the repo: `git clone
+    https://github.com/boomboompower/SkinChanger`
 2. Run `./gradlew setupDecompWorkspace idea genIntellijRuns`
 3. Open the project in IntelliJ
 4. Import the gradle project, sync gradle
