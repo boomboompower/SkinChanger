@@ -10,28 +10,6 @@ on:
     branches: [ master, Legacy ]
 
 jobs:
-  happy:
-    name:  Introduction
-    
-    runs-on: [ubuntu-latest]
-    
-    steps:
-      - name: Intro
-        run: |
-          lp "# # # # # # # # # # # # # # # # # # # # # # #"
-          lp "                SkinChanger                  "
-          lp "        https://do-you-like.me/mods          "
-          lp "                                             "
-          lp "             by boomboompower                "
-          lp "# # # # # # # # # # # # # # # # # # # # # # #"
-      - name: Build
-        run: |
-          lp ":setupBuild"
-          lp ":cleanBuild"
-          lp ":complete"
-          lp " "
-          lp "Have a nice day!"
-          
   build:
     name: CI Build Mod
 
@@ -58,7 +36,7 @@ jobs:
 
       # Uses ForgeGradle to destribute the jar file
     - name: Build with Gradle
-      run: ./gradlew --continue build jar --stacktrace
+      run: ./gradlew build -x reobfJar
 
       # Attempts to send the built jar to github
     - name: Publish to GitHub Packages
