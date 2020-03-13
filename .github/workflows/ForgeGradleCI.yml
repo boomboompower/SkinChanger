@@ -14,8 +14,30 @@ name: Java CI with Forge
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: CI Build Mod
+  windows:
+    name: Windows Mod CI
+
+    # Use latest windows version
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+        # Sets up the forge workspace (using CI)
+      - name: Launch Forge Workspace
+        run: ./gradlew setupCIWorkspace clean
+
+        # Uses ForgeGradle to build the jar
+        # A deobfuscated jar is built, without mappings
+      - name: Build with Gradle
+        run: ./gradlew build -x reobfJar
+
+  linux:
+    name: Linux Mod CI
 
     # Use latest linux distro
     runs-on: ubuntu-latest
