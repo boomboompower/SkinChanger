@@ -13,24 +13,24 @@ jobs:
   happy:
     name:  Introduction
     
-    runs-on: [windows-latest]
+    runs-on: [ubuntu-latest]
     
     steps:
       - name: Intro
         run: |
-          echo # # # # # # # # # # # # # # # # # # # # # # #
-          echo                SkinChanger  
-          echo        https://do-you-like.me/mods 
-          echo        
-          echo             by boomboompower
-          echo # # # # # # # # # # # # # # # # # # # # # # #
+          lp "# # # # # # # # # # # # # # # # # # # # # # #"
+          lp "                SkinChanger                  "
+          lp "        https://do-you-like.me/mods          "
+          lp "                                             "
+          lp "             by boomboompower                "
+          lp "# # # # # # # # # # # # # # # # # # # # # # #"
       - name: Build
         run: |
-          echo :setupBuild
-          echo :cleanBuild
-          echo :complete
-          echo 
-          echo Have a nice day!
+          lp ":setupBuild"
+          lp ":cleanBuild"
+          lp ":complete"
+          lp " "
+          lp "Have a nice day!"
           
   build:
     name: CI Build Mod
