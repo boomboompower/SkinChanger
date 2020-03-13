@@ -85,7 +85,7 @@ dependencies {
 
     }
 
-    provided 'org.projectlombok:lombok:1.16.20'
+    compile 'org.projectlombok:lombok:1.16.20'
 }
 
 processResources {
