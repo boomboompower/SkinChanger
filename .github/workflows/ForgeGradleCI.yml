@@ -36,8 +36,8 @@ jobs:
         run: ./gradlew build -x reobfJar
       
         # Upload the artifacts to the atrifacts tab
-      - uses: actions/upload-artifact@v1
       - name: Upload artifacts
+        uses: actions/upload-artifact@v1
         
         if: success()
         with:
