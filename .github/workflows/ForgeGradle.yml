@@ -10,39 +10,10 @@ on:
     branches: [ master, Legacy ]
 
 jobs:
-  CIWorkspace:
+  build:
+    name: CI Build Mod
 
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Launch Forge Workspace
-      run: ./gradlew setupCIWorkspace clean
-
-    - name: Clean directories
-      run: |
-        rm -f -R out
-        rm -f -R build
-
-    - name: Build with Gradle
-      run: ./gradlew build jar --stacktrace
-
-    - name: Publish to GitHub Packages
-      run: ./gradlew publish
-      env:
-        USERNAME: ${{ github.actor }}
-        PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-  DevWorkspace:
-
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -51,22 +22,25 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    #- name: Grant execute permission for gradlew
+    #  run: chmod +x gradlew
 
     - name: Launch Forge Workspace
-      run: ./gradlew setupDevWorkspace clean
+      run: ./gradle.bat setupCIWorkspace clean
 
-    - name: Clean directories
+      # These files shouldn't exist but we'll try delete them anyway
+    - name: Clean output directories
       run: |
         rm -f -R out
         rm -f -R build
 
+      # Uses ForgeGradle to destribute the jar file
     - name: Build with Gradle
-      run: ./gradlew build jar --stacktrace
+      run: ./gradle.bat --continue build jar --stacktrace
 
+      # Attempts to send the built jar to github
     - name: Publish to GitHub Packages
-      run: ./gradlew publish
+      run: ./gradle.bat publish
       env:
         USERNAME: ${{ github.actor }}
         PASSWORD: ${{ secrets.GITHUB_TOKEN }}
