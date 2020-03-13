@@ -8,7 +8,6 @@
 
 name: Java CI with Forge
 
-
 # Trigger the integration for pull requests and pushes
 # to every branch on the repository
 on: [push, pull_request]
@@ -35,6 +34,15 @@ jobs:
         # A deobfuscated jar is built, without mappings
       - name: Build with Gradle
         run: ./gradlew build -x reobfJar
+      
+        # Upload the artifacts to the atrifacts tab
+      - uses: actions/upload-artifact@v1
+      - name: Upload artifacts
+        
+        if: success()
+        with:
+          name: SkinChangerMod
+          path: ./build/libs/*.jar
 
   linux:
     name: Linux Mod CI
@@ -73,7 +81,7 @@ jobs:
     name: macOS Mod CI
 
     # Use latest macOS version
-    runs-on: macOS-latest
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v2
