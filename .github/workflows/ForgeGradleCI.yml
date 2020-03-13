@@ -26,7 +26,7 @@ jobs:
     #  run: chmod +x gradlew
 
     - name: Launch Forge Workspace
-      run: ./gradle.bat setupCIWorkspace clean
+      run: ./gradlew setupCIWorkspace clean
 
       # These files shouldn't exist but we'll try delete them anyway
     - name: Clean output directories
@@ -36,11 +36,11 @@ jobs:
 
       # Uses ForgeGradle to destribute the jar file
     - name: Build with Gradle
-      run: ./gradle.bat --continue build jar --stacktrace
+      run: ./gradlew --continue build jar --stacktrace
 
       # Attempts to send the built jar to github
     - name: Publish to GitHub Packages
-      run: ./gradle.bat publish
+      run: ./gradlew publish
       env:
         USERNAME: ${{ github.actor }}
         PASSWORD: ${{ secrets.GITHUB_TOKEN }}
