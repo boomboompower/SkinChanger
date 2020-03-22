@@ -26,7 +26,9 @@ import lombok.Setter;
 
 import me.do_you_like.mods.skinchanger.utils.general.Prerequisites;
 import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
+import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -40,7 +42,7 @@ import net.minecraft.client.renderer.GlStateManager;
  * @version 1.1
  * @author boomboompower
  */
-public class ModernHeader extends Gui implements ModernDrawable {
+public class ModernHeader extends Gui implements InteractiveDrawable {
 
     @Getter
     @Setter
@@ -79,7 +81,7 @@ public class ModernHeader extends Gui implements ModernDrawable {
     @Setter
     private float offsetBetweenDrawables = 12;
 
-    private int widthOfSub = 0;
+    private int widthOfSub;
 
     private ScaledResolution scaledResolution;
 
@@ -169,11 +171,7 @@ public class ModernHeader extends Gui implements ModernDrawable {
     }
 
     @Override
-    public void render(int mouseX, int mouseY) {
-        render(mouseX, mouseY, 0);
-    }
-
-    public void render(int mouseX, int mouseY, int yTranslation) {
+    public void render(int mouseX, int mouseY, float yTranslation) {
         if (!this.visible) {
             return;
         }
@@ -232,19 +230,24 @@ public class ModernHeader extends Gui implements ModernDrawable {
                     if (drawable.renderRelativeToHeader()) {
                         GlStateManager.pushMatrix();
 
-                        //GlStateManager.translate(xPos / this.scaleSize, yPos / this.scaleSize, 0.0F);
-
-                        drawable.renderFromHeader((int) xPos, (int) yPos, mouseX, mouseY, (int) yOffset);
+                        drawable.renderFromHeader((int) xPos, (int) yPos, yTranslation, mouseX, mouseY, (int) yOffset);
 
                         GlStateManager.popMatrix();
                     } else {
-                        drawable.render(mouseX, mouseY);
+                        drawable.render(mouseX, mouseY, yTranslation);
                     }
                 }
 
                 yOffset += this.offsetBetweenDrawables;
             }
         }
+    }
+
+    @Override
+    public boolean isInside(int mouseX, int mouseY, float yTranslation) {
+        ModernGui.drawRect(this.x, this.y, this.x + getWidthOfHeader(), this.y + getHeightOfHeader(), new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
+
+        return this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + getWidthOfHeader() && mouseY < this.y + getHeightOfHeader();
     }
 
     @Override
@@ -325,6 +328,21 @@ public class ModernHeader extends Gui implements ModernDrawable {
         }
 
         return (int) (((12 * this.scaleSize) + this.offsetBetweenDrawables / 2) * this.subDrawables.size());
+    }
+
+    @Override
+    public void onLeftClick(int mouseX, int mouseY, float yTranslation) {
+        if (this.subDrawables.size() > 0) {
+            for (ModernDrawable sub : this.subDrawables) {
+                if (sub instanceof InteractiveDrawable) {
+                    InteractiveDrawable interactive = (InteractiveDrawable) sub;
+
+                    if (interactive.isInside(mouseX, mouseY, yTranslation)) {
+                        interactive.onLeftClick(mouseX, mouseY, yTranslation);
+                    }
+                }
+            }
+        }
     }
 
     public XYPosition getScreenPositionFromLocal(ModernDrawable drawable) {

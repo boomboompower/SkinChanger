@@ -23,7 +23,7 @@ import me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker;
 
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
@@ -37,6 +37,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("ALL")
+@Deprecated
+/**
+ * @deprecated to be removed
+ */
 public class GuiExperimentalAllPlayers extends ModernGui {
 
     public static ResourceLocation forcedAllSkins;
@@ -55,10 +60,10 @@ public class GuiExperimentalAllPlayers extends ModernGui {
     public void onGuiOpen() {
         Keyboard.enableRepeatEvents(true);
 
-        this.textList.add(this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
+        registerElement(this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
 
-        this.buttonList.add(new ModernButton(0, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Give skin to everyone"));
-        this.buttonList.add(this.resetButton = new ModernButton(2, this.width / 2 - 75, this.height / 2 + 74, 150, 20, "Reset all skins"));
+        registerElement(new ModernButton(0, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Give skin to everyone"));
+        registerElement(this.resetButton = new ModernButton(2, this.width / 2 - 75, this.height / 2 + 74, 150, 20, "Reset all skins"));
 
         this.resetButton.setEnabledColor(new Color(255, 0, 0, 75));
     }

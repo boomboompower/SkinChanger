@@ -22,6 +22,8 @@ package me.boomboompower.skinchanger.utils.models.skins;
  *
  * This was a heavily requested feature in the initial versions of SkinChanger.
  */
+@SuppressWarnings("ALL")
+@Deprecated
 public enum PlayerSkinType {
 
     STEVE("Steve", "default"),

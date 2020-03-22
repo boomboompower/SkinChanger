@@ -18,11 +18,14 @@
 package me.boomboompower.skinchanger;
 
 import java.util.Random;
+
 import me.boomboompower.skinchanger.utils.models.capes.CapeManager;
 import me.boomboompower.skinchanger.config.ConfigLoader;
 import me.boomboompower.skinchanger.utils.models.skins.SkinManager;
 
 //@Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "*")
+@SuppressWarnings("ALL")
+@Deprecated
 public class SkinChangerModOld {
 
     public static final String MOD_ID = "skinchanger";

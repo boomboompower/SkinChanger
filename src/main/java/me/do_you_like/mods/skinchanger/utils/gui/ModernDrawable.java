@@ -28,21 +28,29 @@ public interface ModernDrawable {
     public int getWidth();
 
     /**
+     * Called when this Drawable is clicked.
+     */
+    public default void onClick() {
+    }
+
+    /**
      * Calls the render function for the drawable.
      *
      * @param mouseX the current x position of the mouse.
      * @param mouseY the current y position of the mouse.
      */
-    public void render(int mouseX, int mouseY);
+    public void render(int mouseX, int mouseY, float yTranslation);
 
-    public default void renderFromHeader(int xPos, int yPos, int mouseX, int mouseY, int recommendedYOffset) {
-        render(mouseX, mouseY);
+    public default void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
+        render(mouseX, mouseY, yTranslation);
     }
 
+    public boolean isInside(int mouseX, int mouseY, float yTranslation);
+
     /**
-     * Should this drawable be drawn? If this is false the header will not call the {@link #render(int, int)} method.
+     * Should this drawable be drawn? If this is false the header will not call the {@link #render(int, int, float)} method.
      *
-     * @return true if {@link #render(int, int)} should be called for the drawable.
+     * @return true if {@link #render(int, int, float)} should be called for the drawable.
      */
     public boolean isEnabled();
 

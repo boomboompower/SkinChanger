@@ -20,14 +20,11 @@ package me.do_you_like.mods.skinchanger.utils.gui.impl;
 import lombok.Getter;
 import lombok.Setter;
 
-import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
-import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
@@ -39,7 +36,7 @@ import java.awt.*;
  * @author boomboompower
  * @version 2.0
  */
-public class ModernButton extends Gui implements ModernDrawable {
+public class ModernButton extends Gui implements InteractiveDrawable {
 
     protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
 
@@ -113,21 +110,6 @@ public class ModernButton extends Gui implements ModernDrawable {
         this.displayString = buttonText;
     }
 
-    /**
-     * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
-     * this button.
-     */
-    protected int getHoverState(boolean mouseOver) {
-        int i = 1;
-
-        if (!this.enabled) {
-            i = 0;
-        } else if (mouseOver) {
-            i = 2;
-        }
-        return i;
-    }
-
     @Override
     public int getX() {
         return this.xPosition;
@@ -138,12 +120,7 @@ public class ModernButton extends Gui implements ModernDrawable {
         return this.yPosition;
     }
 
-    @Override
-    public void render(int mouseX, int mouseY) {
-        render(mouseX, mouseY, 0);
-    }
-
-    public void render(int mouseX, int mouseY, int yTranslation) {
+    public void render(int mouseX, int mouseY, float yTranslation) {
         if (this.visible) {
             FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
 
@@ -170,9 +147,9 @@ public class ModernButton extends Gui implements ModernDrawable {
                 this.drawTexturedModalRect(xPosition + this.width / 2, yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
             } else {
                 if (this.enabled) {
-                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getEnabledColor().getRGB());
+                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getEnabledColor().getRGB());
                 } else {
-                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
+                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getDisabledColor().getRGB());
                 }
             }
 
@@ -191,7 +168,7 @@ public class ModernButton extends Gui implements ModernDrawable {
     }
 
     @Override
-    public void renderFromHeader(int xPos, int yPos, int mouseX, int mouseY, int recommendedYOffset) {
+    public void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
         if (this.visible) {
             FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
 
@@ -202,7 +179,8 @@ public class ModernButton extends Gui implements ModernDrawable {
 
             this.recommendedYPosition = yPosition;
 
-            this.hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
+            this.hovered = isInside(mouseX, mouseY, yTranslation);
+
             int i = this.getHoverState(this.hovered);
 
             int j = 14737632;
@@ -241,7 +219,31 @@ public class ModernButton extends Gui implements ModernDrawable {
     }
 
     @Override
-    public ModernDrawable setAsPartOfHeader(ModernHeader parent) {
+    public void onLeftClick(int mouseX, int mouseY, float yTranslation) {
+        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+    }
+
+    @Override
+    public boolean isInside(int mouseX, int mouseY, float yTranslation) {
+        if (!this.visible) {
+            return false;
+        }
+
+        int xPosition = this.xPosition;
+        int yPosition = this.yPosition;
+
+        if (this.partOfHeader) {
+            yPosition = this.recommendedYPosition;
+            //xPosition += ;
+        }
+
+        yPosition += yTranslation;
+
+        return mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
+    }
+
+    @Override
+    public InteractiveDrawable setAsPartOfHeader(ModernHeader parent) {
         this.partOfHeader = true;
 
         this.parentHeader = parent;
@@ -250,28 +252,25 @@ public class ModernButton extends Gui implements ModernDrawable {
     }
 
     @Override
-    public ModernDrawable disableTranslatable() {
+    public InteractiveDrawable disableTranslatable() {
         this.translatable = false;
 
         return this;
     }
 
-    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-        int xPosition = this.xPosition;
-        int yPosition = this.yPosition;
+    /**
+     * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
+     * this button.
+     */
+    protected int getHoverState(boolean mouseOver) {
+        int state = 1;
 
-        if (this.partOfHeader) {
-            yPosition = this.recommendedYPosition;
+        if (!this.enabled) {
+            state = 0;
+        } else if (mouseOver) {
+            state = 2;
         }
-
-        return this.enabled && this.visible && mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
-    }
-
-    public void mouseReleased(int mouseX, int mouseY) {
-    }
-
-    public void playPressSound(SoundHandler soundHandlerIn) {
-        soundHandlerIn.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+        return state;
     }
 
     public Color getEnabledColor() {

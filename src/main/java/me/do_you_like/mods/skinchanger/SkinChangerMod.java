@@ -32,7 +32,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "*")
+@Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "*", clientSideOnly = true)
 public class SkinChangerMod {
 
     public static final String MOD_ID = "skinchanger";
@@ -52,11 +52,16 @@ public class SkinChangerMod {
         ModMetadata data = event.getModMetadata();
         data.description = ChatColor.AQUA + "A client-side mod that allows you to change your skin instantly!";
         data.authorList.add("boomboompower");
+        data.version = SkinChangerMod.VERSION;
 
         this.modConfigDirectory = new File(event.getModConfigurationDirectory(), "skinchanger");
 
         this.cacheRetriever = new CacheRetriever(this);
         this.configurationHandler = new ConfigurationHandler(this);
+
+        for (int i = 0; i < 20; i++) {
+            System.out.println((i * 'X') + " PreInit!");
+        }
     }
 
     @Mod.EventHandler
@@ -64,6 +69,9 @@ public class SkinChangerMod {
         //MinecraftForge.EVENT_BUS.register(new MainEvents(this));
         ClientCommandHandler.instance.registerCommand(new SkinCommand(this));
 
+        for (int i = 0; i < 20; i++) {
+            System.out.println((i * 'Y') + " Init!");
+        }
     }
 
     @Mod.EventHandler
@@ -71,6 +79,10 @@ public class SkinChangerMod {
         this.configurationHandler.load();
 
         this.mojangHooker = new MojangHooker();
+
+        for (int i = 0; i < 20; i++) {
+            System.out.println((i * 'Z') + " PostInit!");
+        }
     }
 
     public File getModConfigDirectory() {

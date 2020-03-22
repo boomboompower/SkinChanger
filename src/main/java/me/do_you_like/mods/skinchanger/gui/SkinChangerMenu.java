@@ -27,7 +27,7 @@ import me.do_you_like.mods.skinchanger.utils.gui.options.SelectionOptions;
 import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernHeader;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernSlider;
 
@@ -111,8 +111,8 @@ public class SkinChangerMenu extends ModernGui {
         ModernButton revertButton = new ModernButton(50, (int) buttonLeftXPos - 2, (int) bottomPosBox - 20,(int) baseButtonWidth, 20, "Revert");
         ModernButton confirmButton = new ModernButton(51, (int) buttonRightXPos, (int) bottomPosBox - 20,(int) baseButtonWidth, 20, "Confirm");
 
-        this.buttonList.add(revertButton);
-        this.buttonList.add(confirmButton);
+        registerElement(revertButton);
+        registerElement(confirmButton);
 
         this.m_revertButton = revertButton;
         this.m_applyButton = confirmButton;
@@ -125,18 +125,20 @@ public class SkinChangerMenu extends ModernGui {
         float sliderXPos = ((leftPosBox + rightPosBox) / 2) - sliderWidth / 2;
         float sliderYPos = bottomPosBox - sliderHeight;
 
-        this.sliderList.add(new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, "Rotation: ", "\u00B0", 0.0F, 360.0F, this.rotation) {
+        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, "Rotation: ", "\u00B0", 0.0F, 360.0F, this.rotation) {
             @Override
             public void onSliderUpdate() {
                 SkinChangerMenu.this.rotation = (float) getValue();
 
                 setRotation((float) getValue());
             }
-        });
+        };
+
+        registerElement(slider.disableTranslatable());
 
         ModernButton modSettingsButton = new ModernButton(101, this.width - 20 - 25, 20, 25, 25, "\u2699");
 
-        this.buttonList.add(modSettingsButton);
+        registerElement(modSettingsButton);
 
         this.m_optionsButton = modSettingsButton;
 
@@ -240,11 +242,6 @@ public class SkinChangerMenu extends ModernGui {
         this.yTranslation -= 6;
     }
 
-    @Override
-    public void onGuiClose() {
-        this.headerList.clear();
-    }
-
     /**
      * Override to change the buttons which appear on the left of the screen
      */
@@ -287,10 +284,10 @@ public class SkinChangerMenu extends ModernGui {
 
         // ----------------------------------
 
-        this.headerList.add(skinSettings);
-        this.headerList.add(capeSettings);
-        this.headerList.add(recentSkins);
-        this.headerList.add(recentCapes);
+        registerElement(skinSettings);
+        registerElement(capeSettings);
+        registerElement(recentSkins);
+        registerElement(recentCapes);
     }
 
     private void drawEntityWithRot(int posX, int posY, int scale, float rotation) {

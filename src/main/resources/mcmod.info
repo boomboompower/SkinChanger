@@ -2,6 +2,16 @@
   {
     "modid" : "skinchanger",
     "name" : "SkinChanger",
-    "version" : "${version}"
+    "mcversion" : "{$mcversion}",
+
+    "description" : "A client-side mod that allows you to change your skin instantly!",
+    "logoFile" : "assets/skinchanger/logo.png",
+
+    "authorList": [
+      "boomboompower"
+    ],
+
+    "url" : "https://do-you-like.me/mods/",
+    "updateJSON": "https://do-you-like.me/mods/skinchanger/forge"
   }
 ]

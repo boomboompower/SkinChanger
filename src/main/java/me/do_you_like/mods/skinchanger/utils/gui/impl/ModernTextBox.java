@@ -20,6 +20,7 @@ package me.do_you_like.mods.skinchanger.utils.gui.impl;
 import java.awt.Color;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -65,8 +66,8 @@ public class ModernTextBox extends Gui {
     private boolean visible = true;
     private GuiPageButtonList.GuiResponder guiResponder;
 
-    private boolean onlyAllowNumbers = false;
-    private String noTextMessage = "Write here!";
+    private boolean onlyAllowNumbers;
+    private String noTextMessage;
 
     private boolean running = false;
 
@@ -300,29 +301,27 @@ public class ModernTextBox extends Gui {
     /**
      * Call this method from your GuiScreen to process the keys into the textbox
      */
-    public boolean textboxKeyTyped(char c, int keyCode) {
+    public void textboxKeyTyped(char c, int keyCode) {
         if (!this.isFocused || this.running) {
-            return false;
-        } else if (GuiScreen.isKeyComboCtrlA(keyCode)) {
+            return;
+        }
+
+        if (GuiScreen.isKeyComboCtrlA(keyCode)) {
             this.setCursorPositionEnd();
             this.setSelectionPos(0);
-            return true;
         } else if (GuiScreen.isKeyComboCtrlC(keyCode)) {
             GuiScreen.setClipboardString(this.getSelectedText());
-            return true;
         } else if (GuiScreen.isKeyComboCtrlV(keyCode)) {
             if (this.isEnabled) {
                 this.writeText(format(GuiScreen.getClipboardString()));
             }
 
-            return true;
         } else if (GuiScreen.isKeyComboCtrlX(keyCode)) {
             GuiScreen.setClipboardString(this.getSelectedText());
 
             if (this.isEnabled) {
                 this.writeText("");
             }
-            return true;
         } else {
             switch (keyCode) {
                 case 14:
@@ -335,14 +334,14 @@ public class ModernTextBox extends Gui {
                         this.deleteFromCursor( -1);
                     }
 
-                    return true;
+                    return;
                 case 199:
                     if (GuiScreen.isShiftKeyDown()) {
                         this.setSelectionPos(0);
                     } else {
                         this.setCursorPositionZero();
                     }
-                    return true;
+                    return;
                 case 203:
                     if (GuiScreen.isShiftKeyDown()) {
                         if (GuiScreen.isCtrlKeyDown()) {
@@ -359,7 +358,7 @@ public class ModernTextBox extends Gui {
                         this.moveCursorBy( -1);
                     }
 
-                    return true;
+                    return;
                 case 205:
                     if (GuiScreen.isShiftKeyDown()) {
                         if (GuiScreen.isCtrlKeyDown()) {
@@ -372,14 +371,14 @@ public class ModernTextBox extends Gui {
                     } else {
                         this.moveCursorBy(1);
                     }
-                    return true;
+                    return;
                 case 207:
                     if (GuiScreen.isShiftKeyDown()) {
                         this.setSelectionPos(this.text.length());
                     } else {
                         this.setCursorPositionEnd();
                     }
-                    return true;
+                    return;
                 case 211:
                     if (GuiScreen.isCtrlKeyDown()) {
                         if (this.isEnabled) {
@@ -388,7 +387,7 @@ public class ModernTextBox extends Gui {
                     } else if (this.isEnabled) {
                         this.deleteFromCursor(1);
                     }
-                    return true;
+                    return;
                 default:
                     if (ChatAllowedCharacters.isAllowedCharacter(c)) {
                         if (onlyAllowNumbers) {
@@ -404,9 +403,6 @@ public class ModernTextBox extends Gui {
                                 this.writeText(Character.toString(c));
                             }
                         }
-                        return true;
-                    } else {
-                        return false;
                     }
             }
         }
@@ -462,12 +458,12 @@ public class ModernTextBox extends Gui {
             }
 
             if (!alertMessage.isEmpty()) {
-                this.fontRendererInstance.drawString(alertMessage, ((this.xPosition + this.width / 2) - fontRendererInstance.getStringWidth(alertMessage) / 2), this.yPosition + this.height / 2 - 4, enabledColor, false);
+                this.fontRendererInstance.drawString(alertMessage, ((this.xPosition + (float) this.width / 2) - (float) fontRendererInstance.getStringWidth(alertMessage) / 2), this.yPosition + this.height / 2 - 4, enabledColor, false);
                 return;
             }
 
             if (s.isEmpty() && !isFocused && isEnabled) {
-                this.fontRendererInstance.drawString(noTextMessage, ((this.xPosition + this.width / 2) - fontRendererInstance.getStringWidth(noTextMessage) / 2), this.yPosition + this.height / 2 - 4, i, false);
+                this.fontRendererInstance.drawString(noTextMessage, ((this.xPosition + (float) this.width / 2) - (float) fontRendererInstance.getStringWidth(noTextMessage) / 2), this.yPosition + this.height / 2 - 4, i, false);
                 return;
             }
 

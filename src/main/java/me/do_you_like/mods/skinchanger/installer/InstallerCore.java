@@ -70,7 +70,6 @@ public class InstallerCore {
             }
 
             try {
-
                 Files.copy(currentPath.toPath(), new File(mcModDir, MOD_NAME + ".jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
                 onInstallationFailed("The mod was unable to be written to the installation directory.");

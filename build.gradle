@@ -122,7 +122,9 @@ jar {
             'MixinConfigs' : 'mixins.skinchanger.json',
             'TweakOrder' : '0',
             'TweakClass' : 'me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker',
-            'FMLCorePlugin' : 'me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker'
+            'FMLCorePlugin' : 'me.do_you_like.mods.skinchanger.core.FMLLoadingPlugin',
+            'FMLCorePluginContainsFMLMod' : true,
+            'ForceLoadAsMod' : true
     )
 }
 

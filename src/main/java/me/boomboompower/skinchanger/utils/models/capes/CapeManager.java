@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("ALL")
+@Deprecated
 public class CapeManager {
 
     private List<String> logs = new ArrayList<>();

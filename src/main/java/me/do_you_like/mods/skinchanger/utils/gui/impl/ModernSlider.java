@@ -20,14 +20,15 @@ package me.do_you_like.mods.skinchanger.utils.gui.impl;
 import lombok.Getter;
 import lombok.Setter;
 
-import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
+import java.awt.*;
+
+import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 
 import net.minecraft.client.Minecraft;
-
-import java.awt.*;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class ModernSlider implements ModernDrawable {
+public class ModernSlider implements InteractiveDrawable {
 
     @Getter
     private int id;
@@ -65,7 +66,7 @@ public class ModernSlider implements ModernDrawable {
     private boolean hovered = false;
 
     @Getter
-    private boolean translatable;
+    private boolean translatable = true;
 
     private boolean dragging = false;
 
@@ -100,11 +101,7 @@ public class ModernSlider implements ModernDrawable {
     }
 
     @Override
-    public void render(int mouseX, int mouseY) {
-        render(mouseX, mouseY, 0);
-    }
-
-    public void render(int mouseX, int mouseY, int yTranslation) {
+    public void render(int mouseX, int mouseY, float yTranslation) {
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.enableAlpha();
@@ -151,12 +148,12 @@ public class ModernSlider implements ModernDrawable {
     }
 
     @Override
-    public ModernDrawable setAsPartOfHeader(ModernHeader parent) {
+    public InteractiveDrawable setAsPartOfHeader(ModernHeader parent) {
         return this;
     }
 
     @Override
-    public ModernDrawable disableTranslatable() {
+    public ModernSlider disableTranslatable() {
         this.translatable = false;
 
         return this;
@@ -173,9 +170,10 @@ public class ModernSlider implements ModernDrawable {
         }
     }
 
-    public boolean onMousePressed(int mouseX, int mouseY) {
-        if (!isMousePressed(mouseX, mouseY)) {
-            return false;
+    @Override
+    public void onLeftClick(int mouseX, int mouseY, float yTranslation) {
+        if (!isInside(mouseX, mouseY, yTranslation)) {
+            return;
         }
 
         this.sliderValue = (float) (mouseX - (this.x + 4)) / (float) (this.width - 8);
@@ -183,12 +181,16 @@ public class ModernSlider implements ModernDrawable {
         updateSlider(true);
 
         this.dragging = true;
-
-        return true;
     }
 
-    private boolean isMousePressed(int mouseX, int mouseY) {
-        return this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+    @Override
+    public void onMouseReleased(int mouseX, int mouseY, float yTranslation) {
+        this.dragging = false;
+    }
+
+    @Override
+    public boolean isInside(int mouseX, int mouseY, float yTranslation) {
+        return this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
     }
 
     private void updateSlider(boolean triggerUpdate) {
@@ -211,10 +213,6 @@ public class ModernSlider implements ModernDrawable {
      * Override as the trigger.
      */
     public void onSliderUpdate() {
-    }
-
-    public void mouseReleased(int mouseX, int mouseY) {
-        this.dragging = false;
     }
 
     public double getValue() {

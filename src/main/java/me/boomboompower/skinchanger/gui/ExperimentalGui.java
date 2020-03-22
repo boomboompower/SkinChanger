@@ -23,23 +23,17 @@ import me.boomboompower.skinchanger.gui.experimental.GuiExperimentalOptifine;
 
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
+
 import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
 import java.io.File;
 import java.util.Arrays;
 
+@SuppressWarnings("ALL")
+@Deprecated
 public class ExperimentalGui extends ModernGui {
-
-
-
-
-
-
-
-
-
     
     private final SkinChangerModOld mod;
     
@@ -51,11 +45,11 @@ public class ExperimentalGui extends ModernGui {
 
     @Override
     public void onGuiOpen() {
-        this.buttonList.add(new ModernButton(0, this.width / 2 - 75, this.height / 2 - 22, 150, 20,
+        registerElement(new ModernButton(0, this.width / 2 - 75, this.height / 2 - 22, 150, 20,
             "Rending: " + (SkinChangerModOld.getInstance().isRenderingEnabled() ? ChatColor.GREEN + "On" : ChatColor.GRAY + "Off")));
-        this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 2, 150, 20, "All player utils"));
-        this.buttonList.add(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Optifine utils"));
-        this.buttonList.add(this.skinCache = new ModernButton(3, this.width / 2 - 75, this.height / 2 + 50, 150, 20, "Delete skin cache"));
+        registerElement(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 2, 150, 20, "All player utils"));
+        registerElement(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Optifine utils"));
+        registerElement(this.skinCache = new ModernButton(3, this.width / 2 - 75, this.height / 2 + 50, 150, 20, "Delete skin cache"));
 
         this.skinCache.setEnabledColor(new Color(255, 0, 0, 75));
     }

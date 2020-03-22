@@ -37,7 +37,7 @@ public class SkinChangerTweaker implements ITweaker {
 
     public static boolean MIXINS_ENABLED = false;
 
-    private final File mixinsConfigFile = new File(".", "mods\\skinchanger\\mixins.dat");
+    private final File mixinsConfigFile = new File(".", "config\\skinchanger\\mixins.dat");
 
     @Override
     public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {}
@@ -45,6 +45,8 @@ public class SkinChangerTweaker implements ITweaker {
     @Override
     public void injectIntoClassLoader(LaunchClassLoader classLoader) {
         // We will check the config to see if the user wants to use Mixins
+
+        System.out.println("[SkinChanger] Loading Mixin check...");
 
         if (!shouldUseMixins()) {
             System.out.println("[SkinChanger] Mixins is DISABLED!");
@@ -133,7 +135,7 @@ public class SkinChangerTweaker implements ITweaker {
             FileWriter fileWriter = new FileWriter(this.mixinsConfigFile);
             BufferedWriter writer = new BufferedWriter(fileWriter);
 
-            writer.write("no");
+            writer.write("yes");
             writer.write(System.lineSeparator());
 
             writer.close();

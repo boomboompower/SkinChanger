@@ -21,12 +21,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
+import me.boomboompower.skinchanger.utils.models.skins.PlayerSkinType;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import me.boomboompower.skinchanger.utils.models.skins.PlayerSkinType;
 
+@SuppressWarnings("ALL")
+@Deprecated
 public class ConfigLoader {
 
     private File configFile;

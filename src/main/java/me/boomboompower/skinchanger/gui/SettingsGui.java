@@ -18,19 +18,22 @@
 package me.boomboompower.skinchanger.gui;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
-import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 import me.boomboompower.skinchanger.utils.models.skins.PlayerSkinType;
 
+import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
+
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
+
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 
+@Deprecated
 public class SettingsGui extends ModernGui {
 
     private final SkinChangerModOld mod;
@@ -40,7 +43,7 @@ public class SettingsGui extends ModernGui {
 
     private static ModernTextBox textField;
 
-    private String message = "";
+    private String message;
 
     private boolean previewCape = false;
 
@@ -62,18 +65,18 @@ public class SettingsGui extends ModernGui {
     public void onGuiOpen() {
         Keyboard.enableRepeatEvents(true);
 
-        this.textList.add(textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
+        registerElement(textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
 
-        this.buttonList.add(new ModernButton(1, this.width / 2 - 160, this.height / 2 + 26, 150, 20, "Preview skin"));
-        this.buttonList.add(new ModernButton(2, this.width / 2 - 160, this.height / 2 + 50, 150, 20, "Reset skin"));
-        this.buttonList.add(new ModernButton(3, this.width / 2 - 160, this.height / 2 + 74, 150, 20, "Confirm skin"));
+        registerElement(new ModernButton(1, this.width / 2 - 160, this.height / 2 + 26, 150, 20, "Preview skin"));
+        registerElement(new ModernButton(2, this.width / 2 - 160, this.height / 2 + 50, 150, 20, "Reset skin"));
+        registerElement(new ModernButton(3, this.width / 2 - 160, this.height / 2 + 74, 150, 20, "Confirm skin"));
 
-        this.buttonList.add(new ModernButton(4, this.width / 2 + 10, this.height / 2 + 26, 150, 20, "Preview cape"));
-        this.buttonList.add(new ModernButton(5, this.width / 2 + 10, this.height / 2 + 50, 150, 20, "Reset cape"));
-        this.buttonList.add(new ModernButton(6, this.width / 2 + 10, this.height / 2 + 74, 150, 20, "Add cape"));
+        registerElement(new ModernButton(4, this.width / 2 + 10, this.height / 2 + 26, 150, 20, "Preview cape"));
+        registerElement(new ModernButton(5, this.width / 2 + 10, this.height / 2 + 50, 150, 20, "Reset cape"));
+        registerElement(new ModernButton(6, this.width / 2 + 10, this.height / 2 + 74, 150, 20, "Add cape"));
 
-        this.buttonList.add(new ModernButton(7, this.width - 105, 10, 85, 20, "Experimental"));
-        this.buttonList.add(new ModernButton(8, this.width - 105, 30, 85, 20, "Skin Type: " + this.mod.getSkinManager().getSkinType().getDisplayName()));
+        registerElement(new ModernButton(7, this.width - 105, 10, 85, 20, "Experimental"));
+        registerElement(new ModernButton(8, this.width - 105, 30, 85, 20, "Skin Type: " + this.mod.getSkinManager().getSkinType().getDisplayName()));
 
         textField.setMaxStringLength(1000);
         textField.setText(this.message);

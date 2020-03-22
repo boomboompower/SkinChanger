@@ -19,16 +19,19 @@ package me.boomboompower.skinchanger.gui.experimental;
 
 import me.boomboompower.skinchanger.SkinChangerModOld;
 import me.boomboompower.skinchanger.utils.models.capes.CapeManager;
-import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 
+import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
+
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 
+@SuppressWarnings("ALL")
+@Deprecated
 public class GuiExperimentalOptifine extends ModernGui {
 
     private FakePlayer fakePlayer = new FakePlayer();
@@ -44,11 +47,11 @@ public class GuiExperimentalOptifine extends ModernGui {
     public void onGuiOpen() {
         Keyboard.enableRepeatEvents(true);
 
-        this.textList.add(this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
+        registerElement(this.textField = new ModernTextBox(0, this.width / 2 - 150, this.height / 2 - 22, 300, 20));
 
-        this.buttonList.add(new ModernButton(0, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Preview cape"));
-        this.buttonList.add(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 50, 150, 20, "Reset cape"));
-        this.buttonList.add(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 74, 150, 20, "Confirm cape"));
+        registerElement(new ModernButton(0, this.width / 2 - 75, this.height / 2 + 26, 150, 20, "Preview cape"));
+        registerElement(new ModernButton(1, this.width / 2 - 75, this.height / 2 + 50, 150, 20, "Reset cape"));
+        registerElement(new ModernButton(2, this.width / 2 - 75, this.height / 2 + 74, 150, 20, "Confirm cape"));
     }
 
     @Override

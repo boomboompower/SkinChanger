@@ -47,6 +47,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
     private String errorMessage = "";
 
+    private ModernTextBox textBox;
+
     public PlayerSelectMenu(SkinChangerMenu menu, StringSelectionType selectionType) {
         this.skinChangerMenu = menu;
         this.selectionType = selectionType;
@@ -68,13 +70,15 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
         ModernTextBox entryBox = new ModernTextBox(0, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight);
 
-        this.textList.add(entryBox);
+        registerElement(entryBox);
+
+        this.textBox = entryBox;
 
         yLocation += boxHeight + 4;
 
         ModernButton loadButton = new ModernButton(500, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Load");
 
-        this.buttonList.add(loadButton);
+        registerElement(loadButton);
     }
 
     @Override
@@ -106,7 +110,12 @@ public class PlayerSelectMenu extends SkinChangerMenu {
             //return;
         }
 
-        String enteredText = this.textList.get(0).getText().trim();
+        // Should never happen.
+        if (this.textBox == null) {
+            return;
+        }
+
+        String enteredText = this.textBox.getText().trim();
 
         if (enteredText.isEmpty()) {
             return;

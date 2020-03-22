@@ -15,23 +15,24 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.do_you_like.mods.skinchanger.utils.gui.impl;
+package me.do_you_like.mods.skinchanger.utils.gui;
 
 import com.google.common.collect.Lists;
 
 import java.awt.Color;
+import java.util.Collections;
 import java.util.List;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
-import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
-import me.do_you_like.mods.skinchanger.utils.gui.UISkeleton;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernSlider;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import me.do_you_like.mods.skinchanger.utils.gui.lock.UILock;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -52,10 +53,17 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     protected final FontRenderer fontRendererObj = this.mc.fontRendererObj;
     protected final SkinChangerMod mod = SkinChangerMod.getInstance();
 
-    protected List<ModernTextBox> textList = Lists.newArrayList();
-    protected List<ModernButton> buttonList = Lists.newArrayList();
-    protected List<ModernHeader> headerList = Lists.newArrayList();
-    protected List<ModernSlider> sliderList = Lists.newArrayList();
+    private List<ModernTextBox> textList = Lists.newArrayList();
+    private List<ModernDrawable> modernList = Lists.newLinkedList();
+
+    /**
+     * Do not use this. Use {@link #modernList} instead since it contains support for all Modern Types.
+     *
+     * @deprecated Superseded by {@link #modernList}
+     */
+    @SuppressWarnings("DeprecatedIsStillUsed") // Don't tell me, tell them :)))
+    @Deprecated
+    private List<ModernButton> buttonList = Collections.emptyList();
 
     private ModernButton selectedButton;
     private ModernSlider selectedSlider;
@@ -65,9 +73,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     @Override
     public final void initGui() {
         this.textList.clear();
-        this.buttonList.clear();
-        this.sliderList.clear();
-        this.headerList.clear();
+        this.modernList.clear();
 
         onGuiOpen();
     }
@@ -132,73 +138,29 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             return;
         }
 
-        GlStateManager.pushMatrix();
-
-        for (ModernButton button : this.buttonList) {
-            if (button.isTranslatable()) {
-                GlStateManager.translate(0, this.yTranslation, 0);
-            }
-
-            button.render(mouseX, mouseY, this.yTranslation);
-
-            if (button.isTranslatable()) {
-                GlStateManager.translate(0, -this.yTranslation, 0);
-            }
-        }
-
-        GlStateManager.popMatrix();
-
-        GlStateManager.pushMatrix();
-
-        for (GuiLabel label : this.labelList) {
-            label.drawLabel(this.mc, mouseX, mouseY);
-        }
-
-        GlStateManager.popMatrix();
-
-        GlStateManager.pushMatrix();
-
-        for (ModernTextBox text : this.textList) {
-            text.drawTextBox();
-        }
-
-        GlStateManager.popMatrix();
-
-        GlStateManager.pushMatrix();
-
-        for (ModernSlider slider : this.sliderList) {
-            if (slider.isTranslatable()) {
-                GlStateManager.translate(0, this.yTranslation, 0);
-            }
-
-            slider.render(mouseX, mouseY, this.yTranslation);
-
-            if (slider.isTranslatable()) {
-                GlStateManager.translate(0, -this.yTranslation, 0);
-            }
-        }
-
-        GlStateManager.popMatrix();
-
-        GlStateManager.pushMatrix();
-
-        for (ModernHeader header : this.headerList) {
+        for (ModernDrawable drawable : this.modernList) {
             GlStateManager.pushMatrix();
 
-            if (header.isTranslatable()) {
+            if (drawable.isTranslatable()) {
                 GlStateManager.translate(0, this.yTranslation, 0);
             }
 
-            header.render(mouseX, mouseY, this.yTranslation);
+            drawable.render(mouseX, mouseY, this.yTranslation);
 
-            if (header.isTranslatable()) {
+            if (drawable.isTranslatable()) {
                 GlStateManager.translate(0, -this.yTranslation, 0);
             }
 
             GlStateManager.popMatrix();
         }
 
-        GlStateManager.popMatrix();
+        for (ModernTextBox text : this.textList) {
+            GlStateManager.pushMatrix();
+
+            text.drawTextBox();
+
+            GlStateManager.popMatrix();
+        }
 
         try {
             postRender();
@@ -251,61 +213,31 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             mouseY = position.getY_Int();
         }
 
-        if (mouseButton == 0) {
-            for (ModernHeader header : this.headerList) {
-                if (header.getSubDrawables().size() > 0) {
-                    for (ModernDrawable drawable : header.getSubDrawables()) {
-                        if (drawable instanceof ModernButton) {
-                            ModernButton button = (ModernButton) drawable;
+        for (ModernDrawable draw : this.modernList) {
+            if (draw.isInside(mouseX, mouseY, this.yTranslation)) {
+                if (draw instanceof InteractiveDrawable) {
+                    InteractiveDrawable drawable = (InteractiveDrawable) draw;
 
-                            if (button.mousePressed(this.mc, mouseX, mouseY)) {
-                                this.selectedButton = button;
+                    switch (mouseButton) {
+                        case 0:
+                            drawable.onLeftClick(mouseX, mouseY, this.yTranslation);
 
-                                button.playPressSound(this.mc.getSoundHandler());
+                            if (drawable instanceof ModernButton) {
+                                this.selectedButton = (ModernButton) drawable;
 
-                                buttonPressed(button);
+                                buttonPressed((ModernButton) drawable);
+                            } else if (drawable instanceof ModernSlider) {
+                                this.selectedSlider = (ModernSlider) drawable;
                             }
-                        } else if (drawable instanceof ModernCheckbox) {
-                            ModernCheckbox checkbox = (ModernCheckbox) drawable;
-
-                            if (checkbox.isInside(mouseX, mouseY)) {
-                                checkbox.onClick();
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (ModernButton button : this.buttonList) {
-                if (button.mousePressed(this.mc, mouseX, mouseY)) {
-                    this.selectedButton = button;
-
-                    button.playPressSound(this.mc.getSoundHandler());
-
-                    this.buttonPressed(button);
-                }
-            }
-        }
-
-        if (mouseButton == 1) {
-            for (ModernHeader header : this.headerList) {
-                if (header.getSubDrawables().size() > 0) {
-                    for (ModernDrawable drawable : header.getSubDrawables()) {
-                        if (drawable instanceof ModernButton) {
-                            ModernButton button = (ModernButton) drawable;
-
-                            if (button.mousePressed(this.mc, mouseX, mouseY)) {
-                                rightClicked(button);
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (ModernButton button : this.buttonList) {
-                if (button != null) {
-                    if (button.mousePressed(this.mc, mouseX, mouseY)) {
-                        this.rightClicked(button);
+                            break;
+                        case 1:
+                            drawable.onRightClick(mouseX, mouseY, this.yTranslation);
+                            break;
+                        case 2:
+                            drawable.onMiddleClick(mouseX, mouseY, this.yTranslation);
+                            break;
+                        default:
+                            System.err.println("Unimplemented click (ID: " + mouseButton + "). Are you running the environment correctly?");
                     }
                 }
             }
@@ -313,12 +245,6 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
         for (ModernTextBox text : this.textList) {
             text.mouseClicked(mouseX, mouseY, mouseButton);
-        }
-
-        for (ModernSlider slider : this.sliderList) {
-            if (slider.onMousePressed(mouseX, mouseY)) {
-                this.selectedSlider = slider;
-            }
         }
     }
 
@@ -332,8 +258,8 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         this.height = height;
 
         this.textList.clear();
+        this.modernList.clear();
         this.buttonList.clear();
-        this.headerList.clear();
 
         initGui();
     }
@@ -348,12 +274,12 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     @Override
     protected final void mouseReleased(int mouseX, int mouseY, int state) {
         if (this.selectedButton != null && state == 0) {
-            this.selectedButton.mouseReleased(mouseX, mouseY);
+            this.selectedButton.onMouseReleased(mouseX, mouseY, this.yTranslation);
             this.selectedButton = null;
         }
 
         if (this.selectedSlider != null && state == 0) {
-            this.selectedSlider.mouseReleased(mouseX, mouseY);
+            this.selectedSlider.onMouseReleased(mouseX, mouseY, this.yTranslation);
             this.selectedSlider = null;
         }
     }
@@ -366,6 +292,25 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             onScrollDown();
         } else if (i > 0) {
             onScrollUp();
+        }
+    }
+
+    /**
+     * Registers an element into the element loader.
+     *
+     * @param drawable the drawable to register. Can be a {@link ModernDrawable} or {@link ModernTextBox}
+     */
+    public final void registerElement(Object drawable) {
+        if (drawable == null) {
+            return;
+        }
+
+        if (drawable instanceof ModernDrawable) {
+            this.modernList.add((ModernDrawable) drawable);
+        } else if (drawable instanceof ModernTextBox) {
+            this.textList.add((ModernTextBox) drawable);
+        } else {
+            System.err.println("Unable to register element (Elem: " + drawable.getClass() + ") as it was not a ModernDrawable.");
         }
     }
 
@@ -425,13 +370,13 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     protected void forceSet(ModernDrawable drawable) {
         if (drawable instanceof ModernSlider) {
             if (this.selectedSlider != null) {
-                this.selectedSlider.mouseReleased(0, 0);
+                this.selectedSlider.onMouseReleased(0, 0, this.yTranslation);
             }
 
             this.selectedSlider = (ModernSlider) drawable;
         } else if (drawable instanceof ModernButton) {
             if (this.selectedButton != null) {
-                this.selectedButton.mouseReleased(0, 0);
+                this.selectedButton.onMouseReleased(0, 0, this.yTranslation);
             }
 
             this.selectedButton = (ModernButton) drawable;
@@ -479,5 +424,4 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
         drawRect(x, startY + 1, x + 1, endY, color);
     }
-
 }
