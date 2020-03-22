@@ -21,8 +21,7 @@ import com.mojang.authlib.GameProfile;
 
 import java.util.UUID;
 
-import me.boomboompower.skinchanger.SkinChangerModOld;
-
+import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,12 +40,12 @@ import net.minecraft.world.World;
  */
 public class FakePlayer extends AbstractClientPlayer {
     
-    private static final GameProfile FAKE_GAME_PROFILE = new GameProfile(UUID.nameUUIDFromBytes("skinchanger".getBytes()), "SkinChanger v" + SkinChangerModOld.VERSION);
+    private static final GameProfile FAKE_GAME_PROFILE = new GameProfile(UUID.nameUUIDFromBytes("skinchanger".getBytes()), "SkinChanger v" + SkinChangerMod.VERSION);
     
     private FakePlayerInfo playerInfo;
     
     /**
-     * New constuctor, just uses the users current world.
+     * New constructor, just uses the players current world.
      */
     public FakePlayer() {
         this(Minecraft.getMinecraft().thePlayer.worldObj);
@@ -59,7 +58,8 @@ public class FakePlayer extends AbstractClientPlayer {
         getPlayerInfo().setLocationCape(player.getLocationCape());
         getPlayerInfo().setSkinType(player.getSkinType());
     }
-    
+
+    // This is required for comparability.
     public FakePlayer(World world) {
         super(world, FAKE_GAME_PROFILE);
     }
@@ -123,6 +123,11 @@ public class FakePlayer extends AbstractClientPlayer {
     public void travelToDimension(int dim) {
     }
 
+    /**
+     * Copies resources from one player to another.
+     *
+     * @param player the player to copy resources from.
+     */
     public void copyFrom(AbstractClientPlayer player) {
         getPlayerInfo().setLocationSkin(player.getLocationSkin());
         getPlayerInfo().setLocationCape(player.getLocationCape());

@@ -28,7 +28,7 @@ import net.minecraft.util.ResourceLocation;
 /**
  * The NetworkPlayerInfo of the {@link FakePlayer}
  *
- * Provids many extra methods not included in the normal NetworkPlayerInfo class
+ * Provides additional methods not included in the normal NetworkPlayerInfo class. This saves us from using reflection instead.
  */
 public class FakePlayerInfo extends NetworkPlayerInfo {
     

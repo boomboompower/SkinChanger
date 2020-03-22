@@ -19,19 +19,36 @@ package me.do_you_like.mods.skinchanger.utils.gui;
 
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernHeader;
 
+/**
+ * Interface for a basic ModernDrawable item. Contains universal methods which **ALL** drawables
+ * should implement. This is used internally such as in the {@link ModernGui class}
+ *
+ * @author boomboompower
+ * @version 1.0
+ * @since 3.0.0
+ */
 public interface ModernDrawable {
 
+    /**
+     * Returns the x position of this drawable
+     *
+     * @return the x position of the drawable.
+     */
     public int getX();
 
+    /**
+     * Returns the y location of this drawable (not translated)
+     *
+     * @return the y position of the drawable.
+     */
     public int getY();
 
-    public int getWidth();
-
     /**
-     * Called when this Drawable is clicked.
+     * Returns the width of this drawable.
+     *
+     * @return the width of the drawable
      */
-    public default void onClick() {
-    }
+    public int getWidth();
 
     /**
      * Calls the render function for the drawable.
@@ -41,19 +58,38 @@ public interface ModernDrawable {
      */
     public void render(int mouseX, int mouseY, float yTranslation);
 
+    /**
+     * Renders the drawable from a header position. By default this will just call the {@link
+     * #render(int, int, float)} method, however some {@link ModernDrawable}'s will react differently
+     * to this change.
+     *
+     * @param xPos the x position of the drawable
+     * @param yPos the y position of the drawable
+     * @param yTranslation the translation in the y axis
+     * @param mouseX the raw x location of the mouse
+     * @param mouseY the raw y location of the mouse
+     * @param recommendedYOffset the recommended offset this {@link ModernDrawable} should follow (how
+     *     far down it should be shifted).
+     */
     public default void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
         render(mouseX, mouseY, yTranslation);
     }
 
-    public boolean isInside(int mouseX, int mouseY, float yTranslation);
-
     /**
-     * Should this drawable be drawn? If this is false the header will not call the {@link #render(int, int, float)} method.
+     * Should this drawable be drawn? If this is false the header will not call the {@link
+     * #render(int, int, float)} method.
      *
      * @return true if {@link #render(int, int, float)} should be called for the drawable.
      */
     public boolean isEnabled();
 
+    /**
+     * Tells this drawable to register itself as part of this header. Some drawables will react
+     * differently to this change
+     *
+     * @param parent the header which the drawable should be set under.
+     * @return the drawable which has just been set as part of this header
+     */
     public ModernDrawable setAsPartOfHeader(ModernHeader parent);
 
     /**

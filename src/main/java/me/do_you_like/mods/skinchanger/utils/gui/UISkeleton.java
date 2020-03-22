@@ -17,7 +17,6 @@
 
 package me.do_you_like.mods.skinchanger.utils.gui;
 
-import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 
 /**
@@ -25,8 +24,9 @@ import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
  * <br />
  * It should be noted that all render methods are ran in sandboxed environments meaning if an error occurs, the game will not crash.
  *
- * @version 1.0
  * @author boomboompower
+ * @version 1.0
+ * @since 3.0.0
  */
 public interface UISkeleton {
 
@@ -48,10 +48,8 @@ public interface UISkeleton {
      *
      * @param mouseX the x position of the mouse
      * @param mouseY the y position of the mouse
-     * @return null if the parameter should not be modified or a {@link XYPosition} for what mouseX and mouseY should be changed to.
      */
-    public default XYPosition preRender(int mouseX, int mouseY) {
-        return null;
+    public default void preRender(int mouseX, int mouseY) {
     }
 
     /**
@@ -91,10 +89,16 @@ public interface UISkeleton {
     public default void rightClicked(ModernButton button) {
     }
 
-    public default void onScrollDown() {
+    /**
+     * Called when the user scrolls up
+     */
+    public default void onScrollUp() {
     }
 
-    public default void onScrollUp() {
+    /**
+     * Called when the user scrolls down
+     */
+    public default void onScrollDown() {
     }
 
     /**

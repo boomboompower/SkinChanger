@@ -65,6 +65,10 @@ public class SkinCommand extends ModCommand {
                 sendMessage(ChatColor.AQUA + "Your skin is now " + (IS_SLIM_SKIN ? "slim" : "normal"));
 
                 return;
+            } else if (args[0].equalsIgnoreCase("reload")) {
+                this.mainMenu = new SkinChangerMenu();
+
+                args = new String[0];
             }
         }
 

@@ -15,15 +15,13 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.skinchanger.utils.models.skins;
+package me.do_you_like.mods.skinchanger.utils.general;
 
 /**
  * Tries to normalize player skin types. Even though they are pretty crappy in 1.8.9
  *
  * This was a heavily requested feature in the initial versions of SkinChanger.
  */
-@SuppressWarnings("ALL")
-@Deprecated
 public enum PlayerSkinType {
 
     STEVE("Steve", "default"),

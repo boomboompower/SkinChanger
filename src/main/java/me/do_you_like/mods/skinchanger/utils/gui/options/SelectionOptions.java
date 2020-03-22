@@ -25,6 +25,7 @@ import java.util.HashMap;
 
 import me.do_you_like.mods.skinchanger.utils.backend.ThreadFactory;
 import me.do_you_like.mods.skinchanger.utils.general.ReflectUtils;
+import me.do_you_like.mods.skinchanger.utils.resources.CapeBuffer;
 import me.do_you_like.mods.skinchanger.utils.resources.LocalFileData;
 import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
 
@@ -39,10 +40,10 @@ public class SelectionOptions {
     private HashMap<AbstractClientPlayer, NetworkPlayerInfo> cachedPlayerInfo = new HashMap<>();
     private ThreadFactory threadFactory = new ThreadFactory("SelectionOptions");
 
-    public void loadFromFile(OptionResponse<ResourceLocation> callback) {
+    public void loadFromFile(OptionResponse<ResourceLocation> callback, boolean isCape) {
         // Calling this code on the main thread will hang the game
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
-            this.threadFactory.runAsync(() -> loadFromFile(callback));
+            this.threadFactory.runAsync(() -> loadFromFile(callback, isCape));
 
             return;
         }
@@ -61,7 +62,7 @@ public class SelectionOptions {
                 ResourceLocation customResource = new ResourceLocation("skins/" + f.getName());
 
                 Minecraft.getMinecraft().addScheduledTask(() -> {
-                    Minecraft.getMinecraft().renderEngine.loadTexture(customResource, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), f, new SkinBuffer()));
+                    Minecraft.getMinecraft().renderEngine.loadTexture(customResource, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), f, isCape ? new CapeBuffer() : new SkinBuffer()));
                 });
 
                 callback.run(customResource);

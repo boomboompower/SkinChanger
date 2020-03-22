@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import me.do_you_like.mods.skinchanger.utils.general.Prerequisites;
-import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
@@ -84,6 +83,7 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     private int widthOfSub;
 
     private ScaledResolution scaledResolution;
+    private ModernGui modernGui;
 
     /**
      * Basic constructor for UI headers. Scale size is 1.5 of normal text. Draws an underline.
@@ -92,8 +92,8 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
      * @param y the y location of the header
      * @param header the text which will be rendered
      */
-    public ModernHeader(int x, int y, String header) {
-        this(x, y, header, 1.5F, true);
+    public ModernHeader(ModernGui gui, int x, int y, String header) {
+        this(gui, x, y, header, 1.5F, true);
     }
 
     /**
@@ -104,8 +104,8 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
      * @param header the text which will be rendered
      * @param scaleSize the scale of the text. (scale > 1 means bigger)
      */
-    public ModernHeader(int x, int y, String header, float scaleSize) {
-        this(x, y, header, scaleSize, true);
+    public ModernHeader(ModernGui gui, int x, int y, String header, float scaleSize) {
+        this(gui, x, y, header, scaleSize, true);
     }
 
     /**
@@ -116,8 +116,8 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
      * @param header the text which will be rendered
      * @param scaleSize the scale of the text. (scale > 1 means bigger)
      */
-    public ModernHeader(int x, int y, String header, int scaleSize) {
-        this(x, y, header, scaleSize, true);
+    public ModernHeader(ModernGui gui, int x, int y, String header, int scaleSize) {
+        this(gui, x, y, header, scaleSize, true);
     }
 
     /**
@@ -129,8 +129,8 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
      * @param scaleSize the scale of the text. (scale > 1 means bigger)
      * @param drawUnderline true if an underline should be drawn.
      */
-    public ModernHeader(int x, int y, String header, float scaleSize, boolean drawUnderline) {
-        this(x, y, header, scaleSize, drawUnderline, Color.WHITE);
+    public ModernHeader(ModernGui gui, int x, int y, String header, float scaleSize, boolean drawUnderline) {
+        this(gui, x, y, header, scaleSize, drawUnderline, Color.WHITE);
     }
 
     /**
@@ -143,9 +143,12 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
      * @param drawUnderline true if an underline should be drawn.
      * @param color the color of which the elements will be drawn.
      */
-    public ModernHeader(int x, int y, String header, float scaleSize, boolean drawUnderline, Color color) {
+    public ModernHeader(ModernGui gui, int x, int y, String header, float scaleSize, boolean drawUnderline, Color color) {
+        Prerequisites.notNull(gui);
         Prerequisites.notNull(header);
         Prerequisites.conditionMet(scaleSize > 0, "Scale cannot be less than 0");
+
+        this.modernGui = gui;
 
         this.x = x;
         this.y = y;
@@ -334,7 +337,22 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     public void onLeftClick(int mouseX, int mouseY, float yTranslation) {
         if (this.subDrawables.size() > 0) {
             for (ModernDrawable sub : this.subDrawables) {
-                if (sub instanceof InteractiveDrawable) {
+                // Special case :V
+                if (sub instanceof ModernButton) {
+                    ModernButton button = (ModernButton) sub;
+
+                    if (!sub.isEnabled()) {
+                        continue;
+                    }
+
+                    if (button.isHovered()) {
+                        button.onLeftClick(mouseX, mouseY, yTranslation);
+
+                        if (this.modernGui != null) {
+                            this.modernGui.buttonPressed(button);
+                        }
+                    }
+                } else if (sub instanceof InteractiveDrawable) {
                     InteractiveDrawable interactive = (InteractiveDrawable) sub;
 
                     if (interactive.isInside(mouseX, mouseY, yTranslation)) {
@@ -343,14 +361,6 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
                 }
             }
         }
-    }
-
-    public XYPosition getScreenPositionFromLocal(ModernDrawable drawable) {
-        return getScreenPositionFromLocal(drawable.getX(), drawable.getY());
-    }
-
-    public XYPosition getScreenPositionFromLocal(int x, int y) {
-        return new XYPosition(this.x + x, this.y + y);
     }
 
 

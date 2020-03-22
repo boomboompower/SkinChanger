@@ -17,10 +17,11 @@
 
 package me.do_you_like.mods.skinchanger.utils.gui.impl;
 
+import java.awt.Color;
+
 import lombok.Getter;
 import lombok.Setter;
 
-import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 
@@ -38,7 +39,8 @@ public class ModernCheckbox implements InteractiveDrawable {
     @Getter int height;
 
     @Getter
-    private boolean enabled;
+    @Setter
+    private boolean enabled = true;
 
     @Getter
     @Setter
@@ -68,11 +70,16 @@ public class ModernCheckbox implements InteractiveDrawable {
         float finalX = x + this.width;
         float finalY = y + this.height;
 
-        ModernGui.drawRect((int) x - 1, (int) y - 1, (int) finalX + 1, (int) finalY + 1, -6250336);
-        ModernGui.drawRect((int) x, (int) y, (int) finalX, (int) finalY, -16777216);
+        Color color = Color.WHITE;
+
+        if (!this.enabled) {
+            color = color.darker();
+        }
+
+        ModernGui.drawRectangleOutlineF(x - 1, y - 1, finalX, finalY, color.getRGB());
 
         if (this.checked) {
-            ModernGui.drawRect((int) x + 1, (int) y + 1, (int) finalX - 1, (int) finalY - 1, -3092272);
+            ModernGui.drawRect((int) x + 1, (int) y + 1, (int) finalX - 1, (int) finalY - 1, color.getRGB());
         }
     }
 
@@ -84,17 +91,16 @@ public class ModernCheckbox implements InteractiveDrawable {
         float finalX = x + this.width;
         float finalY = y + this.height;
 
-        ModernGui.drawRect((int) x - 1, (int) y - 1, (int) finalX + 1, (int) finalY + 1, -6250336);
-        ModernGui.drawRect((int) x, (int) y, (int) finalX, (int) finalY, -16777216);
+        Color color = Color.WHITE;
+
+        if (!this.enabled) {
+            color = color.darker();
+        }
+
+        ModernGui.drawRectangleOutlineF(x - 1, y - 1, finalX, finalY, color.getRGB());
 
         if (this.checked) {
-            float insideX = x + 2;
-            float insideY = y + 2;
-
-            float insideFinalX = finalX - 2;
-            float insideFinalY = finalY - 2;
-
-            ModernGui.drawRect((int) x + 1, (int) y + 1, (int) finalX - 1, (int) finalY - 1, -3092272);
+            ModernGui.drawRect((int) x + 1, (int) y + 1, (int) finalX - 1, (int) finalY - 1, color.getRGB());
         }
     }
 
@@ -112,17 +118,21 @@ public class ModernCheckbox implements InteractiveDrawable {
     }
 
     public boolean isInside(int mouseX, int mouseY, float yTranslation) {
+        //if (!this.visible) {
+        //    return false;
+       // }
+
         int xPosition = this.x;
         int yPosition = this.y;
 
         if (this.parentHeader != null) {
-            XYPosition realPosition = this.parentHeader.getScreenPositionFromLocal(this);
-
-            xPosition = realPosition.getX_Int();
-            yPosition = realPosition.getY_Int();
+            yPosition = (int) this.parentHeader.getOffsetBetweenDrawables();
+            xPosition += this.parentHeader.getX();
         }
 
-        return this.enabled && mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
+        yPosition += yTranslation;
+
+        return mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
     }
 
     private float min(float first, float second) {

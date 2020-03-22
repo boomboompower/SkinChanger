@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
@@ -34,7 +35,9 @@ import java.awt.*;
  * ModernButton, a nicer looking button
  *
  * @author boomboompower
+ *
  * @version 2.0
+ * @since 3.0.0
  */
 public class ModernButton extends Gui implements InteractiveDrawable {
 
@@ -120,6 +123,7 @@ public class ModernButton extends Gui implements InteractiveDrawable {
         return this.yPosition;
     }
 
+    @Override
     public void render(int mouseX, int mouseY, float yTranslation) {
         if (this.visible) {
             FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
@@ -134,23 +138,10 @@ public class ModernButton extends Gui implements InteractiveDrawable {
 
             int j = 14737632;
 
-            boolean modern = false; //SkinChangerMod.getInstance().getConfigurationHandler().isModernButton();
-
-            if (modern) {
-                Minecraft.getMinecraft().getTextureManager().bindTexture(buttonTextures);
-
-                GlStateManager.enableBlend();
-                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-                GlStateManager.blendFunc(770, 771);
-
-                this.drawTexturedModalRect(xPosition, yPosition, 0, 46 + i * 20, this.width / 2, this.height);
-                this.drawTexturedModalRect(xPosition + this.width / 2, yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+            if (this.enabled) {
+                drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getEnabledColor().getRGB());
             } else {
-                if (this.enabled) {
-                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getEnabledColor().getRGB());
-                } else {
-                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getDisabledColor().getRGB());
-                }
+                drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getDisabledColor().getRGB());
             }
 
             if (!this.enabled) {
@@ -163,7 +154,7 @@ public class ModernButton extends Gui implements InteractiveDrawable {
                 fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
             }
 
-            fontrenderer.drawString(this.displayString, (xPosition + this.width / 2 - fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, modern);
+            fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, false);
         }
     }
 
@@ -185,23 +176,10 @@ public class ModernButton extends Gui implements InteractiveDrawable {
 
             int j = 14737632;
 
-            boolean modern = false; //SkinChangerMod.getInstance().getConfigurationHandler().isModernButton();
-
-            if (modern) {
-                Minecraft.getMinecraft().getTextureManager().bindTexture(buttonTextures);
-
-                GlStateManager.enableBlend();
-                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-                GlStateManager.blendFunc(770, 771);
-
-                this.drawTexturedModalRect(xPosition, yPosition, 0, 46 + i * 20, this.width / 2, this.height);
-                this.drawTexturedModalRect(xPosition + this.width / 2, yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+            if (this.enabled) {
+                drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getEnabledColor().getRGB());
             } else {
-                if (this.enabled) {
-                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getEnabledColor().getRGB());
-                } else {
-                    drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
-                }
+                drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
             }
 
             if (!this.enabled) {
@@ -214,7 +192,7 @@ public class ModernButton extends Gui implements InteractiveDrawable {
                 fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
             }
 
-            fontrenderer.drawString(this.displayString, (xPosition + this.width / 2 - fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, modern);
+            fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, false);
         }
     }
 
@@ -234,7 +212,7 @@ public class ModernButton extends Gui implements InteractiveDrawable {
 
         if (this.partOfHeader) {
             yPosition = this.recommendedYPosition;
-            //xPosition += ;
+            xPosition += this.parentHeader.getX();
         }
 
         yPosition += yTranslation;

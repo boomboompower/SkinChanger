@@ -23,9 +23,9 @@ import me.do_you_like.mods.skinchanger.gui.additional.ModOptionsMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu.StringSelectionType;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernCheckbox;
 import me.do_you_like.mods.skinchanger.utils.gui.options.SelectionOptions;
 import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
-import me.do_you_like.mods.skinchanger.utils.general.XYPosition;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernHeader;
@@ -36,6 +36,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
 public class SkinChangerMenu extends ModernGui {
@@ -146,12 +147,10 @@ public class SkinChangerMenu extends ModernGui {
     }
 
     @Override
-    public XYPosition preRender(int mouseX, int mouseY) {
+    public void preRender(int mouseX, int mouseY) {
         drawDefaultBackground();
 
         GlStateManager.pushMatrix();
-
-        return null;
     }
 
     @Override
@@ -187,6 +186,9 @@ public class SkinChangerMenu extends ModernGui {
         GlStateManager.pushMatrix();
 
         int scale = (int) ((1.5 * this.width) / 10);
+
+        // Stops clipping of entity. (Pushes it closer to the camera).
+        GlStateManager.translate(0, 0, 100);
 
         drawEntityWithRot(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, this.rotation);
 
@@ -248,7 +250,7 @@ public class SkinChangerMenu extends ModernGui {
     protected void onGuiInitExtra() {
         int buttonWidth = this.mc.fontRendererObj.getStringWidth("Load from Player") + 5;
 
-        ModernHeader skinSettings = new ModernHeader(15, 30, "Skin Settings", 1.24F, true, Color.WHITE);
+        ModernHeader skinSettings = new ModernHeader(this, 15, 30, "Skin Settings", 1.24F, true, Color.WHITE);
 
         skinSettings.setOffsetBetweenDrawables(24F);
 
@@ -265,7 +267,7 @@ public class SkinChangerMenu extends ModernGui {
             capeSettingY = skinSettings.getY() + skinSettings.getHeightOfHeader() + 24;
         }
 
-        ModernHeader capeSettings = new ModernHeader(15, capeSettingY, "Cape Settings", 1.24F, true, Color.WHITE);
+        ModernHeader capeSettings = new ModernHeader(this, 15, capeSettingY, "Cape Settings", 1.24F, true, Color.WHITE);
 
         capeSettings.setOffsetBetweenDrawables(24F);
 
@@ -276,18 +278,21 @@ public class SkinChangerMenu extends ModernGui {
 
         // ----------------------------------
 
-        ModernHeader recentSkins = new ModernHeader(skinSettings.getX() + skinSettings.getWidthOfHeader() + 20, 30, "Recent Skins", 1.24F, true, Color.WHITE);
+        ModernHeader recentSkins = new ModernHeader(this, skinSettings.getX() + skinSettings.getWidthOfHeader() + 20, 30, "Recent Skins", 1.24F, true, Color.WHITE);
 
         // ----------------------------------
 
-        ModernHeader recentCapes = new ModernHeader(capeSettings.getX() + capeSettings.getWidthOfHeader() + 20, capeSettingY, "Recent Capes", 1.24F, true, Color.WHITE);
+        ModernHeader recentCapes = new ModernHeader(this, capeSettings.getX() + capeSettings.getWidthOfHeader() + 20, capeSettingY, "Recent Capes", 1.24F, true, Color.WHITE);
 
         // ----------------------------------
+
+        ModernCheckbox checkbox = new ModernCheckbox(this.width / 2 - 150, this.height / 2 - 150, 300, 300);
 
         registerElement(skinSettings);
         registerElement(capeSettings);
         registerElement(recentSkins);
         registerElement(recentCapes);
+        registerElement(checkbox);
     }
 
     private void drawEntityWithRot(int posX, int posY, int scale, float rotation) {
@@ -348,7 +353,23 @@ public class SkinChangerMenu extends ModernGui {
         entity.limbSwingAmount += (0.6F - entity.limbSwingAmount) * 0.4F;
         entity.limbSwing += (entity.limbSwingAmount) / 6;
 
+        entity.prevPosX = 0;
+        entity.posX = 0;
+
+        entity.prevPosY = 0;
+        entity.posY = 0;
+
+        entity.prevPosZ = entity.posZ;
+
+        //entity.posZ = Math.sin((System.currentTimeMillis() % (720 * 1.5)) * (Math.PI / (180 * 3)));
+        //entity.posZ += entity.prevPosZ / 10;
+
         RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+
+        float capeSwing = MathHelper.cos(entity.limbSwing / 2 * 0.662F) * 1.1F * entity.limbSwingAmount / 2;
+
+        entity.posZ = lerp(0, capeSwing, 0.5F);
+        entity.posZ += 0.5;
 
         GlStateManager.disableLighting();
 
@@ -356,9 +377,6 @@ public class SkinChangerMenu extends ModernGui {
         rendermanager.setRenderShadow(false);
         rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
         rendermanager.setRenderShadow(true);
-
-        // Attempt natural movement
-        //player.getMainModel().setRotationAngles(entity.limbSwing, entity.limbSwingAmount, entity.getAge(), entity.rotationYawHead, entity.rotationPitch, 1.0F, entity);
 
         GlStateManager.enableLighting();
 
@@ -377,6 +395,10 @@ public class SkinChangerMenu extends ModernGui {
         GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
         GlStateManager.disableTexture2D();
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+    }
+
+    protected float lerp(float point1, float point2, float alpha) {
+        return point1 + alpha * (point2 - point1);
     }
 
     protected void onButtonPressedExtra(ModernButton button) {
@@ -400,7 +422,7 @@ public class SkinChangerMenu extends ModernGui {
 
                 break;
             case 14:
-                this.selectionOptions.loadFromFile((location) -> fakePlayer.getPlayerInfo().setLocationSkin(location));
+                this.selectionOptions.loadFromFile((location) -> fakePlayer.getPlayerInfo().setLocationSkin(location), false);
 
                 break;
             case 15:
@@ -426,7 +448,7 @@ public class SkinChangerMenu extends ModernGui {
 
                 break;
             case 18:
-                this.selectionOptions.loadFromFile((location) -> fakePlayer.getPlayerInfo().setLocationCape(location));
+                this.selectionOptions.loadFromFile((location) -> fakePlayer.getPlayerInfo().setLocationCape(location), true);
 
                 break;
             case 19:
