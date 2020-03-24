@@ -1,10 +1,10 @@
 {
-  "package": "me.do_you_like.mods.skinchanger.methods.impl.mixins",
-  "refmap": "mixins.refmap.json",
+  "package": "me.do_you_like.mods.skinchanger.mixins",
+  "refmap": "mixins.skinchanger.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "minVersion" : "0.7",
   "verbose": true,
   "mixins": [
-    "tweaks.MixinAbstractClientPlayer"
+    "MixinAbstractClientPlayer"
   ]
 }

@@ -121,8 +121,7 @@ jar {
             'Main-Class' : 'me.do_you_like.mods.skinchanger.installer.InstallerCore',
             'MixinConfigs' : 'mixins.skinchanger.json',
             'TweakOrder' : '0',
-            'TweakClass' : 'me.do_you_like.mods.skinchanger.methods.impl.mixins.SkinChangerTweaker',
-            'FMLCorePlugin' : 'me.do_you_like.mods.skinchanger.core.FMLLoadingPlugin',
+            'TweakClass' : 'org.spongepowered.asm.launch.MixinTweaker',
             'FMLCorePluginContainsFMLMod' : true,
             'ForceLoadAsMod' : true
     )
@@ -131,6 +130,13 @@ jar {
 sourceJar {
     // Rename the jar so it doesn't contain "SNAPSHOT"
     archiveName = "$baseName-sources.$extension"
+}
+
+sourceSets {
+    main {
+        //noinspection GroovyAssignabilityCheck
+        refMap = "mixins.skinchanger.refmap.json"
+    }
 }
 
 configurations {

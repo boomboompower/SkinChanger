@@ -26,6 +26,7 @@ import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever;
 
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -68,10 +69,6 @@ public class SkinChangerMod {
     public void init(FMLInitializationEvent event) {
         //MinecraftForge.EVENT_BUS.register(new MainEvents(this));
         ClientCommandHandler.instance.registerCommand(new SkinCommand(this));
-
-        for (int i = 0; i < 20; i++) {
-            System.out.println((i * 'Y') + " Init!");
-        }
     }
 
     @Mod.EventHandler

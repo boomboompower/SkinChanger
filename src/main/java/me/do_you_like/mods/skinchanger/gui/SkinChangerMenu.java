@@ -23,7 +23,6 @@ import me.do_you_like.mods.skinchanger.gui.additional.ModOptionsMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu.StringSelectionType;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernCheckbox;
 import me.do_you_like.mods.skinchanger.utils.gui.options.SelectionOptions;
 import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
@@ -286,13 +285,10 @@ public class SkinChangerMenu extends ModernGui {
 
         // ----------------------------------
 
-        ModernCheckbox checkbox = new ModernCheckbox(this.width / 2 - 150, this.height / 2 - 150, 300, 300);
-
         registerElement(skinSettings);
         registerElement(capeSettings);
         registerElement(recentSkins);
         registerElement(recentCapes);
-        registerElement(checkbox);
     }
 
     private void drawEntityWithRot(int posX, int posY, int scale, float rotation) {

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.do_you_like.mods.skinchanger.methods.impl.mixins.tweaks;
+package me.do_you_like.mods.skinchanger.mixins;
 
 import com.mojang.authlib.GameProfile;
 
