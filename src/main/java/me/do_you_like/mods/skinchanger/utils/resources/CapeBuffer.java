@@ -45,6 +45,6 @@ public class CapeBuffer implements IImageBuffer {
     }
 
     @Override
-    public void skinAvailable() {
+    public void func_152634_a() {
     }
 }

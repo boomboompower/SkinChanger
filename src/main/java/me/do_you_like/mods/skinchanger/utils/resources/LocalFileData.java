@@ -81,7 +81,7 @@ public class LocalFileData extends SimpleTexture {
                     // If it is still not null throw it a callback.
                     if (this.imageBuffer != null) {
                         // Callback
-                        this.imageBuffer.skinAvailable();
+                        this.imageBuffer.func_152634_a();
                     }
                 }
             } catch (IOException ex) {
