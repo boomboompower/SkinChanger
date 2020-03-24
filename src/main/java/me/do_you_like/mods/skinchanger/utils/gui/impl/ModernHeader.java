@@ -24,6 +24,8 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
+import me.do_you_like.mods.skinchanger.compatability.GlStateManager;
+import me.do_you_like.mods.skinchanger.compatability.ScaledResolution;
 import me.do_you_like.mods.skinchanger.utils.general.Prerequisites;
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
@@ -32,8 +34,6 @@ import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 
 /**
  * A simple class for drawing headers. Useful for UI categories.
@@ -209,10 +209,10 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
 
         if (this.drawCentered) {
             // Draws the text
-            fontRenderer.drawString(this.headerText, (xPos / this.scaleSize) - (getWidth() / this.scaleSize), yPos / this.scaleSize, this.headerColor.getRGB(), false);
+            fontRenderer.drawString(this.headerText, (int) ((xPos / this.scaleSize) - (getWidth() / this.scaleSize)), (int) (yPos / this.scaleSize), this.headerColor.getRGB(), false);
         } else {
             // Draws the text
-            fontRenderer.drawString(this.headerText, xPos / this.scaleSize, yPos / this.scaleSize, this.headerColor.getRGB(), false);
+            fontRenderer.drawString(this.headerText, (int) (xPos / this.scaleSize), (int) (yPos / this.scaleSize), this.headerColor.getRGB(), false);
         }
 
         // Check if the header should have an underline or not.

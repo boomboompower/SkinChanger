@@ -29,11 +29,11 @@ import java.util.UUID;
 import lombok.Getter;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.compatability.DefaultPlayerSkin;
 import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
 public class CacheRetriever {

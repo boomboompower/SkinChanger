@@ -17,38 +17,37 @@
 
 buildscript {
     repositories {
-        jcenter()
         maven {
             name = "forge"
             url = "https://files.minecraftforge.net/maven"
         }
 
-        // Sponge Repository
         maven {
-            name = "sponge"
-            url = "https://repo.spongepowered.org/maven"
+            name = "jcenter"
+            url = "https://jcenter.bintray.com"
+        }
+
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
     }
     dependencies {
-        classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
-
-        // For Mixins
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
-apply plugin: "net.minecraftforge.gradle.forge"
-apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'forge'
 
-version = "2.0.0-SNAPSHOT"
-group = "me.boomboompower.skinchanger"
+version = '3.0'
+group = "me.do_you_like.skinchanger"
 archivesBaseName = "SkinChangerMod"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = "1.8.9-11.15.1.1722"
+    version = "1.7.10-10.13.4.1558-1.7.10"
     runDir = "run"
 
     // the mappings can be changed at any time, and must be in the following format.
@@ -56,7 +55,7 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "stable_22"
+    mappings = "stable_12"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
@@ -65,7 +64,7 @@ repositories {
 
     maven {
         name = 'sponge'
-        url = 'http://repo.spongepowered.org/maven'
+        url = 'https://repo.spongepowered.org/maven'
     }
 
     maven {
@@ -76,15 +75,6 @@ repositories {
 dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.1'
     
-    provided('org.spongepowered:mixin:0.7.10-SNAPSHOT') {
-        exclude module: 'launchwrapper'
-        exclude module: 'guava'
-        exclude module: 'gson'
-        exclude module: 'commons-io'
-        exclude module: 'log4j-core'
-
-    }
-
     compile 'org.projectlombok:lombok:1.16.20'
 }
 
@@ -110,13 +100,6 @@ processResources {
 jar {
     archiveName = "$baseName.$extension"
 
-    from configurations.provided.asFileTree.files.collect {
-        // Fixes an issue where Mixin's copies a duplicate file into the build jar...
-        exclude 'META-INF/services/javax.annotation.processing.Processor'
-
-        zipTree(it)
-    }
-
     manifest.attributes(
             'Main-Class' : 'me.do_you_like.mods.skinchanger.installer.InstallerCore',
             'MixinConfigs' : 'mixins.skinchanger.json',
@@ -125,25 +108,4 @@ jar {
             'FMLCorePluginContainsFMLMod' : true,
             'ForceLoadAsMod' : true
     )
-}
-
-sourceJar {
-    // Rename the jar so it doesn't contain "SNAPSHOT"
-    archiveName = "$baseName-sources.$extension"
-}
-
-sourceSets {
-    main {
-        //noinspection GroovyAssignabilityCheck
-        refMap = "mixins.skinchanger.refmap.json"
-    }
-}
-
-configurations {
-    provided
-    compile.extendsFrom(provided)
-}
-
-mixin {
-    defaultObfuscationEnv searge
 }

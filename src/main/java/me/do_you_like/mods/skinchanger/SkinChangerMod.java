@@ -17,6 +17,12 @@
 
 package me.do_you_like.mods.skinchanger;
 
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.ModMetadata;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+
 import java.io.File;
 
 import me.do_you_like.mods.skinchanger.commands.SkinCommand;
@@ -26,14 +32,8 @@ import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever;
 
 import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ModMetadata;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "*", clientSideOnly = true)
+@Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "*")
 public class SkinChangerMod {
 
     public static final String MOD_ID = "skinchanger";
@@ -59,10 +59,6 @@ public class SkinChangerMod {
 
         this.cacheRetriever = new CacheRetriever(this);
         this.configurationHandler = new ConfigurationHandler(this);
-
-        for (int i = 0; i < 20; i++) {
-            System.out.println((i * 'X') + " PreInit!");
-        }
     }
 
     @Mod.EventHandler
@@ -76,10 +72,6 @@ public class SkinChangerMod {
         this.configurationHandler.load();
 
         this.mojangHooker = new MojangHooker();
-
-        for (int i = 0; i < 20; i++) {
-            System.out.println((i * 'Z') + " PostInit!");
-        }
     }
 
     public File getModConfigDirectory() {

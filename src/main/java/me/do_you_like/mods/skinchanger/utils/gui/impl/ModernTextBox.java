@@ -21,18 +21,18 @@ import java.awt.Color;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import me.do_you_like.mods.skinchanger.compatability.GlStateManager;
+import me.do_you_like.mods.skinchanger.compatability.KeyCompatibility;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.MathHelper;
 
+@SuppressWarnings("WeakerAccess")
 public class ModernTextBox extends Gui {
 
     private String alertMessage = "";
@@ -64,7 +64,6 @@ public class ModernTextBox extends Gui {
     private int disabledColor = 7368816;
     /** True if this textbox is visible */
     private boolean visible = true;
-    private GuiPageButtonList.GuiResponder guiResponder;
 
     private boolean onlyAllowNumbers;
     private String noTextMessage;
@@ -88,10 +87,6 @@ public class ModernTextBox extends Gui {
         this.height = height;
         this.noTextMessage = noTextMessage;
         this.onlyAllowNumbers = onlyAllowNumbers;
-    }
-
-    public void setGuiResponder(GuiPageButtonList.GuiResponder guiResponder) {
-        this.guiResponder = guiResponder;
     }
 
     /**
@@ -164,10 +159,6 @@ public class ModernTextBox extends Gui {
 
         this.text = s;
         this.moveCursorBy(i - this.selectionEnd + l);
-
-        if (this.guiResponder != null) {
-            this.guiResponder.func_175319_a(this.id, this.text);
-        }
     }
 
     /**
@@ -209,10 +200,6 @@ public class ModernTextBox extends Gui {
 
                 if (flag) {
                     this.moveCursorBy(num);
-                }
-
-                if (this.guiResponder != null) {
-                    this.guiResponder.func_175319_a(this.id, this.text);
                 }
             }
         }
@@ -306,17 +293,17 @@ public class ModernTextBox extends Gui {
             return;
         }
 
-        if (GuiScreen.isKeyComboCtrlA(keyCode)) {
+        if (KeyCompatibility.isKeyComboCtrlA(keyCode)) {
             this.setCursorPositionEnd();
             this.setSelectionPos(0);
-        } else if (GuiScreen.isKeyComboCtrlC(keyCode)) {
+        } else if (KeyCompatibility.isKeyComboCtrlC(keyCode)) {
             GuiScreen.setClipboardString(this.getSelectedText());
-        } else if (GuiScreen.isKeyComboCtrlV(keyCode)) {
+        } else if (KeyCompatibility.isKeyComboCtrlV(keyCode)) {
             if (this.isEnabled) {
                 this.writeText(format(GuiScreen.getClipboardString()));
             }
 
-        } else if (GuiScreen.isKeyComboCtrlX(keyCode)) {
+        } else if (KeyCompatibility.isKeyComboCtrlX(keyCode)) {
             GuiScreen.setClipboardString(this.getSelectedText());
 
             if (this.isEnabled) {
@@ -458,18 +445,18 @@ public class ModernTextBox extends Gui {
             }
 
             if (!alertMessage.isEmpty()) {
-                this.fontRendererInstance.drawString(alertMessage, ((this.xPosition + (float) this.width / 2) - (float) fontRendererInstance.getStringWidth(alertMessage) / 2), this.yPosition + this.height / 2 - 4, enabledColor, false);
+                this.fontRendererInstance.drawString(alertMessage, (int) ((this.xPosition + (float) this.width / 2) - (float) fontRendererInstance.getStringWidth(alertMessage) / 2), this.yPosition + this.height / 2 - 4, enabledColor, false);
                 return;
             }
 
             if (s.isEmpty() && !isFocused && isEnabled) {
-                this.fontRendererInstance.drawString(noTextMessage, ((this.xPosition + (float) this.width / 2) - (float) fontRendererInstance.getStringWidth(noTextMessage) / 2), this.yPosition + this.height / 2 - 4, i, false);
+                this.fontRendererInstance.drawString(noTextMessage, (int) ((this.xPosition + (float) this.width / 2) - (float) fontRendererInstance.getStringWidth(noTextMessage) / 2), this.yPosition + this.height / 2 - 4, i, false);
                 return;
             }
 
             if (s.length() > 0) {
                 String s1 = flag ? s.substring(0, j) : s;
-                j1 = this.fontRendererInstance.drawString(s1, (float) l, (float) i1, i, false);
+                j1 = this.fontRendererInstance.drawString(s1, l, i1, i, false);
             }
 
             boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
@@ -482,7 +469,7 @@ public class ModernTextBox extends Gui {
             }
 
             if (s.length() > 0 && flag && j < s.length()) {
-                this.fontRendererInstance.drawString(s.substring(j), (float) j1, (float) i1, i, false);
+                this.fontRendererInstance.drawString(s.substring(j), j1, i1, i, false);
             }
 
             if (flag1) {
@@ -490,7 +477,7 @@ public class ModernTextBox extends Gui {
                     Gui.drawRect(k1, i1 -1, k1 + 1, i1 + 1 + this.fontRendererInstance.FONT_HEIGHT, -3092272);
                 }
                 else {
-                    this.fontRendererInstance.drawString("_", (float) k1, (float) i1, i, false);
+                    this.fontRendererInstance.drawString("_", k1, i1, i, false);
                 }
             }
 
@@ -525,17 +512,16 @@ public class ModernTextBox extends Gui {
             p_146188_1_ = this.xPosition + this.width;
         }
 
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        Tessellator tessellator = Tessellator.instance;
         GlStateManager.color(0.0F, 0.0F, 255.0F, 255.0F);
         GlStateManager.disableTexture2D();
         GlStateManager.enableColorLogic();
         GlStateManager.colorLogicOp(5387);
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
-        worldrenderer.pos((double) p_146188_1_, (double) p_146188_4_, 0.0D).endVertex();
-        worldrenderer.pos((double) p_146188_3_, (double) p_146188_4_, 0.0D).endVertex();
-        worldrenderer.pos((double) p_146188_3_, (double) p_146188_2_, 0.0D).endVertex();
-        worldrenderer.pos((double) p_146188_1_, (double) p_146188_2_, 0.0D).endVertex();
+        tessellator.startDrawingQuads();
+        tessellator.addVertex((double)p_146188_1_, (double)p_146188_4_, 0.0D);
+        tessellator.addVertex((double)p_146188_3_, (double)p_146188_4_, 0.0D);
+        tessellator.addVertex((double)p_146188_3_, (double)p_146188_2_, 0.0D);
+        tessellator.addVertex((double)p_146188_1_, (double)p_146188_2_, 0.0D);
         tessellator.draw();
         GlStateManager.disableColorLogic();
         GlStateManager.enableTexture2D();

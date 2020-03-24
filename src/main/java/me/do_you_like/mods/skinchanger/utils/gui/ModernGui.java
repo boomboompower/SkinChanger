@@ -19,11 +19,15 @@ package me.do_you_like.mods.skinchanger.utils.gui;
 
 import com.google.common.collect.Lists;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+
 import java.awt.Color;
 import java.util.Collections;
 import java.util.List;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.compatability.GlStateManager;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernSlider;
@@ -32,10 +36,7 @@ import me.do_you_like.mods.skinchanger.utils.gui.lock.UILock;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import org.lwjgl.input.Mouse;
 
@@ -255,7 +256,6 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         // Required for compatibility
         super.mc = mc;
 
-        this.itemRender = mc.getRenderItem();
         this.width = width;
         this.height = height;
 

@@ -17,27 +17,24 @@
 
 package me.do_you_like.mods.skinchanger.utils.gui.options;
 
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.File;
 
-import java.util.HashMap;
-
+import me.do_you_like.mods.skinchanger.compatability.DefaultPlayerSkin;
 import me.do_you_like.mods.skinchanger.utils.backend.ThreadFactory;
-import me.do_you_like.mods.skinchanger.utils.general.ReflectUtils;
 import me.do_you_like.mods.skinchanger.utils.resources.CapeBuffer;
 import me.do_you_like.mods.skinchanger.utils.resources.LocalFileData;
 import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
 public class SelectionOptions {
 
-    private HashMap<AbstractClientPlayer, NetworkPlayerInfo> cachedPlayerInfo = new HashMap<>();
     private ThreadFactory threadFactory = new ThreadFactory("SelectionOptions");
 
     public void loadFromFile(OptionResponse<ResourceLocation> callback, boolean isCape) {
@@ -81,14 +78,12 @@ public class SelectionOptions {
     }
 
     public void setSkin(AbstractClientPlayer player, ResourceLocation newLocation, OptionResponse<Void> response) {
-        NetworkPlayerInfo playerInfo = getPlayerInfo(player, response);
-
-        if (playerInfo == null) {
+        if (player == null) {
             // Error has occurred.
             return;
         }
 
-        ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, newLocation, "locationSkin", "field_178865_e");
+        player.onSkinAvailable(Type.SKIN, newLocation);
 
         if (response != null) {
             response.run(null);
@@ -96,42 +91,15 @@ public class SelectionOptions {
     }
 
     public void setCape(AbstractClientPlayer player, ResourceLocation newLocation, OptionResponse<Void> response) {
-        NetworkPlayerInfo playerInfo = getPlayerInfo(player, response);
-
-        if (playerInfo == null) {
+        if (player == null) {
             // Error has occurred.
             return;
         }
 
-        ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, newLocation, "locationCape", "field_178862_f");
+        player.onSkinAvailable(Type.CAPE, newLocation);
 
         if (response != null) {
             response.run(null);
-        }
-    }
-
-    private NetworkPlayerInfo getPlayerInfo(AbstractClientPlayer player, OptionResponse<Void> response) {
-        if (this.cachedPlayerInfo.containsKey(player)) {
-            return this.cachedPlayerInfo.get(player);
-        }
-
-        try {
-            NetworkPlayerInfo playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(
-                AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(player);
-
-            this.cachedPlayerInfo.put(player, playerInfo);
-
-            return playerInfo;
-        } catch (Throwable t) {
-            t.printStackTrace();
-
-            if (t.getMessage() != null) {
-                response.onError(t.getMessage());
-            } else {
-                response.onError(t.getClass().getName());
-            }
-
-            return null;
         }
     }
 }

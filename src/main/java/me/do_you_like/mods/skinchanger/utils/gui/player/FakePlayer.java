@@ -22,14 +22,16 @@ import com.mojang.authlib.GameProfile;
 import java.util.UUID;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.compatability.DefaultPlayerSkin;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.stats.StatBase;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.IChatComponent;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 /**
@@ -56,72 +58,55 @@ public class FakePlayer extends AbstractClientPlayer {
 
         getPlayerInfo().setLocationSkin(player.getLocationSkin());
         getPlayerInfo().setLocationCape(player.getLocationCape());
-        getPlayerInfo().setSkinType(player.getSkinType());
+        getPlayerInfo().setSkinType(DefaultPlayerSkin.getSkinType(player.getUniqueID()));
     }
 
     // This is required for comparability.
     public FakePlayer(World world) {
         super(world, FAKE_GAME_PROFILE);
     }
-    
-    @Override
+
     public FakePlayerInfo getPlayerInfo() {
         return this.playerInfo == null ? this.playerInfo = new FakePlayerInfo(this) : this.playerInfo;
     }
-    
-    @Override
+
     public boolean hasPlayerInfo() {
         return getPlayerInfo() != null;
     }
-    
+
     @Override
-    public boolean isWearing(EnumPlayerModelParts modelParts) {
-        return true;
+    public boolean hasSkin() {
+        return getPlayerInfo().hasLocationSkin();
     }
-    
+
     @Override
-    public Vec3 getPositionVector() {
-        return new Vec3(0, 0, 0);
+    public ResourceLocation getLocationSkin() {
+        return getPlayerInfo().getLocationSkin();
     }
-    
+
     @Override
-    public boolean canCommandSenderUseCommand(int permLevel, String commandName) {
-        return false;
+    public boolean hasCape() {
+        return getPlayerInfo().hasLocationCape();
     }
-    
+
     @Override
-    public void addChatComponentMessage(IChatComponent chatmessagecomponent) {
+    public ResourceLocation getLocationCape() {
+        return getPlayerInfo().getLocationCape();
     }
-    
-    @Override
-    public void addStat(StatBase stat, int amount) {
+
+    @Override public boolean canCommandSenderUseCommand(int i, String s){ return false; }
+    @Override public ChunkCoordinates getCommandSenderPosition() {
+        return new ChunkCoordinates(0,0,0);
     }
-    
-    @Override
-    public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
-    }
-    
-    @Override
-    public boolean isEntityInvulnerable(DamageSource source){
-        return true;
-    }
-    
-    @Override
-    public boolean canAttackPlayer(EntityPlayer player){
-        return false;
-    }
-    
-    @Override
-    public void onDeath(DamageSource source) {
-    }
-    
-    @Override
-    public void onUpdate() {
-    }
-    
-    @Override
-    public void travelToDimension(int dim) {
-    }
+    @Override public void addChatMessage(IChatComponent mess){}
+    @Override public void addChatComponentMessage(IChatComponent mess){}
+    @Override public void addStat(StatBase par1StatBase, int par2){}
+    @Override public void openGui(Object mod, int modGuiId, World world, int x, int y, int z){}
+    @Override public boolean isEntityInvulnerable(){ return true; }
+    @Override public boolean canAttackPlayer(EntityPlayer player){ return false; }
+    @Override public void onDeath(DamageSource source){ return; }
+    @Override public void onUpdate(){ return; }
+    @Override public void travelToDimension(int dim){ return; }
 
     /**
      * Copies resources from one player to another.
@@ -131,7 +116,7 @@ public class FakePlayer extends AbstractClientPlayer {
     public void copyFrom(AbstractClientPlayer player) {
         getPlayerInfo().setLocationSkin(player.getLocationSkin());
         getPlayerInfo().setLocationCape(player.getLocationCape());
-        getPlayerInfo().setSkinType(player.getSkinType());
+        getPlayerInfo().setSkinType(DefaultPlayerSkin.getSkinType(player.getUniqueID()));
     }
     
     public GameProfile getFakeGameProfile() {

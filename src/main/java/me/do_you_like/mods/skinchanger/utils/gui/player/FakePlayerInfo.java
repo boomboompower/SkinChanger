@@ -21,8 +21,8 @@ import com.google.common.base.Objects;
 
 import com.mojang.authlib.GameProfile;
 
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.resources.DefaultPlayerSkin;
+import me.do_you_like.mods.skinchanger.compatability.DefaultPlayerSkin;
+
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -30,7 +30,7 @@ import net.minecraft.util.ResourceLocation;
  *
  * Provides additional methods not included in the normal NetworkPlayerInfo class. This saves us from using reflection instead.
  */
-public class FakePlayerInfo extends NetworkPlayerInfo {
+public class FakePlayerInfo {
     
     private final GameProfile profile;
     
@@ -48,17 +48,13 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
     private String skinType;
     
     public FakePlayerInfo(FakePlayer player) {
-        super(player.getFakeGameProfile());
-        
         this.profile = player.getFakeGameProfile();
     }
-    
-    @Override
+
     public boolean hasLocationSkin() {
         return this.locationSkin != null;
     }
-    
-    @Override
+
     public ResourceLocation getLocationSkin() {
         if (this.locationSkin == null) {
             this.loadPlayerTextures();
@@ -66,12 +62,15 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
         
         return Objects.firstNonNull(this.locationSkin, DefaultPlayerSkin.getDefaultSkinLegacy());
     }
+
+    public boolean hasLocationCape() {
+        return this.locationCape != null;
+    }
     
     public void setLocationSkin(ResourceLocation locationSkin) {
         this.locationSkin = locationSkin;
     }
-    
-    @Override
+
     public ResourceLocation getLocationCape() {
         return this.locationCape;
     }
@@ -79,8 +78,7 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
     public void setLocationCape(ResourceLocation locationCape) {
         this.locationCape = locationCape;
     }
-    
-    @Override
+
     public String getSkinType() {
         return this.skinType == null ? this.skinType = "default" : this.skinType;
     }
@@ -88,24 +86,20 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
     public void setSkinType(String skinType) {
         this.skinType = skinType;
     }
-    
-    @Override
+
     public void loadPlayerTextures() {
         this.locationSkin = DefaultPlayerSkin.getDefaultSkinLegacy();
         this.locationCape = null;
         this.skinType = "default";
     }
-    
-    @Override
+
     public int getResponseTime() {
         return 0;
     }
-    
-    @Override
+
     protected void setResponseTime(int time) {
     }
-    
-    @Override
+
     public GameProfile getGameProfile() {
         return this.profile;
     }

@@ -18,6 +18,7 @@
 package me.do_you_like.mods.skinchanger.utils.command;
 
 import java.util.List;
+
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.utils.backend.ThreadFactory;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;

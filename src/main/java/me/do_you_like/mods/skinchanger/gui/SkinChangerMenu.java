@@ -19,6 +19,7 @@ package me.do_you_like.mods.skinchanger.gui;
 
 import java.awt.Color;
 
+import me.do_you_like.mods.skinchanger.compatability.GlStateManager;
 import me.do_you_like.mods.skinchanger.gui.additional.ModOptionsMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu.StringSelectionType;
@@ -31,7 +32,6 @@ import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernHeader;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernSlider;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -330,15 +330,6 @@ public class SkinChangerMenu extends ModernGui {
         entity.rotationYawHead = entity.rotationYaw;
         entity.prevRotationYawHead = entity.rotationYaw;
 
-        entity.prevChasingPosX = 2;
-        entity.chasingPosX = 0;
-
-        entity.prevChasingPosY = 0;
-        entity.chasingPosY = 0;
-
-        entity.prevChasingPosZ = 0;
-        entity.chasingPosZ = 0;
-
         entity.prevRenderYawOffset = 0;
         entity.prevCameraYaw = 0;
 
@@ -360,7 +351,7 @@ public class SkinChangerMenu extends ModernGui {
         //entity.posZ = Math.sin((System.currentTimeMillis() % (720 * 1.5)) * (Math.PI / (180 * 3)));
         //entity.posZ += entity.prevPosZ / 10;
 
-        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+        RenderManager rendermanager = RenderManager.instance;
 
         float capeSwing = MathHelper.cos(entity.limbSwing / 2 * 0.662F) * 1.1F * entity.limbSwingAmount / 2;
 
@@ -369,10 +360,20 @@ public class SkinChangerMenu extends ModernGui {
 
         GlStateManager.disableLighting();
 
-        rendermanager.setPlayerViewY(rotation);
-        rendermanager.setRenderShadow(false);
+        rendermanager.playerViewY = rotation;
+
+        // Hack for disabling shadows
+        boolean fancyGraphics = rendermanager.options.fancyGraphics;
+
+        // Disable fancy graphics if the player has them enabled.
+        if (fancyGraphics) {
+            rendermanager.options.fancyGraphics = false;
+        }
+
         rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
-        rendermanager.setRenderShadow(true);
+
+        // Go back to the old option.
+        rendermanager.options.fancyGraphics = fancyGraphics;
 
         GlStateManager.enableLighting();
 

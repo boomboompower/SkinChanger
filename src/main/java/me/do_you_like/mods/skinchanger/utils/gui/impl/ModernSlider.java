@@ -22,11 +22,11 @@ import lombok.Setter;
 
 import java.awt.*;
 
+import me.do_you_like.mods.skinchanger.compatability.GlStateManager;
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 
 public class ModernSlider implements InteractiveDrawable {
 
@@ -139,7 +139,7 @@ public class ModernSlider implements InteractiveDrawable {
                 strWidth = mc.fontRendererObj.getStringWidth(buttonText);
             }
 
-            mc.fontRendererObj.drawString(buttonText, (this.x + ((float) this.width / 2) - (float) strWidth / 2), this.y + (this.height - 8) / 2, color, false);
+            mc.fontRendererObj.drawString(buttonText, (int) (this.x + ((float) this.width / 2) - (float) strWidth / 2), this.y + (this.height - 8) / 2, color, false);
         }
 
         GlStateManager.disableAlpha();

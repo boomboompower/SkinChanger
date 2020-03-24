@@ -33,10 +33,10 @@ import java.util.Base64;
 import java.util.HashMap;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.compatability.DefaultPlayerSkin;
 import me.do_you_like.mods.skinchanger.utils.general.BetterJsonObject;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
 import org.apache.commons.io.IOUtils;
@@ -177,7 +177,7 @@ public class MojangHooker {
         return new BetterJsonObject(getUrl("https://api.mojang.com/users/profiles/minecraft/" + name));
     }
     
-    private BetterJsonObject getEncryptedTexturesUnsafe(String id) throws UnsupportedEncodingException, IllegalStateException, JsonParseException {
+    private BetterJsonObject getEncryptedTexturesUnsafe(String id) throws IllegalStateException, JsonParseException {
         if (id == null) {
             return new BetterJsonObject();
         }

@@ -20,13 +20,13 @@ package me.do_you_like.mods.skinchanger.utils.gui.impl;
 import lombok.Getter;
 import lombok.Setter;
 
+import me.do_you_like.mods.skinchanger.compatability.GlStateManager;
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
@@ -154,7 +154,7 @@ public class ModernButton extends Gui implements InteractiveDrawable {
                 fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
             }
 
-            fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, false);
+            fontrenderer.drawString(this.displayString, (int) ((xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2)), yPosition + (this.height - 8) / 2, j, false);
         }
     }
 
@@ -192,13 +192,13 @@ public class ModernButton extends Gui implements InteractiveDrawable {
                 fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
             }
 
-            fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, false);
+            fontrenderer.drawString(this.displayString, (int) ((xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2)), yPosition + (this.height - 8) / 2, j, false);
         }
     }
 
     @Override
     public void onLeftClick(int mouseX, int mouseY, float yTranslation) {
-        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.createPositionedSoundRecord(new ResourceLocation("gui.button.press"), 1.0F));
     }
 
     @Override

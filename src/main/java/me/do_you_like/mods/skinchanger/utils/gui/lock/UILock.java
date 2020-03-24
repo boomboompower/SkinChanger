@@ -46,7 +46,7 @@ public class UILock extends GuiScreen {
             return;
         }
 
-        fontRendererIn.drawString(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y, color, false);
+        fontRendererIn.drawString(text, x - fontRendererIn.getStringWidth(text) / 2, y, color, false);
     }
 
     public final void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color, boolean shadow) {
@@ -54,7 +54,7 @@ public class UILock extends GuiScreen {
             return;
         }
 
-        fontRendererIn.drawString(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y, color, shadow);
+        fontRendererIn.drawString(text, x - fontRendererIn.getStringWidth(text) / 2, y, color, shadow);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class UILock extends GuiScreen {
             return;
         }
 
-        fontRendererIn.drawString(text, (float) x, (float) y, color, false);
+        fontRendererIn.drawString(text, x, y, color, false);
     }
 
     @Override
@@ -71,19 +71,17 @@ public class UILock extends GuiScreen {
         return false;
     }
 
-    @Override
     public final void sendChatMessage(String msg) {
         this.mc.ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(
             ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY + msg));
     }
 
-    @Override
-    public final void confirmClicked(boolean result, int id) {
+    public final void sendChatMessage(String msg, boolean addToChat) {
+        sendChatMessage(msg);
     }
 
     @Override
-    public final void sendChatMessage(String msg, boolean addToChat) {
-        sendChatMessage(msg);
+    public final void confirmClicked(boolean result, int id) {
     }
 
     @Override
@@ -96,15 +94,15 @@ public class UILock extends GuiScreen {
         super.drawTexturedModalRect(x, y, textureX, textureY, width, height);
     }
 
-    @Override
-    public final void drawTexturedModalRect(float xCoord, float yCoord, int minU, int minV, int maxU, int maxV) {
-        super.drawTexturedModalRect(xCoord, yCoord, minU, minV, maxU, maxV);
-    }
-
-    @Override
-    public final void drawTexturedModalRect(int xCoord, int yCoord, TextureAtlasSprite textureSprite, int widthIn, int heightIn) {
-        super.drawTexturedModalRect(xCoord, yCoord, textureSprite, widthIn, heightIn);
-    }
+//    @Override
+//    public final void drawTexturedModalRect(float xCoord, float yCoord, int minU, int minV, int maxU, int maxV) {
+//        super.drawTexturedModalRect(xCoord, yCoord, minU, minV, maxU, maxV);
+//    }
+//
+//    @Override
+//    public final void drawTexturedModalRect(int xCoord, int yCoord, TextureAtlasSprite textureSprite, int widthIn, int heightIn) {
+//        super.drawTexturedModalRect(xCoord, yCoord, textureSprite, widthIn, heightIn);
+//    }
 
     @Override
     public final void drawWorldBackground(int tint) {
@@ -112,26 +110,17 @@ public class UILock extends GuiScreen {
     }
 
     @Override
-    public final void handleInput() throws IOException {
+    public final void handleInput() {
         super.handleInput();
     }
 
     @Override
-    public final void handleKeyboardInput() throws IOException {
+    public final void handleKeyboardInput() {
         super.handleKeyboardInput();
     }
 
     @Override
-    public final void onResize(Minecraft mcIn, int w, int h) {
-        super.onResize(mcIn, w, h);
-    }
-
-    @Override
     protected final void actionPerformed(GuiButton button) {
-    }
-
-    @Override
-    protected final void setText(String newChatText, boolean shouldOverwrite) {
     }
 
     @Override
@@ -144,7 +133,7 @@ public class UILock extends GuiScreen {
     }
 
     @Override
-    public final void handleMouseInput() throws IOException {
+    public final void handleMouseInput() {
         super.handleMouseInput();
 
         onMouse();
