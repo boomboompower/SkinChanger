@@ -60,7 +60,10 @@ minecraft {
 }
 
 repositories {
-    mavenCentral()
+    maven {
+        name = 'Maven Central'
+        url = 'https://repo1.maven.org/maven2/'
+    }
 
     maven {
         name = 'sponge'
