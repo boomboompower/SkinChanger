@@ -72,13 +72,14 @@ jobs:
           name: SkinChanger-${{ github.run_id }}
           path: './build/libs/SkinChangerMod.jar'
 
-      - name: Upload Mod Source
-        uses: actions/upload-artifact@v1
-
-        if: success()
-        with:
-          name: SkinChanger-sources-${{ github.run_id }}
-          path: './build/libs/SkinChangerMod-sources.jar'
+# No mod sources in 1.7.10
+#      - name: Upload Mod Source
+#        uses: actions/upload-artifact@v1
+#
+#        if: success()
+#        with:
+#          name: SkinChanger-sources-${{ github.run_id }}
+#          path: './build/libs/SkinChangerMod-sources.jar'
 
   macOS:
     name: macOS Mod CI
