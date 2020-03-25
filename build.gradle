@@ -40,8 +40,8 @@ buildscript {
 apply plugin: "net.minecraftforge.gradle.forge"
 apply plugin: 'org.spongepowered.mixin'
 
-version = "2.0.0-SNAPSHOT"
-group = "me.boomboompower.skinchanger"
+version = '3.0.0'
+group = "me.do_you_like.skinchanger"
 archivesBaseName = "SkinChangerMod"
 
 sourceCompatibility = 1.8
@@ -65,7 +65,7 @@ repositories {
 
     maven {
         name = 'sponge'
-        url = 'http://repo.spongepowered.org/maven'
+        url = 'https://repo.spongepowered.org/maven'
     }
 
     maven {
@@ -82,7 +82,6 @@ dependencies {
         exclude module: 'gson'
         exclude module: 'commons-io'
         exclude module: 'log4j-core'
-
     }
 
     compile 'org.projectlombok:lombok:1.16.20'

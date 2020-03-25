@@ -32,6 +32,9 @@ public class InstallerCore {
 
     private static final String MOD_NAME = "SkinChanger";
 
+    private static final String BUILT_FOR = "1.8.9"; // TODO Update  this across versions.
+    private static final String MOD_VERSION = "3.0.0"; // TODO Update this on releases
+
     public static void main(String[] args) {
         if (!GraphicsEnvironment.isHeadless()) {
             try {
@@ -42,7 +45,7 @@ public class InstallerCore {
             OSType osType = OperatingSystem.getOSType();
 
             if (osType == OSType.UNKNOWN) {
-                onInstallationFailed("Your operating system is not supported by the installer.");
+                onInstallationFailed("Your operating system is not supported by the installer.\nPlease place the mod file in your mods folder manually.");
 
                 return;
             }
@@ -69,8 +72,10 @@ public class InstallerCore {
                 return;
             }
 
+            File installLocation = new File(mcModDir, BUILT_FOR);
+
             try {
-                Files.copy(currentPath.toPath(), new File(mcModDir, MOD_NAME + ".jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(currentPath.toPath(), new File(installLocation, MOD_NAME + " v" + MOD_VERSION + ".jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
                 onInstallationFailed("The mod was unable to be written to the installation directory.");
 
@@ -92,7 +97,7 @@ public class InstallerCore {
                 // Had no permission to delete the file.
             }
 
-            JOptionPane.showMessageDialog(null, MOD_NAME + " has been installed at: \n " + mcModDir.getAbsolutePath() + "\n\nFrom: \n" + currentPath.getAbsolutePath(), "Installation Successful", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, MOD_NAME + " (v" + MOD_VERSION + ") has been installed at: \n " + installLocation.getAbsolutePath() + "\n\nFrom: \n" + currentPath.getAbsolutePath() + "\n\nYou may delete this file now!", "Installation Successful", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -115,5 +120,4 @@ public class InstallerCore {
 
         JOptionPane.showMessageDialog(null, message, "Installation Failed", JOptionPane.ERROR_MESSAGE);
     }
-
 }

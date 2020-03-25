@@ -26,7 +26,6 @@ import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever;
 
 import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -59,10 +58,6 @@ public class SkinChangerMod {
 
         this.cacheRetriever = new CacheRetriever(this);
         this.configurationHandler = new ConfigurationHandler(this);
-
-        for (int i = 0; i < 20; i++) {
-            System.out.println((i * 'X') + " PreInit!");
-        }
     }
 
     @Mod.EventHandler
@@ -76,10 +71,6 @@ public class SkinChangerMod {
         this.configurationHandler.load();
 
         this.mojangHooker = new MojangHooker();
-
-        for (int i = 0; i < 20; i++) {
-            System.out.println((i * 'Z') + " PostInit!");
-        }
     }
 
     public File getModConfigDirectory() {

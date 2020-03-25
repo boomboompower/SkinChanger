@@ -23,8 +23,8 @@ import java.io.File;
 
 import java.util.HashMap;
 
+import me.do_you_like.mods.skinchanger.utils.backend.ReflectionUtils;
 import me.do_you_like.mods.skinchanger.utils.backend.ThreadFactory;
-import me.do_you_like.mods.skinchanger.utils.general.ReflectUtils;
 import me.do_you_like.mods.skinchanger.utils.resources.CapeBuffer;
 import me.do_you_like.mods.skinchanger.utils.resources.LocalFileData;
 import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
@@ -88,7 +88,7 @@ public class SelectionOptions {
             return;
         }
 
-        ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, newLocation, "locationSkin", "field_178865_e");
+        ReflectionUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, newLocation, "locationSkin", "field_178865_e");
 
         if (response != null) {
             response.run(null);
@@ -103,7 +103,7 @@ public class SelectionOptions {
             return;
         }
 
-        ReflectUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, newLocation, "locationCape", "field_178862_f");
+        ReflectionUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, newLocation, "locationCape", "field_178862_f");
 
         if (response != null) {
             response.run(null);
@@ -116,8 +116,7 @@ public class SelectionOptions {
         }
 
         try {
-            NetworkPlayerInfo playerInfo = (NetworkPlayerInfo) ReflectUtils.findMethod(
-                AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(player);
+            NetworkPlayerInfo playerInfo = (NetworkPlayerInfo) ReflectionUtils.findMethod(AbstractClientPlayer.class, new String[] {"getPlayerInfo", "func_175155_b"}).invoke(player);
 
             this.cachedPlayerInfo.put(player, playerInfo);
 
