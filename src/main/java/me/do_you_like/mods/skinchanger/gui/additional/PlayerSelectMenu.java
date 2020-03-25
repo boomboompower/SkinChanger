@@ -95,7 +95,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
         if (!Objects.equals(this.lastErrorMessage, this.errorMessage)) {
             this.errorMessageTimer = 0;
-            
+
             this.lastErrorMessage = errorMessage;
         }
 

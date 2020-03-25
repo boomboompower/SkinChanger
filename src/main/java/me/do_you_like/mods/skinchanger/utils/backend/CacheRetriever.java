@@ -29,6 +29,8 @@ import java.util.UUID;
 import lombok.Getter;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.utils.resources.CapeBuffer;
+import me.do_you_like.mods.skinchanger.utils.resources.LocalFileData;
 import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
 
 import net.minecraft.client.Minecraft;
@@ -52,26 +54,36 @@ public class CacheRetriever {
         this.mod = mod;
         this.cacheDirectory = new File(mod.getModConfigDirectory(), "cache");
 
-        for (int i = 0; i < 50; i++) {
-            System.out.println(this.cacheDirectory);
-        }
-
         genCacheDirectory();
     }
 
-    // String.format("https://minotar.net/skin/%s", name)
+    /**
+     * Loads a file into the game.
+     *
+     * @param name the name for the file
+     * @param url the url of the file
+     * @return a resource location with the loaded url.
+     */
     public ResourceLocation loadIntoGame(String name, String url) {
+        return loadIntoGame(name, url, CacheType.OTHER);
+    }
+
+    // String.format("https://minotar.net/skin/%s", name)
+    public ResourceLocation loadIntoGame(String name, String url, CacheType cacheType) {
         File cacheDirectory = getCacheDirForName(name);
 
-        boolean cacheFileExists = doesCacheExist(name);
-
-        if (isCacheExpired(name)) {
-            cacheFileExists = false;
-
-            cacheDirectory.delete();
-        }
+        // Other cache types can be ignored.
+        File cachedFile = cacheType != CacheType.OTHER ? getCacheFileIfIExists(name, ".png") : null;
 
         ResourceLocation location = new ResourceLocation("skins/" + getCacheName(name));
+
+        if (cachedFile != null) {
+            Minecraft.getMinecraft().addScheduledTask(() -> {
+                Minecraft.getMinecraft().renderEngine.loadTexture(location, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), cachedFile, cacheType == CacheType.CAPE ? new CapeBuffer() : new SkinBuffer()));
+            });
+
+            return location;
+        }
 
         File dataFile = new File(cacheDirectory, cacheDirectory.getName() + ".png");
 
@@ -80,7 +92,7 @@ public class CacheRetriever {
             url = "https://" + url.substring("http://".length());
         }
 
-        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, DefaultPlayerSkin.getDefaultSkinLegacy(), new SkinBuffer());
+        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, DefaultPlayerSkin.getDefaultSkinLegacy(), cacheType == CacheType.CAPE ? new CapeBuffer() : new SkinBuffer());
 
         Minecraft.getMinecraft().addScheduledTask(() -> {
             Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
@@ -95,6 +107,7 @@ public class CacheRetriever {
         File cacheDirectory = getCacheDirForName(name);
 
         if (isCacheExpired(name)) {
+            //noinspection ResultOfMethodCallIgnored
             cacheDirectory.delete();
         }
 
@@ -136,6 +149,42 @@ public class CacheRetriever {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Gets the cached data file from a name
+     *
+     * @param name the name of the file (will be converted to a cache name)
+     * @param extension the extension of the file (must start with a .)
+     *
+     * @return the file for the cache or null if it does not exist.
+     */
+    public File getCacheFileIfIExists(String name, String extension) {
+        if (!extension.startsWith(".")) {
+            return null;
+        }
+
+        if (!doesCacheExist(name) || isCacheExpired(name)) {
+            return null;
+        }
+
+        String cached_name = getCacheName(name);
+        File dir = new File(this.cacheDirectory, cached_name);
+        File data_file = new File(dir, cached_name + extension);
+
+        if (!data_file.exists()) {
+            return null;
+        }
+
+        if (data_file.isDirectory()) {
+            if (data_file.delete()) {
+                return null;
+            }
+
+            return null;
+        }
+
+        return data_file;
     }
 
     /**
@@ -229,7 +278,7 @@ public class CacheRetriever {
         UUID id = UUID.nameUUIDFromBytes(name.getBytes());
 
         // Take up to the first 5 characters of the name
-        String subStrName = name.substring(0, Math.min(5, name.length()));
+        String subStrName = name.substring(0, Math.min(7, name.length()));
 
         // Split the UUID into its four segments 0-1-2-3
         String[] uuidSplit = id.toString().split("-");
@@ -291,5 +340,11 @@ public class CacheRetriever {
         }
 
         return existed;
+    }
+
+    public enum CacheType {
+        SKIN,
+        CAPE,
+        OTHER
     }
 }

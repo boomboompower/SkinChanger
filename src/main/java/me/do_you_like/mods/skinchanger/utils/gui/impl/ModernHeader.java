@@ -259,7 +259,7 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     }
 
     @Override
-    public ModernDrawable setAsPartOfHeader(ModernHeader parent) {
+    public InteractiveDrawable setAsPartOfHeader(ModernHeader parent) {
         return this;
     }
 
