@@ -19,6 +19,7 @@ package me.do_you_like.mods.skinchanger.gui.additional;
 
 import java.awt.Color;
 
+import java.util.Objects;
 import lombok.Getter;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
@@ -26,7 +27,6 @@ import me.do_you_like.mods.skinchanger.gui.SkinChangerMenu;
 import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever;
 import me.do_you_like.mods.skinchanger.utils.backend.MojangHooker;
 import me.do_you_like.mods.skinchanger.utils.backend.ThreadFactory;
-import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import me.do_you_like.mods.skinchanger.utils.installing.InternetConnection;
@@ -45,6 +45,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     private SkinChangerMenu skinChangerMenu;
     private StringSelectionType selectionType;
 
+    private int errorMessageTimer = 0;
+    private String lastErrorMessage = null;
     private String errorMessage = "";
 
     private ModernTextBox textBox;
@@ -70,6 +72,12 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
         ModernTextBox entryBox = new ModernTextBox(0, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight);
 
+        if (this.selectionType.isTypeOfUrl()) {
+            entryBox.setMaxStringLength(520);
+        } else {
+            entryBox.setMaxStringLength(16);
+        }
+
         registerElement(entryBox);
 
         this.textBox = entryBox;
@@ -85,10 +93,19 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     public void onRender(int mouseX, int mouseY, float partialTicks) {
         super.onRender(mouseX, mouseY, partialTicks);
 
+        if (!Objects.equals(this.lastErrorMessage, this.errorMessage)) {
+            this.errorMessageTimer = 0;
+
+            this.lastErrorMessage = errorMessage;
+        }
+
+        int floatingPosition = cap(this.errorMessageTimer);
+
         drawCenteredString(this.fontRendererObj, this.selectionType.getDisplaySentence(), this.width / 4, this.height / 2 - 40, Color.WHITE.getRGB());
 
-        drawCenteredString(this.fontRendererObj, this.errorMessage, this.width / 2, this.height - 10, Color.WHITE.getRGB());
+        drawCenteredString(this.fontRendererObj, this.errorMessage, this.width / 2, this.height - floatingPosition, Color.WHITE.getRGB());
 
+        this.errorMessageTimer++;
     }
 
     @Override
@@ -130,7 +147,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                 this.errorMessage = "The entered value was larger than valid username's";
             }
 
-            this.errorMessage = ChatColor.RED + errorText;
+            this.errorMessage = errorText;
 
             return;
         }
@@ -139,7 +156,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
             switch (this.selectionType) {
                 case P_USERNAME:
                     if (!InternetConnection.hasInternetConnection()) {
-                        this.errorMessage = ChatColor.RED + "Could not connect to the internet. Make sure you have a stable internet connection!";
+                        this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
 
                         return;
                     }
@@ -167,8 +184,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     String cacheName = "c" + enteredText;
 
                     // If the file exists in the cache we don't need internet.
-                    if (!(this.cacheRetriever.doesCacheExist(cacheName) && !this.cacheRetriever.isCacheExpired(cacheName)) || !InternetConnection.hasInternetConnection()) {
-                        this.errorMessage = ChatColor.RED + "Could not connect to the internet. Make sure you have a stable internet connection!";
+                    if (!InternetConnection.hasInternetConnection()) {
+                        this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
 
                         return;
                     }
@@ -184,8 +201,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     String cache = "u" + enteredText;
 
                     // If the file exists in the cache we don't need internet.
-                    if (!(this.cacheRetriever.doesCacheExist(cache) && !this.cacheRetriever.isCacheExpired(cache)) || !InternetConnection.hasInternetConnection()) {
-                        this.errorMessage = ChatColor.RED + "Could not connect to the internet. Make sure you have a stable internet connection!";
+                    if (!InternetConnection.hasInternetConnection()) {
+                        this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
 
                         return;
                     }
@@ -198,8 +215,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     String cacheC = "1" + enteredText;
 
                     // If the file exists in the cache we don't need internet.
-                    if (!(this.cacheRetriever.doesCacheExist(cacheC) && !this.cacheRetriever.isCacheExpired(cacheC)) || !InternetConnection.hasInternetConnection()) {
-                        this.errorMessage = ChatColor.RED + "Could not connect to the internet. Make sure you have a stable internet connection!";
+                    if (!InternetConnection.hasInternetConnection()) {
+                        this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
 
                         return;
                     }
@@ -225,6 +242,18 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         this.rotation = rotation;
 
         this.skinChangerMenu.setRotation(rotation);
+    }
+
+    private int cap(int in) {
+        if (in < 0) {
+            return 0;
+        }
+
+        if (in < 30) {
+            return 30;
+        }
+
+        return in;
     }
 
     public enum StringSelectionType {
