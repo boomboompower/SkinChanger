@@ -19,10 +19,12 @@ package me.do_you_like.mods.skinchanger.gui;
 
 import java.awt.Color;
 
+import java.lang.invoke.MethodHandle;
 import me.do_you_like.mods.skinchanger.gui.additional.ModOptionsMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu.StringSelectionType;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernScroller;
 import me.do_you_like.mods.skinchanger.utils.gui.options.SelectionOptions;
 import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
@@ -63,6 +65,11 @@ public class SkinChangerMenu extends ModernGui {
 
     protected float rotation = 0;
 
+    // Minecraft's blur shader
+    private ResourceLocation blurShader = new ResourceLocation("shaders/post/blur.json");
+    // The location of the shader method.
+    private MethodHandle shade;
+
     public SkinChangerMenu() {
         this.instance = this;
     }
@@ -77,20 +84,7 @@ public class SkinChangerMenu extends ModernGui {
 
     @Override
     public final void onGuiOpen() {
-//        this.sliderList.add(new ModernSlider(5, this.width / 2 - 100, this.height / 2 + 74, 200, 20, "Scale: ", 1.0F, 200.0F, 100.0F) {
-//            @Override
-//            public void onSliderUpdate() {
-//                System.out.println(getValue() / 100);
-//
-//                for (ModernHeader header : SkinChangerMenu.this.headerList) {
-//                    if (header == title) {
-//                        continue;
-//                    }
-//
-//                    header.setScaleSize((float) (getValue() / 100.0D));
-//                }
-//            }
-//        });
+        this.mod.getCosmeticFactory().getBlurShader().applyShader();
 
         float bottomPosBox = this.height - 20;
 
@@ -179,6 +173,11 @@ public class SkinChangerMenu extends ModernGui {
     }
 
     @Override
+    public void onGuiClose() {
+        //this.mc.entityRenderer.stopUseShader();
+    }
+
+    @Override
     public void postRender() {
         GlStateManager.popMatrix();
 
@@ -189,7 +188,7 @@ public class SkinChangerMenu extends ModernGui {
         // Stops clipping of entity. (Pushes it closer to the camera).
         GlStateManager.translate(0, 0, 100);
 
-        drawEntityWithRot(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, this.rotation);
+        renderPlayWithRotation(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, this.rotation);
 
         GlStateManager.popMatrix();
     }
@@ -235,12 +234,12 @@ public class SkinChangerMenu extends ModernGui {
 
     @Override
     public void onScrollUp() {
-        this.yTranslation += 6;
+        //this.yTranslation += 6;
     }
 
     @Override
     public void onScrollDown() {
-        this.yTranslation -= 6;
+        //this.yTranslation -= 6;
     }
 
     /**
@@ -285,13 +284,18 @@ public class SkinChangerMenu extends ModernGui {
 
         // ----------------------------------
 
+        ModernScroller modernScroller = new ModernScroller(this.width - 15, 5, 10, this.height - 10).disableTranslatable();
+
+        modernScroller.insertScrollCallback((val) -> this.yTranslation = (int) ((float) val) * 100);
+
+        registerElement(modernScroller);
         registerElement(skinSettings);
         registerElement(capeSettings);
         registerElement(recentSkins);
         registerElement(recentCapes);
     }
 
-    private void drawEntityWithRot(int posX, int posY, int scale, float rotation) {
+    private void renderPlayWithRotation(int posX, int posY, int scale, float rotation) {
         FakePlayer entity = fakePlayer;
 
         GlStateManager.enableColorMaterial();

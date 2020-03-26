@@ -18,14 +18,15 @@
 package me.do_you_like.mods.skinchanger.utils.general;
 
 /**
- * Simple prerequisites for varies values in the code.
- *
- * Just used to validate input to ensure things flow smoothly
+ * Simple prerequisites for varies values in the code. Used to validate certain code operations
+ * and prevent me doing anything which some may consider "too hectic".
  */
-@SuppressWarnings("ALL")
-public class Prerequisites {
+public final class Prerequisites {
 
-    private Prerequisites() {
+    // Private constructor, no instances allowed
+    private Prerequisites(Prerequisites paradox) {
+        // To create an instance of this class one must have an instance of this class.
+        Prerequisites.notNull(paradox, "Paradox.");
     }
 
     /**
@@ -101,10 +102,23 @@ public class Prerequisites {
         throw new IllegalArgumentException(errorMessage);
     }
 
+    /**
+     * Ensures a condition is met. If the condition is not met then an IllegalArgumentException
+     * will be thrown with the default message.
+     *
+     * @param condition the condition to check, if its false then the error will be thrown
+     */
     public static void conditionMet(boolean condition) {
         conditionMet(condition, "Condition was not met.");
     }
 
+    /**
+     * Ensures a condition is met. If the condition is not met then an IllegalArgumentException
+     * will be thrown with an error message.
+     *
+     * @param condition the condition to check, if its false then the error will be thrown
+     * @param errorMessage the error message to be appended to the Stacktrace
+     */
     public static void conditionMet(boolean condition, String errorMessage) {
         if (condition) {
             return;

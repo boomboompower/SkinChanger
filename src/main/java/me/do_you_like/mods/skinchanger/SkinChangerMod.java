@@ -19,8 +19,10 @@ package me.do_you_like.mods.skinchanger;
 
 import java.io.File;
 
+import lombok.Getter;
 import me.do_you_like.mods.skinchanger.commands.SkinCommand;
 import me.do_you_like.mods.skinchanger.configuration.ConfigurationHandler;
+import me.do_you_like.mods.skinchanger.cosmetic.CosmeticFactory;
 import me.do_you_like.mods.skinchanger.utils.backend.MojangHooker;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever;
@@ -41,10 +43,19 @@ public class SkinChangerMod {
     @Mod.Instance
     private static SkinChangerMod instance;
 
+    @Getter
     private ConfigurationHandler configurationHandler;
+
+    @Getter
+    private CosmeticFactory cosmeticFactory;
+
+    @Getter
     private CacheRetriever cacheRetriever;
+
+    @Getter
     private MojangHooker mojangHooker;
 
+    @Getter
     private File modConfigDirectory;
 
     @Mod.EventHandler
@@ -70,23 +81,8 @@ public class SkinChangerMod {
     public void postInit(FMLPostInitializationEvent event) {
         this.configurationHandler.load();
 
+        this.cosmeticFactory = new CosmeticFactory(this);
         this.mojangHooker = new MojangHooker();
-    }
-
-    public File getModConfigDirectory() {
-        return this.modConfigDirectory;
-    }
-
-    public ConfigurationHandler getConfigurationHandler() {
-        return this.configurationHandler;
-    }
-
-    public CacheRetriever getCacheRetriever() {
-        return this.cacheRetriever;
-    }
-
-    public MojangHooker getMojangHooker() {
-        return this.mojangHooker;
     }
 
     public static SkinChangerMod getInstance() {

@@ -40,7 +40,7 @@ public class SelectionOptions {
     private HashMap<AbstractClientPlayer, NetworkPlayerInfo> cachedPlayerInfo = new HashMap<>();
     private ThreadFactory threadFactory = new ThreadFactory("SelectionOptions");
 
-    public void loadFromFile(OptionResponse<ResourceLocation> callback, boolean isCape) {
+    public void loadFromFile(SimpleCallback<ResourceLocation> callback, boolean isCape) {
         // Calling this code on the main thread will hang the game
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
             this.threadFactory.runAsync(() -> loadFromFile(callback, isCape));
@@ -80,7 +80,7 @@ public class SelectionOptions {
         }
     }
 
-    public void setSkin(AbstractClientPlayer player, ResourceLocation newLocation, OptionResponse<Void> response) {
+    public void setSkin(AbstractClientPlayer player, ResourceLocation newLocation, SimpleCallback<Void> response) {
         NetworkPlayerInfo playerInfo = getPlayerInfo(player, response);
 
         if (playerInfo == null) {
@@ -95,7 +95,7 @@ public class SelectionOptions {
         }
     }
 
-    public void setCape(AbstractClientPlayer player, ResourceLocation newLocation, OptionResponse<Void> response) {
+    public void setCape(AbstractClientPlayer player, ResourceLocation newLocation, SimpleCallback<Void> response) {
         NetworkPlayerInfo playerInfo = getPlayerInfo(player, response);
 
         if (playerInfo == null) {
@@ -110,7 +110,7 @@ public class SelectionOptions {
         }
     }
 
-    private NetworkPlayerInfo getPlayerInfo(AbstractClientPlayer player, OptionResponse<Void> response) {
+    private NetworkPlayerInfo getPlayerInfo(AbstractClientPlayer player, SimpleCallback<Void> response) {
         if (this.cachedPlayerInfo.containsKey(player)) {
             return this.cachedPlayerInfo.get(player);
         }

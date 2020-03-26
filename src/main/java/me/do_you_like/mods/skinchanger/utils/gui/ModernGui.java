@@ -26,7 +26,6 @@ import java.util.List;
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernSlider;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import me.do_you_like.mods.skinchanger.utils.gui.lock.UILock;
 
@@ -65,8 +64,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     @Deprecated
     private List<ModernButton> buttonList = Collections.emptyList();
 
-    private ModernButton selectedButton;
-    private ModernSlider selectedSlider;
+    private List<InteractiveDrawable> selectedDrawables = Lists.newArrayList();
 
     protected int yTranslation = 0;
 
@@ -221,12 +219,10 @@ public abstract class ModernGui extends UILock implements UISkeleton {
                     case 0:
                         drawable.onLeftClick(mouseX, mouseY, this.yTranslation);
 
-                        if (drawable instanceof ModernButton) {
-                            this.selectedButton = (ModernButton) drawable;
+                        this.selectedDrawables.add(drawable);
 
+                        if (drawable instanceof ModernButton) {
                             buttonPressed((ModernButton) drawable);
-                        } else if (drawable instanceof ModernSlider) {
-                            this.selectedSlider = (ModernSlider) drawable;
                         }
                         break;
                     case 1:
@@ -276,15 +272,12 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
     @Override
     protected final void mouseReleased(int mouseX, int mouseY, int state) {
-        if (this.selectedButton != null && state == 0) {
-            this.selectedButton.onMouseReleased(mouseX, mouseY, this.yTranslation);
-            this.selectedButton = null;
+        if (state != 0) {
+            return;
         }
 
-        if (this.selectedSlider != null && state == 0) {
-            this.selectedSlider.onMouseReleased(mouseX, mouseY, this.yTranslation);
-            this.selectedSlider = null;
-        }
+        this.selectedDrawables.forEach((d) -> d.onMouseReleased(mouseX, mouseY, this.yTranslation));
+        this.selectedDrawables.clear();
     }
 
     @Override
@@ -368,22 +361,6 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     public final void onTick(TickEvent.ClientTickEvent event) {
         MinecraftForge.EVENT_BUS.unregister(this);
         Minecraft.getMinecraft().displayGuiScreen(this);
-    }
-
-    protected void forceSet(ModernDrawable drawable) {
-        if (drawable instanceof ModernSlider) {
-            if (this.selectedSlider != null) {
-                this.selectedSlider.onMouseReleased(0, 0, this.yTranslation);
-            }
-
-            this.selectedSlider = (ModernSlider) drawable;
-        } else if (drawable instanceof ModernButton) {
-            if (this.selectedButton != null) {
-                this.selectedButton.onMouseReleased(0, 0, this.yTranslation);
-            }
-
-            this.selectedButton = (ModernButton) drawable;
-        }
     }
 
     public static void drawRectF(float startX, float startY, float endX, float endY, int color) {

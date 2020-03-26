@@ -122,11 +122,6 @@ public class UILock extends GuiScreen {
     }
 
     @Override
-    public final void onResize(Minecraft mcIn, int w, int h) {
-        super.onResize(mcIn, w, h);
-    }
-
-    @Override
     protected final void actionPerformed(GuiButton button) {
     }
 
