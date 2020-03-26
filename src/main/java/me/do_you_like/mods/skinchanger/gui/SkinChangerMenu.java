@@ -286,7 +286,7 @@ public class SkinChangerMenu extends ModernGui {
 
         ModernScroller modernScroller = new ModernScroller(this.width - 15, 5, 10, this.height - 10).disableTranslatable();
 
-        modernScroller.insertScrollCallback((val) -> this.yTranslation = (int) ((float) val) * 100);
+        modernScroller.insertScrollCallback((val) -> this.yTranslation = val * 10);
 
         registerElement(modernScroller);
         registerElement(skinSettings);

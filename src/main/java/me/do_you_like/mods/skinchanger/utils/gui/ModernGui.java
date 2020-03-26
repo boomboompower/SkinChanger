@@ -66,7 +66,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
     private List<InteractiveDrawable> selectedDrawables = Lists.newArrayList();
 
-    protected int yTranslation = 0;
+    protected float yTranslation = 0;
 
     @Override
     public final void initGui() {

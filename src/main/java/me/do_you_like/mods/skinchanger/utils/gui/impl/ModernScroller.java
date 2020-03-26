@@ -115,6 +115,12 @@ public class ModernScroller implements InteractiveDrawable {
         // Run our callbacks
         this.currentProgress = (this.lastYLoc / tallest);
 
+        if (this.lastTrackedProgress != this.currentProgress) {
+            this.callbacks.forEach((c) -> c.run(this.currentProgress));
+
+            this.lastTrackedProgress = this.currentProgress;
+        }
+
         ModernGui.drawRect(this.x + 2, (int) this.lastYLoc - 3, this.x + this.width - 1, (int) this.lastYLoc + 3, transparentBlue.getRGB());
     }
 
@@ -131,12 +137,6 @@ public class ModernScroller implements InteractiveDrawable {
     @Override
     public void onMouseReleased(int mouseX, int mouseY, float yTranslation) {
         this.dragging = false;
-
-        if (this.lastTrackedProgress != this.currentProgress) {
-            this.callbacks.forEach((c) -> c.run(this.currentProgress));
-        }
-
-        this.lastTrackedProgress = this.currentProgress;
     }
 
     @Override
