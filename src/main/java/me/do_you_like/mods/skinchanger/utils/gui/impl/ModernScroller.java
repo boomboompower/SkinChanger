@@ -54,9 +54,6 @@ public class ModernScroller implements InteractiveDrawable {
     private float currentProgress;
     private boolean dragging = false;
 
-    // Each node will be rendered with a height of 20px
-    private List<ScrollableNode> nodes = Lists.newArrayList();
-
     private List<SimpleCallback<Float>> callbacks = Lists.newArrayList();
 
     public ModernScroller(int x, int y, int width, int height) {
@@ -76,23 +73,7 @@ public class ModernScroller implements InteractiveDrawable {
     public void render(int mouseX, int mouseY, float yTranslation) {
         Color transparentBlue = new Color(200, 200, 255, 120);
 
-        ModernGui.drawRectangleOutlineF(this.x, this.y, this.x + this.width, this.y + this.height, transparentBlue.getRGB());
-
-        if (this.nodes.size() > 0) {
-            for (int i = 0; i < this.nodes.size(); i++) {
-                ScrollableNode node = this.nodes.get(i);
-
-                int top = this.y;
-
-                // Padding
-                top += 2;
-
-                // Position
-                top += (i * 20);
-
-                ModernGui.drawRect(this.x + 2, top, this.x + this.width - 7, top + 2, transparentBlue.getRGB());
-            }
-        }
+        ModernGui.drawRect(this.x, this.y, this.x + this.width, this.y + this.height, transparentBlue.getRGB());
 
         if (this.dragging) {
             this.lastYLoc = mouseY;
@@ -157,23 +138,6 @@ public class ModernScroller implements InteractiveDrawable {
     }
 
     /**
-     * Inserts a node into this Scrollbar
-     *
-     * @param node the node to insert
-     */
-    public void insertNode(ScrollableNode node) {
-        if (node == null) {
-            System.err.println("A null node was registered. Ignoring.");
-            return;
-        } else if (this.nodes.contains(node)) {
-            // Don't want duplicates.
-            return;
-        }
-
-        this.nodes.add(node);
-    }
-
-    /**
      * Inserts a callback onto this Scrollbar which will be called whenever the
      * scrollbars position changes
      *
@@ -185,11 +149,5 @@ public class ModernScroller implements InteractiveDrawable {
         }
 
         this.callbacks.add(callback);
-    }
-
-    public static class ScrollableNode {
-
-        public ScrollableNode() {
-        }
     }
 }

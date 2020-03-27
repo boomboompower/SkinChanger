@@ -18,8 +18,8 @@
 package me.do_you_like.mods.skinchanger.gui;
 
 import java.awt.Color;
-
 import java.lang.invoke.MethodHandle;
+
 import me.do_you_like.mods.skinchanger.gui.additional.ModOptionsMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu.StringSelectionType;
@@ -40,6 +40,11 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * The base SkinChanger menu, redesigned to be more user-friendly..
+ *
+ * @since 3.0.0
+ */
 public class SkinChangerMenu extends ModernGui {
 
     private static FakePlayer fakePlayer = new FakePlayer(Minecraft.getMinecraft().thePlayer);
@@ -286,7 +291,7 @@ public class SkinChangerMenu extends ModernGui {
 
         ModernScroller modernScroller = new ModernScroller(this.width - 15, 5, 10, this.height - 10).disableTranslatable();
 
-        modernScroller.insertScrollCallback((val) -> this.yTranslation = -(val * 150));
+        modernScroller.insertScrollCallback((val) -> this.yTranslation = -(val * this.height));
 
         registerElement(modernScroller);
         registerElement(skinSettings);
