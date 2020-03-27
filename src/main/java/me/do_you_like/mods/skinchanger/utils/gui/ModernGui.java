@@ -208,6 +208,10 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             if (draw instanceof InteractiveDrawable) {
                 InteractiveDrawable drawable = (InteractiveDrawable) draw;
 
+                if (!drawable.isEnabled()) {
+                    continue;
+                }
+
                 // Patch for buttons :)
                 if (!(draw instanceof ModernButton) && !drawable.isInside(mouseX, mouseY, this.yTranslation)) {
                     continue;
