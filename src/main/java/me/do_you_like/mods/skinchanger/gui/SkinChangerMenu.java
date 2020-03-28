@@ -19,14 +19,16 @@ package me.do_you_like.mods.skinchanger.gui;
 
 import java.awt.Color;
 import java.lang.invoke.MethodHandle;
+import java.net.MalformedURLException;
+import java.net.URL;
 
+import me.do_you_like.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
 import me.do_you_like.mods.skinchanger.gui.additional.ModOptionsMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu.StringSelectionType;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernScroller;
-import me.do_you_like.mods.skinchanger.utils.gui.options.SelectionOptions;
-import me.do_you_like.mods.skinchanger.utils.gui.player.FakePlayer;
+import me.do_you_like.mods.skinchanger.options.SelectionOptions;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernHeader;
@@ -34,10 +36,6 @@ import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernSlider;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -46,8 +44,6 @@ import net.minecraft.util.ResourceLocation;
  * @since 3.0.0
  */
 public class SkinChangerMenu extends ModernGui {
-
-    private static FakePlayer fakePlayer = new FakePlayer(Minecraft.getMinecraft().thePlayer);
 
     private SelectionOptions selectionOptions = new SelectionOptions();
     private ModOptionsMenu optionsMenu;
@@ -61,6 +57,7 @@ public class SkinChangerMenu extends ModernGui {
     // Store the basic values.
     private ResourceLocation originalSkin = Minecraft.getMinecraft().thePlayer.getLocationSkin();
     private ResourceLocation originalCape = Minecraft.getMinecraft().thePlayer.getLocationCape();
+    private String originalSkinType = Minecraft.getMinecraft().thePlayer.getSkinType();
 
     private ModernButton m_optionsButton;
     private ModernButton m_revertButton;
@@ -69,6 +66,8 @@ public class SkinChangerMenu extends ModernGui {
     private SkinChangerMenu instance;
 
     protected float rotation = 0;
+
+    private FakePlayerRender fakePlayer;
 
     // Minecraft's blur shader
     private ResourceLocation blurShader = new ResourceLocation("shaders/post/blur.json");
@@ -90,6 +89,7 @@ public class SkinChangerMenu extends ModernGui {
     @Override
     public final void onGuiOpen() {
         this.mod.getCosmeticFactory().getBlurShader().applyShader();
+        this.fakePlayer = this.mod.getCosmeticFactory().getFakePlayerRender();
 
         float bottomPosBox = this.height - 20;
 
@@ -141,6 +141,12 @@ public class SkinChangerMenu extends ModernGui {
 
         this.m_optionsButton = modSettingsButton;
 
+        ModernScroller modernScroller = new ModernScroller(this.width - 15, 5, 10, this.height - 10).disableTranslatable();
+
+        modernScroller.insertScrollCallback((val) -> this.yTranslation = -(val * this.height / 2));
+
+        registerElement(modernScroller);
+
         onGuiInitExtra();
     }
 
@@ -190,10 +196,7 @@ public class SkinChangerMenu extends ModernGui {
 
         int scale = (int) ((1.5 * this.width) / 10);
 
-        // Stops clipping of entity. (Pushes it closer to the camera).
-        GlStateManager.translate(0, 0, 100);
-
-        renderPlayWithRotation(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, this.rotation);
+        this.fakePlayer.renderFakePlayer(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, this.rotation);
 
         GlStateManager.popMatrix();
     }
@@ -202,14 +205,16 @@ public class SkinChangerMenu extends ModernGui {
     public final void buttonPressed(ModernButton button) {
         switch (button.getId()) {
             case 50:
-                fakePlayer.copyFrom(this.mc.thePlayer);
+                this.fakePlayer.copyFrom(this.originalSkin, this.originalCape, this.originalSkinType);
 
                 return;
             case 51:
-                this.selectionOptions.setSkin(this.mc.thePlayer, fakePlayer.getPlayerInfo().getLocationSkin(), null);
-                this.selectionOptions.setCape(this.mc.thePlayer, fakePlayer.getPlayerInfo().getLocationCape(), null);
+                this.selectionOptions.setSkin(this.mc.thePlayer, this.fakePlayer.getSkinLocation(), null);
+                this.selectionOptions.setCape(this.mc.thePlayer, this.fakePlayer.getCapeLocation(), null);
 
                 sendChatMessage(ChatColor.GREEN + "Your skin & cape have been applied!");
+
+
                 return;
             case 101:
                 if (this.m_optionsButton != null && this.m_optionsButton.getText().equalsIgnoreCase("\u2190")) {
@@ -289,128 +294,21 @@ public class SkinChangerMenu extends ModernGui {
 
         // ----------------------------------
 
-        ModernScroller modernScroller = new ModernScroller(this.width - 15, 5, 10, this.height - 10).disableTranslatable();
-
-        modernScroller.insertScrollCallback((val) -> this.yTranslation = -(val * this.height / 2));
-
-        registerElement(modernScroller);
         registerElement(skinSettings);
         registerElement(capeSettings);
         registerElement(recentSkins);
         registerElement(recentCapes);
     }
 
-    private void renderPlayWithRotation(int posX, int posY, int scale, float rotation) {
-        FakePlayer entity = fakePlayer;
-
-        GlStateManager.enableColorMaterial();
-
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
-        GlStateManager.pushMatrix();
-
-        GlStateManager.translate((float) posX, (float) posY, 50.0F);
-        GlStateManager.scale((float) (-scale), (float) scale, (float) scale);
-
-        GlStateManager.rotate(180.0F, 0.0F, 0.0F , 1.0F);
-
-        // Rotates based on the rotation variable
-        GlStateManager.rotate(rotation, 0F, 270F, 0F);
-
-        // Store original values
-        //float prevSwingProgress = entity.swingProgress;
-        float prevYawOffset = entity.renderYawOffset;
-        float prevYaw = entity.rotationYaw;
-        float prevPitch = entity.rotationPitch;
-        float prevYawRotation = entity.prevRotationYawHead;
-        float prevHeadRotation = entity.rotationYawHead;
-
-        GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
-
-        RenderHelper.enableStandardItemLighting();
-
-        GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(0.0F, 1.0F, 0.0F, 0.0F);
-
-        //entity.swingProgress = System.currentTimeMillis() % 15 / 100;
-        entity.renderYawOffset = 0.0F;
-        entity.rotationYaw = 0.0F;
-        entity.rotationPitch = 0.0F;
-        entity.rotationYawHead = entity.rotationYaw;
-        entity.prevRotationYawHead = entity.rotationYaw;
-
-        entity.prevChasingPosX = 2;
-        entity.chasingPosX = 0;
-
-        entity.prevChasingPosY = 0;
-        entity.chasingPosY = 0;
-
-        entity.prevChasingPosZ = 0;
-        entity.chasingPosZ = 0;
-
-        entity.prevRenderYawOffset = 0;
-        entity.prevCameraYaw = 0;
-
-        entity.prevDistanceWalkedModified = 1;
-        entity.distanceWalkedModified = 0;
-
-        // Simulate player movement
-        entity.limbSwingAmount += (0.6F - entity.limbSwingAmount) * 0.4F;
-        entity.limbSwing += (entity.limbSwingAmount) / 6;
-
-        entity.prevPosX = 0;
-        entity.posX = 0;
-
-        entity.prevPosY = 0;
-        entity.posY = 0;
-
-        entity.prevPosZ = entity.posZ;
-
-        //entity.posZ = Math.sin((System.currentTimeMillis() % (720 * 1.5)) * (Math.PI / (180 * 3)));
-        //entity.posZ += entity.prevPosZ / 10;
-
-        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
-
-        float capeSwing = MathHelper.cos(entity.limbSwing / 2 * 0.662F) * 1.1F * entity.limbSwingAmount / 2;
-
-        entity.posZ = lerp(0, capeSwing, 0.5F);
-        entity.posZ += 0.5;
-
-        GlStateManager.disableLighting();
-
-        rendermanager.setPlayerViewY(rotation);
-        rendermanager.setRenderShadow(false);
-        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
-        rendermanager.setRenderShadow(true);
-
-        GlStateManager.enableLighting();
-
-        //entity.swingProgress = prevSwingProgress;
-        entity.renderYawOffset = prevYawOffset;
-        entity.rotationYaw = prevYaw;
-        entity.rotationPitch = prevPitch;
-        entity.prevRotationYawHead = prevYawRotation;
-        entity.rotationYawHead = prevHeadRotation;
-
-        GlStateManager.popMatrix();
-
-        RenderHelper.disableStandardItemLighting();
-
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GlStateManager.disableTexture2D();
-        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-    }
-
-    protected float lerp(float point1, float point2, float alpha) {
-        return point1 + alpha * (point2 - point1);
-    }
-
+    /**
+     * An extension of onButtonPressed.
+     *
+     * @param button the button which has been pressed
+     */
     protected void onButtonPressedExtra(ModernButton button) {
         switch (button.getId()) {
+            // Skin from a username
             case 12:
-                // Minecraft.getMinecraft().getRenderManager().getSkinMap().get(this.fakePlayer.getPlayerInfo().getSkinType()).addLayer()
-
                 if (this.p_playerSelectMenu == null) {
                     this.p_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.P_USERNAME);
                 }
@@ -418,6 +316,8 @@ public class SkinChangerMenu extends ModernGui {
                 this.p_playerSelectMenu.display();
 
                 break;
+
+            // Skin from a URL
             case 13:
                 if (this.p_playerSelectMenu == null) {
                     this.p_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.P_URL);
@@ -426,16 +326,18 @@ public class SkinChangerMenu extends ModernGui {
                 this.p_playerSelectMenu.display();
 
                 break;
+
+            // Skin from a file
             case 14:
-                this.selectionOptions.loadFromFile((location) -> fakePlayer.getPlayerInfo().setLocationSkin(location), false);
+                this.selectionOptions.loadFromFile((location) -> this.fakePlayer.setSkinLocation(location), false);
 
                 break;
             case 15:
-                fakePlayer.getPlayerInfo().setLocationSkin(this.originalSkin);
+                this.fakePlayer.setSkinLocation(this.originalSkin);
 
                 break;
 
-            // Cape Settings
+            // Cape from a player name
             case 16:
                 if (this.c_playerSelectMenu == null) {
                     this.c_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.C_USERNAME);
@@ -444,6 +346,8 @@ public class SkinChangerMenu extends ModernGui {
                 this.c_playerSelectMenu.display();
 
                 break;
+
+            // Cape from a URL
             case 17:
                 if (this.c_playerSelectMenu == null) {
                     this.c_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.C_URL);
@@ -452,12 +356,16 @@ public class SkinChangerMenu extends ModernGui {
                 this.c_playerSelectMenu.display();
 
                 break;
+
+            // Cape from a file
             case 18:
-                this.selectionOptions.loadFromFile((location) -> fakePlayer.getPlayerInfo().setLocationCape(location), true);
+                this.selectionOptions.loadFromFile((location) -> this.fakePlayer.setCapeLocation(location), true);
 
                 break;
+
+            // Resets the cape of the entity
             case 19:
-                fakePlayer.getPlayerInfo().setLocationCape(this.originalCape);
+                this.fakePlayer.setCapeLocation(this.originalCape);
 
                 break;
         }
@@ -497,15 +405,29 @@ public class SkinChangerMenu extends ModernGui {
         this.instance = menu;
     }
 
-    public void handleIncomingInput(String playerName) {
+    /**
+     * Called when the player supplies an argument to the SkinChanger main command.
+     *
+     * @param incomingInput the first argument of the command
+     * @return true if the input was valid
+     */
+    public boolean handleIncomingInput(String incomingInput) {
+        try {
+            // Try parse it as a URL
+            URL url = new URL(incomingInput);
 
+            return this.p_urlSelectMenu.handleIncomingInput(incomingInput);
+        } catch (MalformedURLException ignored) { }
+
+        // Try parse it as a player name
+        if (incomingInput.length() < 2 || incomingInput.length() > 16) {
+            return false;
+        } else {
+            return this.p_playerSelectMenu.handleIncomingInput(incomingInput);
+        }
     }
 
     public void setRotation(float rotation) {
         this.rotation = rotation;
-    }
-
-    public static FakePlayer getFakePlayer() {
-        return fakePlayer;
     }
 }

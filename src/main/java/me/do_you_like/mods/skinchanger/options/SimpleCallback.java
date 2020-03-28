@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.do_you_like.mods.skinchanger.utils.gui.options;
+package me.do_you_like.mods.skinchanger.options;
 
 /**
  * Simple callback class

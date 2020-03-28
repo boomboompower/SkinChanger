@@ -152,7 +152,7 @@ sourceSets {
         // Which is why I've excluded it here. If you need help settings
         // this up don't hesitate to message me anywhere.
         java {
-            exclude '**/DevelopmentMixins.java'
+            exclude '**/priv'
         }
 
         // Groovy does not like that refMap is referred to as a string

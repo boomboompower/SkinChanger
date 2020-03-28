@@ -22,9 +22,8 @@ import java.util.List;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.gui.SkinChangerMenu;
-import me.do_you_like.mods.skinchanger.utils.installing.InternetConnection;
-import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.command.ModCommand;
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 
 import net.minecraft.command.ICommandSender;
 
@@ -32,8 +31,8 @@ import net.minecraft.command.ICommandSender;
  * NOTE: This class is temporary & it's methods will eventually be tuned into a new gui.
  */
 public class SkinCommand extends ModCommand {
-    public static boolean IS_SLIM_SKIN = false;
 
+    // Cached main menu, saves memory and options.
     private SkinChangerMenu mainMenu = null;
     
     public SkinCommand(SkinChangerMod modIn) {
@@ -59,12 +58,6 @@ public class SkinCommand extends ModCommand {
                 org.lwjgl.opengl.Display.setResizable(true);
 
                 return;
-            } else if (args[0].equalsIgnoreCase("slim")) {
-                IS_SLIM_SKIN = !IS_SLIM_SKIN;
-
-                sendMessage(ChatColor.AQUA + "Your skin is now " + (IS_SLIM_SKIN ? "slim" : "normal"));
-
-                return;
             } else if (args[0].equalsIgnoreCase("reload")) {
                 this.mainMenu = new SkinChangerMenu();
 
@@ -72,32 +65,16 @@ public class SkinCommand extends ModCommand {
             }
         }
 
-        if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("null") || args[0].equalsIgnoreCase("reset")) {
-                IS_SLIM_SKIN = false;
+        SkinChangerMenu menu = getMenu(args.length > 0 ? args[0] : null);
 
-                sendMessage(ChatColor.AQUA + "Your skin has been reset!");
-            } else {
-                if (!InternetConnection.hasInternetConnection()) {
-                    sendMessage(ChatColor.RED + "Could not connect to the internet. " + ChatColor.RED + "Make sure you have a stable internet connection!");
-                    return;
-                }
+        // Something went wrong or an argument was incorrect.
+        if (menu == null) {
+            sendMessage(ChatColor.RED + "Invalid command arguments, try without arguments.");
 
-                String id = this.mod.getMojangHooker().getRealNameFromName(args[0]);
-
-                if (id == null) {
-                    id = args[0];
-                }
-
-                IS_SLIM_SKIN = this.mod.getMojangHooker().hasSlimSkin(id);
-
-                sendMessage(ChatColor.AQUA + "Set skin to " + id + "\'s skin!");
-
-                return;
-            }
+            return;
         }
 
-        getMenu(args.length > 0 ? args[0] : "").display();
+        menu.display();
     }
 
     @Override
@@ -110,13 +87,24 @@ public class SkinCommand extends ModCommand {
         return index == 0;
     }
 
-    private SkinChangerMenu getMenu(String playerName) {
+    /**
+     * Gets the cached SkinChanger menu
+     *
+     * @param incomingInput the name of the player or a URL
+     *
+     * @return the cached SkinChanger menu if one exists, or a new one.
+     */
+    private SkinChangerMenu getMenu(String incomingInput) {
+        // Check if a cached menu exists.
         if (this.mainMenu == null) {
             this.mainMenu = new SkinChangerMenu();
         }
 
-        if (playerName != null) {
-            this.mainMenu.handleIncomingInput(playerName);
+        // If the player has specified an input it should be handled
+        if (incomingInput != null && !incomingInput.isEmpty()) {
+            if (!this.mainMenu.handleIncomingInput(incomingInput)) {
+                return null;
+            }
         }
 
         return this.mainMenu;

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.do_you_like.mods.skinchanger.utils.gui.player;
+package me.do_you_like.mods.skinchanger.cosmetic.impl.fakeplayer;
 
 import com.mojang.authlib.GameProfile;
 
@@ -29,6 +29,7 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.stats.StatBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
@@ -52,7 +53,7 @@ public class FakePlayer extends AbstractClientPlayer {
     }
 
     public FakePlayer(AbstractClientPlayer player) {
-        this(Minecraft.getMinecraft().thePlayer.worldObj);
+        this(player.worldObj);
 
         getPlayerInfo().setLocationSkin(player.getLocationSkin());
         getPlayerInfo().setLocationCape(player.getLocationCape());
@@ -132,6 +133,19 @@ public class FakePlayer extends AbstractClientPlayer {
         getPlayerInfo().setLocationSkin(player.getLocationSkin());
         getPlayerInfo().setLocationCape(player.getLocationCape());
         getPlayerInfo().setSkinType(player.getSkinType());
+    }
+
+    /**
+     * Copies resources from an external source
+     *
+     * @param skin the skin resource
+     * @param cape the cape resource
+     * @param skinType the skin type
+     */
+    public void copyFrom(ResourceLocation skin, ResourceLocation cape, String skinType) {
+        getPlayerInfo().setLocationSkin(skin);
+        getPlayerInfo().setLocationCape(cape);
+        getPlayerInfo().setSkinType((skinType == null || skinType.trim().isEmpty()) ? "default" : skinType);
     }
     
     public GameProfile getFakeGameProfile() {

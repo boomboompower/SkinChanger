@@ -17,7 +17,9 @@
 
 package me.do_you_like.mods.skinchanger.utils.command;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.utils.backend.ThreadFactory;
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
@@ -28,9 +30,9 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 
 /**
- * An enhanced CommandBase implementation which provides a few extra features.
+ * An enhanced CommandBase implementation which contains patches to the core CommandBase class.
  *
- * @since SkinChanger v3.0
+ * @since 3.0.0
  * @author boomboompower
  */
 public abstract class ModCommand extends CommandBase {
@@ -38,29 +40,74 @@ public abstract class ModCommand extends CommandBase {
     // Async thread handler.
     private final ThreadFactory threadFactory = new ThreadFactory("ModCommand");
 
+    // SkinChanger mod instance.
     protected SkinChangerMod mod;
 
     public ModCommand(SkinChangerMod skinChangerMod) {
         this.mod = skinChangerMod;
     }
 
+    /**
+     * Default command usage information
+     *
+     * @param sender the sender who executed this command
+     * @return the message to send this player if {@link net.minecraft.command.WrongUsageException} is
+     *     thrown
+     */
     @Override
     public String getCommandUsage(ICommandSender sender) {
         return ChatColor.RED + "Usage: /" + getCommandName();
     }
 
+    /**
+     * Patch for CommandAliases to allow for null aliases without causing issues with the Minecraft
+     * client internally (basically just a crash).
+     *
+     * @return a never-null list of command aliases.
+     */
     @Override
     public final List<String> getCommandAliases() {
-        return getAliases();
+        List<String> aliases = getAliases();
+
+        // Null aliases could crash the client
+        // Depending on the MC Version
+        // Use the super call if it is null
+        if (aliases == null) {
+            System.err.println(getClass().getSimpleName()
+                    + " ["
+                    + getCommandName()
+                    + "] tried to register a command with null aliases. Avoiding a game crash");
+
+            aliases = super.getCommandAliases();
+        }
+
+        return aliases;
     }
 
     @Override
-    public final void processCommand(ICommandSender sender, String[] args) {
+    public final void processCommand(ICommandSender sender, final String[] args) {
         try {
             if (shouldMultithreadCommand(args)) {
-                this.threadFactory.runAsync(() -> onCommand(sender, args));
+                this.threadFactory.runAsync(() -> {
+                    String[] temp = args;
+
+                    // Threaded removal of unneeded arguments.
+                    if (shouldRemoveBlankArgs()) {
+                        temp = removeBlankArgs(temp);
+                    }
+
+                    onCommand(sender, temp);
+                });
             } else {
-                onCommand(sender, args);
+                String[] fixedArgs = args;
+
+                // Remove unneeded arguments.
+                if (shouldRemoveBlankArgs()) {
+                    fixedArgs = removeBlankArgs(args);
+                }
+
+                // Execute our command.
+                onCommand(sender, fixedArgs);
             }
         } catch (Exception ex) {
             sendMessage(ChatColor.RED + "An error occurred whilst running this command.");
@@ -77,8 +124,20 @@ public abstract class ModCommand extends CommandBase {
      */
     public abstract void onCommand(ICommandSender sender, String[] args);
 
+    /**
+     * Returns a list of our aliases for this Command
+     *
+     * @return a list of command aliases
+     */
     public abstract List<String> getAliases();
 
+    /**
+     * Make everyone able to execute this command regardless of their privileges on the client or
+     * server.
+     *
+     * @param sender the sender to check for permissions
+     * @return true if the sender can use this command.
+     */
     @Override
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
         return true;
@@ -92,6 +151,49 @@ public abstract class ModCommand extends CommandBase {
      */
     protected boolean shouldMultithreadCommand(String[] args) {
         return false;
+    }
+
+    /**
+     * Should the CommandHandler strip any arguments in a command which are considered "blank" or
+     * empty?
+     *
+     * @return true if blank args should be stripped.
+     */
+    protected boolean shouldRemoveBlankArgs() {
+        return false;
+    }
+
+    /**
+     * Code to strip blank arguments from a command if required. Adds all Strings which are valid to
+     * an ArrayList, then converts this ArrayList to a String[] list.
+     *
+     * @param incomingArgs the incoming player arguments.
+     * @return the revised arguments
+     */
+    protected final String[] removeBlankArgs(String[] incomingArgs) {
+        if (incomingArgs.length == 0) {
+            return incomingArgs;
+        }
+
+        List<String> revised = new ArrayList<>();
+
+        // Search every string.
+        for (String input : incomingArgs) {
+            // Add any strings which aren't null or empty to the list
+            if (input != null && input.trim().isEmpty()) {
+                revised.add(input);
+            }
+        }
+
+        // If nothing has happened don't bother using it.
+        if (revised.isEmpty()) {
+            return incomingArgs;
+        }
+
+        // Set the args to our revised array
+        incomingArgs = revised.toArray(new String[0]);
+
+        return incomingArgs;
     }
 
     /**

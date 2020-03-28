@@ -20,6 +20,7 @@ package me.do_you_like.mods.skinchanger.cosmetic;
 import lombok.Getter;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
 import me.do_you_like.mods.skinchanger.cosmetic.impl.ShaderPatch;
 
 import net.minecraft.util.ResourceLocation;
@@ -37,6 +38,8 @@ public class CosmeticFactory {
     @Getter
     private final ShaderPatch blurShader;
 
+    private FakePlayerRender fakePlayerRender;
+
     /** SkinChanger mod instance */
     @Getter
     private final SkinChangerMod mod;
@@ -44,6 +47,20 @@ public class CosmeticFactory {
     public CosmeticFactory(SkinChangerMod mod) {
         this.mod = mod;
 
+        // Blur shader magic
         this.blurShader = new ShaderPatch(new ResourceLocation("skinchanger", "shaders/post/customblur.json"));
+    }
+
+    /**
+     * Returns the FakePlayer rendering class
+     *
+     * @return the fake player renderer
+     */
+    public FakePlayerRender getFakePlayerRender() {
+        if (this.fakePlayerRender == null) {
+            this.fakePlayerRender = new FakePlayerRender(this);
+        }
+
+        return this.fakePlayerRender;
     }
 }

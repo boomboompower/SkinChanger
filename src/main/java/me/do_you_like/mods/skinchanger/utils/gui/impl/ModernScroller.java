@@ -27,7 +27,7 @@ import lombok.Getter;
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
-import me.do_you_like.mods.skinchanger.utils.gui.options.SimpleCallback;
+import me.do_you_like.mods.skinchanger.options.SimpleCallback;
 
 /**
  * A class which handles scrolling.

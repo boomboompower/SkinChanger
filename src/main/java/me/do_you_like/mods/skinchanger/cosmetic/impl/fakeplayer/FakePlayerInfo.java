@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.do_you_like.mods.skinchanger.utils.gui.player;
+package me.do_you_like.mods.skinchanger.cosmetic.impl.fakeplayer;
 
 import com.google.common.base.Objects;
 
@@ -86,6 +86,10 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
     }
     
     public void setSkinType(String skinType) {
+        if (skinType == null || skinType.trim().isEmpty()) {
+            skinType = "default";
+        }
+
         this.skinType = skinType;
     }
     

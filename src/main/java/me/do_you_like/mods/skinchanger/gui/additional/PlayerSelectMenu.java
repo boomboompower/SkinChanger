@@ -175,8 +175,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
                         boolean hasSlimSkin = this.mod.getMojangHooker().hasSlimSkin(finalUserName);
 
-                        SkinChangerMenu.getFakePlayer().getPlayerInfo().setSkinType(hasSlimSkin ? "slim" : "default");
-                        SkinChangerMenu.getFakePlayer().getPlayerInfo().setLocationSkin(resourceLocation);
+                        this.mod.getCosmeticFactory().getFakePlayerRender().setSkinType(hasSlimSkin ? "slim" : "default");
+                        this.mod.getCosmeticFactory().getFakePlayerRender().setSkinLocation(resourceLocation);
                     });
 
                     break;
@@ -194,7 +194,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
                     ResourceLocation cape = this.cacheRetriever.loadIntoGame(cacheName, url);
 
-                    SkinChangerMenu.getFakePlayer().getPlayerInfo().setLocationCape(cape);
+                    this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(cape);
 
                     break;
                 case P_URL:
@@ -210,7 +210,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     // Skin URL Resource
                     ResourceLocation p_URL_Resource = this.cacheRetriever.loadIntoGame(cache, enteredText);
 
-                    SkinChangerMenu.getFakePlayer().getPlayerInfo().setLocationSkin(p_URL_Resource);
+                    this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(p_URL_Resource);
                 case C_URL:
                     String cacheC = "1" + enteredText;
 
@@ -224,7 +224,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     // Cape URL Resource
                     ResourceLocation c_URL_Resource = this.cacheRetriever.loadIntoGame(cacheC, enteredText);
 
-                    SkinChangerMenu.getFakePlayer().getPlayerInfo().setLocationCape(c_URL_Resource);
+                    this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(c_URL_Resource);
 
                     break;
                 default:
@@ -233,8 +233,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     }
 
     @Override
-    public void handleIncomingInput(String playerName) {
-
+    public boolean handleIncomingInput(String incomingInput) {
+        return false;
     }
 
     @Override
@@ -244,11 +244,18 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         this.skinChangerMenu.setRotation(rotation);
     }
 
+    /**
+     * Caps this integer between a few magic numbers
+     *
+     * @param in the number to cap
+     * @return a number between 0 and 30.
+     */
     private int cap(int in) {
         if (in < 0) {
             return 0;
         }
 
+        // 30 is a magic number
         if (in < 30) {
             return 30;
         }

@@ -185,11 +185,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         onKeyTyped(keyCode, typedChar);
 
         if (keyCode == 1) {
-            this.mc.displayGuiScreen(null);
-
-            if (this.mc.currentScreen == null) {
-                this.mc.setIngameFocus();
-            }
+            close();
         } else {
             for (ModernTextBox text : textList) {
                 text.textboxKeyTyped(typedChar, keyCode);
@@ -359,6 +355,14 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
     public final void display() {
         MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    public final void close() {
+        this.mc.displayGuiScreen(null);
+
+        if (this.mc.currentScreen == null) {
+            this.mc.setIngameFocus();
+        }
     }
     
     @SubscribeEvent
