@@ -42,7 +42,7 @@ import org.lwjgl.input.Mouse;
  * ModernGui, a better-looking GuiScreen which has more optimizations and features than the normal GuiScreen
  *
  * @author boomboompower
- * @version 4.2
+ * @version 4.3
  * @since 2.0.0
  */
 @SuppressWarnings("WeakerAccess") // This is an API class. Weaker Access doesn't matter
@@ -193,13 +193,8 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
     }
 
-    protected void preMouseClicked(int mouseX, int mouseY, int mouseButton) {
-    }
-
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        preMouseClicked(mouseX, mouseY, mouseButton);
-
         for (ModernDrawable draw : this.modernList) {
             if (draw instanceof InteractiveDrawable) {
                 InteractiveDrawable drawable = (InteractiveDrawable) draw;
@@ -353,10 +348,19 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
     }
 
+    /**
+     * Displays this GUI to the Minecraft client
+     *
+     * If using a version before 1.8.8 use
+     * FMLCommonHandler.instance().bus().register(this)
+     */
     public final void display() {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+    /**
+     * Closes this GUI and makes the game go into focus if possible
+     */
     public final void close() {
         this.mc.displayGuiScreen(null);
 
@@ -364,21 +368,55 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             this.mc.setIngameFocus();
         }
     }
-    
+
+    /**
+     * Part of the {@link #display()} method. Again, if using a version below
+     * 1.8.8 then the following code should be used
+     * FMLCommonHandler.instance().bus().unregister(this)
+     *
+     * @param event the client event
+     */
     @SubscribeEvent
     public final void onTick(TickEvent.ClientTickEvent event) {
         MinecraftForge.EVENT_BUS.unregister(this);
         Minecraft.getMinecraft().displayGuiScreen(this);
     }
 
+    /**
+     * Draws a rectangle with float values
+     *
+     * @param startX the starting x position of the rectangle
+     * @param startY the starting y position of the rectangle
+     * @param endX the ending x position of the rectangle
+     * @param endY the ending y position of the rectangle
+     * @param color the color of the rectangle
+     */
     public static void drawRectF(float startX, float startY, float endX, float endY, int color) {
         drawRect((int) startX, (int) startY, (int) endX, (int) endY, color);
     }
 
+    /**
+     * Draws a hollow rectangle on the screen with float values
+     *
+     * @param startX the starting x position of the rectangle
+     * @param startY the starting y position of the rectangle
+     * @param endX the ending x position of the rectangle
+     * @param endY the ending y position of the rectangle
+     * @param color the color of the rectangle
+     */
     public static void drawRectangleOutlineF(float startX, float startY, float endX, float endY, int color) {
         drawRectangleOutline((int) startX, (int) startY, (int) endX, (int) endY, color);
     }
 
+    /**
+     * Draws a hollow rectangle on the screen
+     *
+     * @param startX the starting x position of the rectangle
+     * @param startY the starting y position of the rectangle
+     * @param endX the ending x position of the rectangle
+     * @param endY the ending y position of the rectangle
+     * @param color the color of the rectangle
+     */
     public static void drawRectangleOutline(int startX, int startY, int endX, int endY, int color) {
         // Top
         drawHorizontalLine_(startX, endX, startY, color);
@@ -393,6 +431,14 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         drawVerticalLine_(startX, startY, endY, color);
     }
 
+    /**
+     * Draws a horizontal line (just a 1x2 rectangle)
+     *
+     * @param startX the starting x position of the line
+     * @param endX the ending x position of the line
+     * @param y the y position of the line
+     * @param color the color of the line
+     */
     public static void drawHorizontalLine_(int startX, int endX, int y, int color) {
         if (endX < startX) {
             int i = startX;
@@ -403,6 +449,14 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         drawRect(startX, y, endX + 1, y + 1, color);
     }
 
+    /**
+     * Draws a vertical line (just a 2x1 rectangle)
+     *
+     * @param x the x position of the line
+     * @param startY the starting y position of the line
+     * @param endY the ending y position of the line
+     * @param color the color of the line
+     */
     public static void drawVerticalLine_(int x, int startY, int endY, int color) {
         if (endY < startY) {
             int i = startY;

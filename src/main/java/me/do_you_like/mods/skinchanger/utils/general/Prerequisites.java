@@ -20,6 +20,9 @@ package me.do_you_like.mods.skinchanger.utils.general;
 /**
  * Simple prerequisites for varies values in the code. Used to validate certain code operations
  * and prevent me doing anything which some may consider "too hectic".
+ *
+ * @author boomboompower
+ * @since 3.0.0
  */
 public final class Prerequisites {
 

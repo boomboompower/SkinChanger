@@ -21,12 +21,26 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * A simple class to handle running code async to the Minecraft thread.
+ *
+ * @since 1.0.0
+ * @version 1.0
+ * @author boomboompower
+ */
 public class ThreadFactory {
 
-    private AtomicInteger threadNumber = new AtomicInteger(0); // The current ThreadCount
+    // The current ThreadCount
+    private AtomicInteger threadNumber = new AtomicInteger(0);
 
-    private ExecutorService POOL; // Async task scheduler
+    // Async task scheduler
+    private ExecutorService POOL;
 
+    /**
+     * Creates a new Thread Factory
+     *
+     * @param factoryName the name of this factory.
+     */
     public ThreadFactory(String factoryName) {
         POOL = Executors.newFixedThreadPool(8, r -> new Thread(r, String.format("%s Thread %s", factoryName, this.threadNumber.incrementAndGet())));
     }

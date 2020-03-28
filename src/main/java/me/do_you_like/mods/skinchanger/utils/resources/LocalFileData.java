@@ -32,26 +32,41 @@ import net.minecraft.util.ResourceLocation;
 
 /**
  * Loads a local file into a ResourceLocation.
+ *
+ * @author boomboompower
+ * @version 1.0
+ * @since 3.0
  */
 public class LocalFileData extends SimpleTexture {
 
+    // The BufferedImage variant of this texture
     private BufferedImage bufferedImage;
+    // True if this texture has been pushed to the GL stack.
     private boolean textureUploaded;
 
+    // The buffer for this texture
     private IImageBuffer imageBuffer;
+    // The location of this texture
     private File fileLocation;
 
+    /**
+     * Loads a texture from a local file to a ResourceLocation
+     *
+     * @param textureLocation an overridable texture, just use DefaultPlayerSkin.getDefaultSkin() if you don't know what this is
+     * @param fileToLoad the file to load the texture from
+     */
     public LocalFileData(ResourceLocation textureLocation, File fileToLoad) {
-        super(textureLocation);
-
-        Prerequisites.notNull(textureLocation);
-        Prerequisites.notNull(fileToLoad);
-
-        this.fileLocation = fileToLoad;
+        this(textureLocation, fileToLoad, null);
     }
 
-    public LocalFileData(
-        ResourceLocation textureLocation, File fileToLoad, IImageBuffer imageBuffer) {
+    /**
+     * Loads a texture from a local file to a ResourceLocation
+     *
+     * @param textureLocation an overridable texture, just use DefaultPlayerSkin.getDefaultSkin() if you don't know what this is
+     * @param fileToLoad the file to load the texture from
+     * @param imageBuffer the buffer which the texture will be parsed through. See {@link CapeBuffer} or {@link SkinBuffer}
+     */
+    public LocalFileData(ResourceLocation textureLocation, File fileToLoad, IImageBuffer imageBuffer) {
         super(textureLocation);
 
         Prerequisites.notNull(textureLocation);
@@ -102,14 +117,21 @@ public class LocalFileData extends SimpleTexture {
         return super.getGlTextureId();
     }
 
+    /**
+     * Checks to see if this texture has been pushed to GL yet.
+     *
+     * If not it is pushed and the texture ID is assigned
+     */
     private void checkTextureUploaded() {
         if (!this.textureUploaded) {
             if (this.bufferedImage != null) {
                 if (this.textureLocation != null) {
-                    this.deleteGlTexture();
+                    deleteGlTexture();
                 }
 
+                // Minecraft Util to push an image to GL
                 TextureUtil.uploadTextureImage(super.getGlTextureId(), this.bufferedImage);
+
                 this.textureUploaded = true;
             }
         }

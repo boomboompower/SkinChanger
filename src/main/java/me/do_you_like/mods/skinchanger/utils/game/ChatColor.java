@@ -44,7 +44,9 @@ public enum ChatColor {
     ITALIC('o', true),
     RESET('r');
 
-    public static final char COLOR_CHAR = '\u00A7';
+    private static final char COLOR_CHAR = '\u00A7';
+    private static final String colorString = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
+    private static final Pattern colorPattern = Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-OR]");
 
     private final char code;
     private final boolean isFormat;
@@ -64,43 +66,91 @@ public enum ChatColor {
         return code;
     }
 
+    /**
+     * This is part of the magic
+     *
+     * @return the string version of this ChatColor
+     */
     @Override
     public String toString() {
-        return toString;
+        return this.toString;
     }
 
+    /**
+     * Returns true if this ChatColor is actually a formatting code
+     *
+     * @return true if this ChatColor is a formatting code.
+     */
     public boolean isFormat() {
-        return isFormat;
+        return this.isFormat;
     }
 
+    /**
+     * Returns true if this ChatColor changes the color of the chat (not formatting)
+     *
+     * @return true if this ChatColor is a color
+     */
     public boolean isColor() {
-        return !isFormat && this != RESET;
+        return !this.isFormat && this != RESET;
     }
 
+    /**
+     * Removes all colors from a string
+     *
+     * @param input the input to strip
+     *
+     * @return a ChatColor stripped string
+     */
     public static String stripColor(final String input) {
         if (input == null) {
             return null;
         }
-        return Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-OR]").matcher(input).replaceAll("");
+
+        return colorPattern.matcher(input).replaceAll("");
     }
 
+    /**
+     * Replaces all '&' characters with Minecraft's formatting code symbol
+     *
+     * @param textToTranslate the text which should be altered
+     * @return the altered text
+     */
     public static String translateAlternateColorCodes(String textToTranslate) {
         return translateAlternateColorCodes('&', textToTranslate);
     }
 
+    /**
+     * Replaces all "altColorChar" references with the ChatColor code if the following character
+     * is a valid {@link ChatColor} entry.
+     *
+     * @param altColorChar the character which should be used as a replacement for Minecraft's formatting code.
+     * @param textToTranslate the text which should be altered and colored.
+     * @return the altered text with all valid ChatColor codes added.
+     */
     public static String translateAlternateColorCodes(char altColorChar, String textToTranslate) {
-        char[] b = textToTranslate.toCharArray();
-        for (int i = 0; i < b.length - 1; i++) {
-            if (b[i] == altColorChar && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i+1]) > -1) {
-                b[i] = ChatColor.COLOR_CHAR;
-                b[i+1] = Character.toLowerCase(b[i+1]);
+        char[] chars = textToTranslate.toCharArray();
+
+        for (int i = 0; i < chars.length - 1; i++) {
+            // If the character at this position is the COLOR_CHAR and the following character is a valid ChatColor
+            // Then we should replace the character at this position to the color char and make the following
+            // character lowercase (so it works across some other mc versions).
+            if (chars[i] == altColorChar && colorString.indexOf(chars[i + 1]) > -1) {
+                chars[i] = ChatColor.COLOR_CHAR;
+                chars[i + 1] = Character.toLowerCase(chars[i + 1]);
             }
         }
-        return new String(b);
+
+        // Rebuids the string from the chars
+        return new String(chars);
     }
 
-    /*
-     * Color then strip the message, useful for removing all colors in the message.
+    /**
+     * Removes all formatting codes from the message by formatting it for color codes
+     * then stripping the formatted message of all codes. Useful for getting a literal string.
+     *
+     * @param altColorChat the code which should be translated to the color symbol
+     * @param message the message to format then unformat.
+     * @return a completely stripped string.
      */
     public static String formatUnformat(char altColorChat, String message) {
         return stripColor(translateAlternateColorCodes(altColorChat, message));

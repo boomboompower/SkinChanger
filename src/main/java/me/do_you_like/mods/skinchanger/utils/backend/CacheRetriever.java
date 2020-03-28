@@ -34,12 +34,23 @@ import me.do_you_like.mods.skinchanger.utils.resources.LocalFileData;
 import me.do_you_like.mods.skinchanger.utils.resources.SkinBuffer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * A class which handles saving and loading files to the SkinChanger cache to save
+ * bandwidth for users and make the mod work offline as well.
+ *
+ * Cached files generally expire after about a day
+ *
+ * @since 3.0.0
+ * @author boomboompower
+ */
 public class CacheRetriever {
 
+    // Upgrade insecure requests. This will enforce on all urls except optifine
     private static final boolean FORCE_HTTPS = true;
 
     private HashMap<String, String> cachedValues = new HashMap<>();
@@ -50,6 +61,11 @@ public class CacheRetriever {
     @Getter
     private final File cacheDirectory;
 
+    /**
+     * Simple constructor for the mod
+     *
+     * @param mod the SkinChanger mod instance
+     */
     public CacheRetriever(SkinChangerMod mod) {
         this.mod = mod;
         this.cacheDirectory = new File(mod.getModConfigDirectory(), "cache");
@@ -58,7 +74,7 @@ public class CacheRetriever {
     }
 
     /**
-     * Loads a file into the game.
+     * Loads a file/url into the game.
      *
      * @param name the name for the file
      * @param url the url of the file
@@ -68,8 +84,21 @@ public class CacheRetriever {
         return loadIntoGame(name, url, CacheType.OTHER);
     }
 
+    /**
+     * Loads a url into the game and caches it into the game.
+     *
+     * @param name the name for the file (to be cached)
+     * @param url the url for the file (to be retrieved)
+     * @param cacheType the cache type, influences if
+     *
+     * @return the resource which has been loaded into the game
+     */
     // String.format("https://minotar.net/skin/%s", name)
     public ResourceLocation loadIntoGame(String name, String url, CacheType cacheType) {
+        if (cacheType == null) {
+            cacheType = CacheType.OTHER;
+        }
+
         File cacheDirectory = getCacheDirForName(name);
 
         // Other cache types can be ignored.
@@ -77,9 +106,11 @@ public class CacheRetriever {
 
         ResourceLocation location = new ResourceLocation("skins/" + getCacheName(name));
 
+        final IImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
+
         if (cachedFile != null) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
-                Minecraft.getMinecraft().renderEngine.loadTexture(location, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), cachedFile, cacheType == CacheType.CAPE ? new CapeBuffer() : new SkinBuffer()));
+                Minecraft.getMinecraft().renderEngine.loadTexture(location, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), cachedFile, buffer));
             });
 
             return location;
@@ -88,11 +119,11 @@ public class CacheRetriever {
         File dataFile = new File(cacheDirectory, cacheDirectory.getName() + ".png");
 
         // Force HTTPS on resources.
-        if (FORCE_HTTPS && url.startsWith("http://")) {
+        if (FORCE_HTTPS && (url.startsWith("http://") && !url.contains("optifine"))) {
             url = "https://" + url.substring("http://".length());
         }
 
-        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, DefaultPlayerSkin.getDefaultSkinLegacy(), cacheType == CacheType.CAPE ? new CapeBuffer() : new SkinBuffer());
+        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, DefaultPlayerSkin.getDefaultSkinLegacy(), buffer);
 
         Minecraft.getMinecraft().addScheduledTask(() -> {
             Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
@@ -103,6 +134,11 @@ public class CacheRetriever {
         return location;
     }
 
+    /**
+     * Creates a cache directory and data file for the cache
+     *
+     * @param name the name of the file
+     */
     public void generateCacheFiles(String name) {
         File cacheDirectory = getCacheDirForName(name);
 
@@ -124,7 +160,7 @@ public class CacheRetriever {
         try {
             if (!dataFile.exists()) {
                 if (!dataFile.createNewFile()) {
-                    System.err.println("Failed to create a cache file.");
+                    System.err.println("Failed to create a data file.");
                 }
             }
 
@@ -342,6 +378,13 @@ public class CacheRetriever {
         return existed;
     }
 
+    /**
+     * Tells the code how the cached file should be parsed by the mod
+     *
+     * SKIN will be parsed through {@link SkinBuffer}
+     * CAPE will be parsed through {@link CapeBuffer}
+     * OTHER will not be parsed through anything.
+     */
     public enum CacheType {
         SKIN,
         CAPE,

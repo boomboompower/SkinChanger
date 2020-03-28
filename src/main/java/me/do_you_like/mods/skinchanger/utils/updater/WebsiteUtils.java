@@ -51,39 +51,60 @@ import org.apache.commons.io.IOUtils;
  *
  * @author boomboompower
  * @version 3.1
+ * 
+ * @deprecated to be removed in a future release
  */
+@Deprecated
 public class WebsiteUtils {
 
+    @Deprecated
     private Minecraft mc = Minecraft.getMinecraft(); // The Minecraft instance
+    @Deprecated
     private AtomicInteger threadNumber = new AtomicInteger(0); // The current ThreadCount
     
+    @Deprecated
     private ExecutorService POOL = Executors.newFixedThreadPool(8, r -> new Thread(r, String
         .format("WebsiteUtils Thread %s",
             this.threadNumber.incrementAndGet()))); // Async task scheduler
     
+    @Deprecated
     private ScheduledExecutorService RUNNABLE_POOL = Executors.newScheduledThreadPool(2,
         r -> new Thread(r, "WebsiteUtils Thread " + this.threadNumber
             .incrementAndGet())); // Repeating task scheduler
     
+    @Deprecated
     private boolean isRunning = false; // Is the checker running?
+    @Deprecated
     private boolean isDisabled = false; // Is the mod disabled
     
+    @Deprecated
     private LinkedList<String> updateMessage = new LinkedList<>(); // A list of messages to send to the player
+    @Deprecated
     private boolean hasSeenHigherMessage = false; // true if the user should be alerted for having a newer release
+    @Deprecated
     private boolean showUpdateSymbol = true; // true if a arrow should be shown before every update message
+    @Deprecated
     private boolean showUpdateHeader = true; // true if the updater should show "this mod is out of date"
+    @Deprecated
     private boolean higherVersion = false; // Is this mod newer than the latest released version?
+    @Deprecated
     private boolean needsUpdate = false; // Is this mod an older version than the latest released version?
+    @Deprecated
     private String updateVersion = "0"; // The newest version availible to download
 
+    @Deprecated
     private ScheduledFuture<?> modVersionChecker; // The repeating runnable for version checking
 
+    @Deprecated
     private final String modName; // The id of this mod
+    @Deprecated
     private final String sessionId; // The uuid of the player
     
     // The base link of the site, this can be changed whenever required
+    @Deprecated
     private final String BASE_LINK = "https://gist.githubusercontent.com/boomboompower/a0587ab2ce8e7bc4835fdf43f46f06eb/raw";
 
+    @Deprecated
     public WebsiteUtils(String modName) {
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -97,6 +118,7 @@ public class WebsiteUtils {
      *
      * @throws IllegalStateException if the service is already running
      */
+    @Deprecated
     public void begin() {
         if (!this.isRunning) {
             this.isRunning = true;
@@ -195,6 +217,7 @@ public class WebsiteUtils {
      *
      * @throws IllegalStateException if the service is not running
      */
+    @Deprecated
     public void stop() {
         if (this.isRunning) {
             this.isRunning = false;
@@ -209,6 +232,7 @@ public class WebsiteUtils {
     /**
      * Disables the mod
      */
+    @Deprecated
     public void disableMod() {
         this.isDisabled = true;
     }
@@ -218,6 +242,7 @@ public class WebsiteUtils {
      *
      * @return true if the mod should be disabled
      */
+    @Deprecated
     public boolean isDisabled() {
         return this.isDisabled;
     }
@@ -227,6 +252,7 @@ public class WebsiteUtils {
      *
      * @return true if this service is running
      */
+    @Deprecated
     public boolean isRunning() {
         return this.isRunning;
     }
@@ -237,6 +263,7 @@ public class WebsiteUtils {
      *
      * @return true if the version running is newer than the latest release
      */
+    @Deprecated
     public boolean isRunningNewerVersion() {
         return this.higherVersion;
     }
@@ -246,6 +273,7 @@ public class WebsiteUtils {
      *
      * @return true if this mod version is older than the newest one
      */
+    @Deprecated
     public boolean needsUpdate() {
         return this.needsUpdate;
     }
@@ -255,6 +283,7 @@ public class WebsiteUtils {
      *
      * @return the latest version or -1 if not availible
      */
+    @Deprecated
     public String getUpdateVersion() {
         return this.updateVersion;
     }
@@ -264,6 +293,7 @@ public class WebsiteUtils {
      *
      * @param runnable the runnable to run
      */
+    @Deprecated
     public void runAsync(Runnable runnable) {
         this.POOL.execute(runnable);
     }
@@ -280,6 +310,7 @@ public class WebsiteUtils {
      *
      * @return the scheduled task
      */
+    @Deprecated
     public ScheduledFuture<?> schedule(Runnable r, long initialDelay, long delay, TimeUnit unit) {
         return this.RUNNABLE_POOL.scheduleAtFixedRate(r, initialDelay, delay, unit);
     }
@@ -293,6 +324,7 @@ public class WebsiteUtils {
      * @param url the url to grab the json off
      * @return the json recieved
      */
+    @Deprecated
     public String rawWithAgent(String url) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -325,6 +357,7 @@ public class WebsiteUtils {
      * @param input the verision input
      * @return an integer for the string, or 0 if empty
      */
+    @Deprecated
     private int formatVersion(String input) {
         StringBuilder builder = new StringBuilder();
         for (char c : input.toCharArray()) {
@@ -338,6 +371,7 @@ public class WebsiteUtils {
     // Handle message sending
     
     @SubscribeEvent(priority = EventPriority.LOW)
+    @Deprecated
     public void onJoin(FMLNetworkEvent.ClientConnectedToServerEvent event) {
         WebsiteUtils utils = this;
         
@@ -406,6 +440,7 @@ public class WebsiteUtils {
      * @param message the message to send
      * @param replacements the arguments used to format the string
      */
+    @Deprecated
     private void sendMessage(String message, Object... replacements) {
         if (Minecraft.getMinecraft().thePlayer == null) return; // Safety first! :)
         
@@ -418,6 +453,7 @@ public class WebsiteUtils {
     /**
      * Sends a clickable link to the user containing all updating information
      */
+    @Deprecated
     private void sendLinkText() {
         if (Minecraft.getMinecraft().thePlayer == null) return; // Safety first! :)
         

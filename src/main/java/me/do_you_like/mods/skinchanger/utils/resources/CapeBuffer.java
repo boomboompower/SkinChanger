@@ -46,5 +46,6 @@ public class CapeBuffer implements IImageBuffer {
 
     @Override
     public void skinAvailable() {
+        // Do nothing
     }
 }

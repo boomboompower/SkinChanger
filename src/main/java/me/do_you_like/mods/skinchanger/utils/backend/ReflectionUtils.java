@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -31,9 +32,19 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
  * of java's internal reflection implementations whilst remaining sun-free!
  */
 public class ReflectionUtils {
-    
+
+    // Stores logs which have already been sent.
     private static List<String> logs = new ArrayList<>();
-    
+
+    /**
+     * Finds a method from a given name. Supports forge mapped names
+     *
+     * @param clazz the class to search
+     * @param methodNames the different method names
+     * @param methodTypes the constructor of the method
+     *
+     * @return the method if found.
+     */
     public static <T> MethodHandle findMethod(Class<T> clazz, String[] methodNames, Class<?>... methodTypes) {
         final Method method = ReflectionHelper.findMethod(clazz, null, methodNames, methodTypes);
         
@@ -43,16 +54,30 @@ public class ReflectionUtils {
             throw new ReflectionHelper.UnableToFindMethodException(methodNames, e);
         }
     }
-    
+
+    /**
+     * Force sets a private value
+     *
+     * @param classToAccess the class to access
+     * @param instance the instance of the class
+     * @param value the value to set the field to
+     * @param fieldNames the names of each field
+     */
     public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, E value, String... fieldNames) {
         try {
             ReflectionHelper.setPrivateValue(classToAccess, instance, value,
                 ObfuscationReflectionHelper.remapFieldNames(classToAccess.getName(), fieldNames));
         } catch (Throwable e) {
-            sendLog("No methods found for arguments: %s !", Arrays.toString(fieldNames));
+            sendLog("[" + classToAccess.getSimpleName() + "] No methods found for arguments: %s !", Arrays.toString(fieldNames));
         }
     }
 
+    /**
+     * Just so logs aren't spammed. Display the error once.
+     *
+     * @param message the message which will be sent
+     * @param formatting formatting for the message
+     */
     private static void sendLog(String message, Object... formatting) {
         if (logs.contains(message)) {
             return;

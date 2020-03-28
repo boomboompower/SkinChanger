@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,6 +32,7 @@ import java.util.Base64;
 import java.util.HashMap;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
+import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever.CacheType;
 import me.do_you_like.mods.skinchanger.utils.general.BetterJsonObject;
 
 import net.minecraft.client.Minecraft;
@@ -42,14 +42,16 @@ import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.IOUtils;
 
 /**
- * A big boy api designed to interact with the mojang api, created for SkinChanger
+ * A simple hooker for skin & cape components from the Mojang API.
  *
  * @author boomboompower
+ * @since 3.0.0
  * @version 1.0
  */
 public class MojangHooker {
     
     // Prevents unknown urls loading skins
+    // This is to stop
     private static final String[] TRUSTED_DOMAINS = {
         ".minecraft.net",
         ".mojang.com"
@@ -177,7 +179,7 @@ public class MojangHooker {
         return new BetterJsonObject(getUrl("https://api.mojang.com/users/profiles/minecraft/" + name));
     }
     
-    private BetterJsonObject getEncryptedTexturesUnsafe(String id) throws UnsupportedEncodingException, IllegalStateException, JsonParseException {
+    private BetterJsonObject getEncryptedTexturesUnsafe(String id) throws IllegalStateException, JsonParseException {
         if (id == null) {
             return new BetterJsonObject();
         }
@@ -209,7 +211,8 @@ public class MojangHooker {
             if (property.has("name") && property.get("name").getAsString().equals("textures") && property.has("value")) {
                 // We need to decode the Base64 value property
                 byte[] decoded = Base64.getDecoder().decode(property.get("value").getAsString());
-                JsonObject decodedObj = new JsonParser().parse(new String(decoded, StandardCharsets.UTF_8)).getAsJsonObject();
+
+                JsonObject decodedObj = JsonParser.parseString(new String(decoded, StandardCharsets.UTF_8)).getAsJsonObject();
             
                 // We have a match!
                 if (decodedObj.has("textures") && decodedObj.has("profileId") && decodedObj.get("profileId").getAsString().equals(texturesIn.get("id").getAsString())) {
@@ -234,7 +237,7 @@ public class MojangHooker {
     public boolean hasSlimSkin(String id) {
         try {
             return hasSlimSkinUnsafe(id);
-        } catch (NullPointerException | JsonParseException | IllegalStateException | UnsupportedEncodingException e) {
+        } catch (NullPointerException | JsonParseException | IllegalStateException e) {
             e.printStackTrace();
             return false;
         }
@@ -248,7 +251,7 @@ public class MojangHooker {
      * @param id the users id
      * @return true if the texture is of the slim model
      */
-    private boolean hasSlimSkinUnsafe(String id) throws NullPointerException, UnsupportedEncodingException, IllegalStateException, JsonParseException {
+    private boolean hasSlimSkinUnsafe(String id) throws NullPointerException, IllegalStateException, JsonParseException {
         if (id == null) {
             return false;
         }
@@ -284,13 +287,17 @@ public class MojangHooker {
     /**
      * The safe version of skin loading, this will return the Steve model if any issues occur
      *
-     * @param id the id of the user
+     * @param id the id of the user (see {@link #getIdFromUsername(String)})
      * @return the {@link ResourceLocation} of the given id
      */
     public ResourceLocation getSkinFromId(String id) {
         try {
             return getSkinFromIdUnsafe(id);
-        } catch (UnsupportedEncodingException | IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
+            if (ex.getMessage() != null) {
+                System.err.println(ex.getMessage());
+            }
+
             return DefaultPlayerSkin.getDefaultSkinLegacy();
         }
     }
@@ -300,10 +307,8 @@ public class MojangHooker {
      *
      * @param id the id of the profile, to be used in decryption
      * @return the {@link ResourceLocation} of the given id
-     *
-     * @throws UnsupportedEncodingException if the encrypted resource cannot be decrypted
      */
-    private ResourceLocation getSkinFromIdUnsafe(String id) throws UnsupportedEncodingException {
+    private ResourceLocation getSkinFromIdUnsafe(String id) {
         if (id != null && !id.isEmpty()) {
             if (skins.containsKey(id)) {
                 ResourceLocation loc = skins.get(id);
@@ -341,9 +346,7 @@ public class MojangHooker {
                 throw new IllegalArgumentException("Invalid payload, the domain issued was not trusted.");
             }
 
-            String segment = getLastSegment(url);
-
-            ResourceLocation playerSkin = SkinChangerMod.getInstance().getCacheRetriever().loadIntoGame(id, url);
+            ResourceLocation playerSkin = SkinChangerMod.getInstance().getCacheRetriever().loadIntoGame(id, url, CacheType.CAPE);
 
             skins.put(id, playerSkin);
 
@@ -403,7 +406,7 @@ public class MojangHooker {
      */
     private String getLastSegment(String url) {
         if (url == null) {
-            return url;
+            return null;
         }
         
         if (url.contains("/")) {
@@ -452,7 +455,7 @@ public class MojangHooker {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Invalid URL \'" + url + "\'");
         }
-        
+
         String host = uri.getHost();
     
         for (String domain : TRUSTED_DOMAINS) {

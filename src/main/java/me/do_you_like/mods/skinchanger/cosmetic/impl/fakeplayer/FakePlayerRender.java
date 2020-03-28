@@ -160,26 +160,57 @@ public class FakePlayerRender {
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
 
+    /**
+     * Returns the location of the current FakePlayer skin
+     *
+     * @return the ResourceLocation of the current skin
+     */
     public ResourceLocation getSkinLocation() {
         return fakePlayer.getPlayerInfo().getLocationSkin();
     }
 
+    /**
+     * Sets the cape of the FakePlayer
+     *
+     * @param skin the skin which should be applied.
+     */
     public void setSkinLocation(ResourceLocation skin) {
         fakePlayer.getPlayerInfo().setLocationSkin(skin);
     }
 
+    /**
+     * Returns the location of the current FakePlayer cape
+     *
+     * @return the ResourceLocation of the current cape
+     */
     public ResourceLocation getCapeLocation() {
         return fakePlayer.getPlayerInfo().getLocationCape();
     }
 
-    public void setCapeLocation(ResourceLocation skin) {
-        fakePlayer.getPlayerInfo().setLocationCape(skin);
+    /**
+     * Sets the cape of the FakePlayer
+     *
+     * @param cape the cape which should be applied.
+     */
+    public void setCapeLocation(ResourceLocation cape) {
+        fakePlayer.getPlayerInfo().setLocationCape(cape);
     }
 
+    /**
+     * Returns the current Skin type (either "default" or "slim")
+     *
+     * @return the skin type of the FakePlayer
+     */
     public String getSkinType() {
         return fakePlayer.getPlayerInfo().getSkinType();
     }
 
+    /**
+     * Sets the Skin type of the FakePlayer
+     * should either be "default" or "slim"
+     *
+     * @param in the skin type which should be set
+     */
     public void setSkinType(String in) {
         fakePlayer.getPlayerInfo().setSkinType(in);
     }
@@ -216,6 +247,11 @@ public class FakePlayerRender {
     /**
      * Simple linear interpolation.
      *
+     * https://en.wikipedia.org/wiki/Linear_interpolation
+     *
+     * When alpha = 1, it will return point2
+     * When alpha = 0, it will return point1
+     *
      * @param point1 the first point
      * @param point2 the second point
      * @param alpha the alpha
@@ -223,6 +259,6 @@ public class FakePlayerRender {
      */
     @SuppressWarnings("SameParameterValue")
     private float lerp(float point1, float point2, float alpha) {
-        return point1 + alpha * (point2 - point1);
+        return (1 - alpha) * point1 + alpha * point2;
     }
 }

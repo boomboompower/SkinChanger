@@ -371,6 +371,12 @@ public class SkinChangerMenu extends ModernGui {
         }
     }
 
+    /**
+     * Should be called by a Subclass so that buttons are configured correctly.
+     * Also makes the FakePlayer maintain its rotation across menus.
+     *
+     * @param menu the REAL SkinChangerMenu instance (Main UI instance)
+     */
     protected final void setAsSubMenu(SkinChangerMenu menu) {
         if (this.m_applyButton != null) {
             this.m_applyButton.setEnabled(false);
@@ -427,6 +433,11 @@ public class SkinChangerMenu extends ModernGui {
         }
     }
 
+    /**
+     * Forces sets the rotation of the FakePlayer to this value
+     *
+     * @param rotation the rotation of the FakePlayer
+     */
     public void setRotation(float rotation) {
         this.rotation = rotation;
     }

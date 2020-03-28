@@ -17,7 +17,16 @@
 
 package me.do_you_like.mods.skinchanger.utils.installing;
 
+/**
+ * Stores the different supported OS's supported by the installer and their corresponding
+ * Minecraft installation directories.
+ *
+ * @author boomboompower
+ * @since 3.0.0
+ * @version 1.0
+ */
 public enum OSType {
+
     WINDOWS("C:\\Users\\USERNAME\\AppData\\Roaming\\.minecraft"),
     MAC("~/Library/Application Support/minecraft"),
     LINUX("~/.minecraft"),

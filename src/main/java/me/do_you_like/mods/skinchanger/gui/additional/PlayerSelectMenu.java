@@ -25,6 +25,7 @@ import lombok.Getter;
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
 import me.do_you_like.mods.skinchanger.gui.SkinChangerMenu;
 import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever;
+import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever.CacheType;
 import me.do_you_like.mods.skinchanger.utils.backend.MojangHooker;
 import me.do_you_like.mods.skinchanger.utils.backend.ThreadFactory;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
@@ -192,7 +193,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
                     String url = "http://s.optifine.net/capes/" + enteredText + ".png";
 
-                    ResourceLocation cape = this.cacheRetriever.loadIntoGame(cacheName, url);
+                    ResourceLocation cape = this.cacheRetriever.loadIntoGame(cacheName, url, CacheType.CAPE);
 
                     this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(cape);
 
@@ -208,7 +209,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     }
 
                     // Skin URL Resource
-                    ResourceLocation p_URL_Resource = this.cacheRetriever.loadIntoGame(cache, enteredText);
+                    ResourceLocation p_URL_Resource = this.cacheRetriever.loadIntoGame(cache, enteredText, CacheType.SKIN);
 
                     this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(p_URL_Resource);
                 case C_URL:
@@ -222,7 +223,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     }
 
                     // Cape URL Resource
-                    ResourceLocation c_URL_Resource = this.cacheRetriever.loadIntoGame(cacheC, enteredText);
+                    ResourceLocation c_URL_Resource = this.cacheRetriever.loadIntoGame(cacheC, enteredText, CacheType.CAPE);
 
                     this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(c_URL_Resource);
 

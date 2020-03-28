@@ -64,8 +64,9 @@ public class BetterJsonObject {
             this.data = new JsonObject();
             return;
         }
+
         try {
-            this.data = new JsonParser().parse(jsonIn).getAsJsonObject();
+            this.data = JsonParser.parseString(jsonIn).getAsJsonObject();
         } catch (JsonSyntaxException | JsonIOException ex) {
             ex.printStackTrace();
         }
@@ -228,10 +229,23 @@ public class BetterJsonObject {
         return value;
     }
 
+    /**
+     * Returns true if this data contains the following key
+     *
+     * @param key the key to detect
+     *
+     * @return true if the json contains the key.
+     */
     public boolean has(String key) {
         return this.data.has(key);
     }
 
+    /**
+     * Gets a raw JsonElement from a key.
+     *
+     * @param key the key of which to grab the element from.
+     * @return a JsonElement or null if there is no element with this key
+     */
     public JsonElement get(String key) {
         return this.data.get(key);
     }
@@ -365,6 +379,11 @@ public class BetterJsonObject {
         return this.prettyPrinter.toJson(this.data);
     }
 
+    /**
+     * Returns the pretty print version of Gson
+     *
+     * @return the pretty print Gson
+     */
     public Gson getGsonData() {
         return this.prettyPrinter;
     }

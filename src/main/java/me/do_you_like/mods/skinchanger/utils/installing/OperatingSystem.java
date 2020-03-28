@@ -19,6 +19,13 @@ package me.do_you_like.mods.skinchanger.utils.installing;
 
 import java.io.File;
 
+/**
+ * Detects the operating system being used by the client
+ *
+ * @author boomboompower
+ * @since 3.0.0
+ * @version 1.0
+ */
 public class OperatingSystem {
 
     private static OSType osType;
@@ -37,9 +44,17 @@ public class OperatingSystem {
         }
     }
 
+    /**
+     * No constructor allowed in a utility class
+     */
     private OperatingSystem() {
     }
 
+    /**
+     * Detects the operating system type which this jar is running on.
+     *
+     * @return a {@link OSType} dedicated to the OS this program is running on
+     */
     public static OSType getOSType() {
         if (osType != null) {
             return osType;
@@ -60,6 +75,12 @@ public class OperatingSystem {
         return osType;
     }
 
+    /**
+     * Gets the default Minecraft installation directory based on a system
+     *
+     * @param system the OS to grab the MC Home Dir from.
+     * @return a directory containing the Minecraft directory.
+     */
     public static File getMinecraftDirectory(OSType system) {
         String path;
 
