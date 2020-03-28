@@ -239,6 +239,9 @@ public class ModernButton extends Gui implements InteractiveDrawable {
     /**
      * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
      * this button.
+     *
+     * @param mouseOver true if the mouse is over this button
+     * @return an integer state based on what the color of this button should be
      */
     protected int getHoverState(boolean mouseOver) {
         int state = 1;

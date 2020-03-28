@@ -120,14 +120,14 @@ public class ModernTextBox extends Gui {
     }
 
     /**
-     * Returns the contents of the textbox
+     * @return Returns the contents of the textbox
      */
     public String getText() {
         return this.text;
     }
 
     /**
-     * returns the text between the cursor and selectionEnd
+     * @return returns the text between the cursor and selectionEnd
      */
     public String getSelectedText() {
         int i = this.cursorPosition < this.selectionEnd ? this.cursorPosition: this.selectionEnd;
@@ -137,6 +137,8 @@ public class ModernTextBox extends Gui {
 
     /**
      * replaces selected text, or inserts text at the position on the cursor
+     *
+     * @param text the text to write
      */
     public void writeText(String text) {
         String s = "";
@@ -173,6 +175,8 @@ public class ModernTextBox extends Gui {
     /**
      * Deletes the specified number of words starting at the cursor position. Negative numbers will delete words left of
      * the cursor.
+     *
+     * @param words the words to delete
      */
     public void deleteWords(int words) {
         if (this.text.length() != 0) {

@@ -21,7 +21,7 @@ import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 
 /**
  * Provides the base methods for a Gui, these methods are designed to be applicable to multiple Minecraft versions.
- * <br />
+ * <br>
  * It should be noted that all render methods are ran in sandboxed environments meaning if an error occurs, the game will not crash.
  *
  * @author boomboompower

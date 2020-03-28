@@ -88,6 +88,7 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     /**
      * Basic constructor for UI headers. Scale size is 1.5 of normal text. Draws an underline.
      *
+     * @param gui the parent of this header
      * @param x the x location of the header
      * @param y the y location of the header
      * @param header the text which will be rendered
@@ -99,10 +100,11 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     /**
      * Basic constructor for UI headers. Draws an underline.
      *
+     * @param gui the parent of this header
      * @param x the x location of the header
      * @param y the y location of the header
      * @param header the text which will be rendered
-     * @param scaleSize the scale of the text. (scale > 1 means bigger)
+     * @param scaleSize the scale of the text. (scale greater than 1 means bigger)
      */
     public ModernHeader(ModernGui gui, int x, int y, String header, float scaleSize) {
         this(gui, x, y, header, scaleSize, true);
@@ -111,10 +113,11 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     /**
      * Basic constructor for UI headers. Draws an underline.
      *
+     * @param gui the parent of this header
      * @param x the x location of the header
      * @param y the y location of the header
      * @param header the text which will be rendered
-     * @param scaleSize the scale of the text. (scale > 1 means bigger)
+     * @param scaleSize the scale of the text. (scale greater than 1 means bigger)
      */
     public ModernHeader(ModernGui gui, int x, int y, String header, int scaleSize) {
         this(gui, x, y, header, scaleSize, true);
@@ -123,10 +126,11 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     /**
      * Basic constructor for UI headers.
      *
+     * @param gui the parent of this header
      * @param x the x location of the header
      * @param y the y location of the header
      * @param header the text which will be rendered
-     * @param scaleSize the scale of the text. (scale > 1 means bigger)
+     * @param scaleSize the scale of the text. (scale greater than 1 means bigger)
      * @param drawUnderline true if an underline should be drawn.
      */
     public ModernHeader(ModernGui gui, int x, int y, String header, float scaleSize, boolean drawUnderline) {
@@ -136,6 +140,7 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     /**
      * Basic constructor for UI headers.
      *
+     * @param gui the parent of this header
      * @param x the x location of the header
      * @param y the y location of the header
      * @param header the text which will be rendered

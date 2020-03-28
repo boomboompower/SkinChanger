@@ -28,7 +28,7 @@ import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import net.minecraft.command.ICommandSender;
 
 /**
- * NOTE: This class is temporary & it's methods will eventually be tuned into a new gui.
+ * NOTE: This class is temporary and it's methods will eventually be tuned into a new gui.
  */
 public class SkinCommand extends ModCommand {
 

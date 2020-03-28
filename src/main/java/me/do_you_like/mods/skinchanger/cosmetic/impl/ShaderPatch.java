@@ -99,7 +99,7 @@ public class ShaderPatch {
 
     /**
      * Tells the EntityRenderer class to stop using its shader. Throws an error if someone tried to register
-     * this class before Minecraft created its EntityRenderer instance. >.>
+     * this class before Minecraft created its EntityRenderer instance.
      */
     public void killShader() {
         Prerequisites.notNull(this.entityRenderer, "ShaderPatch should be called after postInit()");
