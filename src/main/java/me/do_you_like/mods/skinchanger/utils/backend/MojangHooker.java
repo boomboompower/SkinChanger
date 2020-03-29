@@ -31,8 +31,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 
+import java.util.UUID;
+import java.util.regex.Pattern;
+
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
-import me.do_you_like.mods.skinchanger.utils.backend.CacheRetriever.CacheType;
 import me.do_you_like.mods.skinchanger.utils.general.BetterJsonObject;
 
 import net.minecraft.client.Minecraft;
@@ -56,6 +58,8 @@ public class MojangHooker {
         ".minecraft.net",
         ".mojang.com"
     };
+
+    private static final Pattern uuidPattern = Pattern.compile("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)");
     
     private static final HashMap<String, String[]> idCaches = new HashMap<>(); // Store the id
     
@@ -163,6 +167,31 @@ public class MojangHooker {
         id = id.replace("-", ""); // Remove dashes
         
         return new BetterJsonObject(getUrl("https://sessionserver.mojang.com/session/minecraft/profile/" + id));
+    }
+
+    /**
+     * Returns a UUID representation of a UUID which has had its braces removed. Mojang's API
+     * removes braces from UUID so this code is designed to unstrip them if possible. If a value
+     * being parsed into this method already contains braces then no attempt at conversion will be
+     * made. If the input cannot be converted to a valid UUID then null will be returned instead.
+     *
+     * @param strippedInput the input to be converted to a UUID
+     * @return a UUID representation of a String if possible or null
+     */
+    public UUID getUUIDFromStrippedString(String strippedInput) {
+        if (strippedInput == null || strippedInput.trim().isEmpty()) {
+            return null;
+        }
+
+        if (strippedInput.contains("-")) {
+            return tryParseUUID(strippedInput);
+        }
+
+        // https://stackoverflow.com/a/19399768/12697448
+        // Pattern#compile improves performance.
+        String bracedString = uuidPattern.matcher(strippedInput).replaceFirst("$1-$2-$3-$4-$5");
+
+        return tryParseUUID(bracedString);
     }
     
     /**
@@ -346,7 +375,7 @@ public class MojangHooker {
                 throw new IllegalArgumentException("Invalid payload, the domain issued was not trusted.");
             }
 
-            ResourceLocation playerSkin = SkinChangerMod.getInstance().getCacheRetriever().loadIntoGame(id, url, CacheType.CAPE);
+            ResourceLocation playerSkin = SkinChangerMod.getInstance().getCacheRetriever().loadIntoGame(id, url, null);
 
             skins.put(id, playerSkin);
 
@@ -464,5 +493,20 @@ public class MojangHooker {
             }
         }
         return false;
+    }
+
+    /**
+     * A safe way of parsing a UUID
+     *
+     * @param input the input to parse, should be in hyphen format
+     *
+     * @return a UUID if valid or null
+     */
+    private UUID tryParseUUID(String input) {
+        try {
+            return UUID.fromString(input);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 }

@@ -20,6 +20,8 @@ package me.do_you_like.mods.skinchanger.gui.additional;
 import java.awt.Color;
 import java.util.Objects;
 
+import java.util.UUID;
+
 import lombok.Getter;
 
 import me.do_you_like.mods.skinchanger.SkinChangerMod;
@@ -75,6 +77,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
         if (this.selectionType.isTypeOfUrl()) {
             entryBox.setMaxStringLength(520);
+        } else if (this.selectionType.isTypeOfUUID()) {
+            entryBox.setMaxStringLength(36);
         } else {
             entryBox.setMaxStringLength(16);
         }
@@ -264,15 +268,26 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         return in;
     }
 
+    /**
+     * Tells this class which varient of itself it should use
+     */
     public enum StringSelectionType {
         P_USERNAME("Enter the username of the player."),
         C_USERNAME("Enter the username of the player."),
 
         P_URL("Enter the URL of the skin. (https://....)"),
-        C_URL("Enter the URL of the cape. (https://....)");
+        C_URL("Enter the URL of the cape. (https://....)"),
+
+        P_UUID("Enter the UUID of the player. (ABCD-EFGH-...)"),
+        C_UUID("Enter the UUID of the player. (ABCD-EFGH-...)");
 
         @Getter
         private String displaySentence;
+
+        // If a UUID has been generated we should store
+        // it so we don't have to parse it twice
+        @Getter
+        private UUID storedUUID;
 
         StringSelectionType(String displaySentence) {
             this.displaySentence = displaySentence;
@@ -298,15 +313,41 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                 return input.startsWith("https://") || input.startsWith("http://") || input.startsWith("www.");
             }
 
+            if (isTypeOfUUID()) {
+                // Tiny performance increase
+                this.storedUUID = SkinChangerMod.getInstance().getMojangHooker().getUUIDFromStrippedString(input);
+
+                return this.storedUUID != null;
+            }
+
             return false;
         }
 
+        /**
+         * Is this enum a type of URL?
+         *
+         * @return true if the enum is of type URL
+         */
         public boolean isTypeOfUrl() {
             return this == P_URL || this == C_URL;
         }
 
+        /**
+         * Is this enum a type of username?
+         *
+         * @return true if the enum is of type username
+         */
         public boolean isTypeOfUsername() {
             return this == P_USERNAME || this == C_USERNAME;
+        }
+
+        /**
+         * Is this enum a type of UUID?
+         *
+         * @return true if the enum is of type UUID
+         */
+        public boolean isTypeOfUUID() {
+            return this == P_UUID || this == C_UUID;
         }
     }
 }

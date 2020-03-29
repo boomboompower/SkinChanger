@@ -26,12 +26,12 @@ import me.do_you_like.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender
 import me.do_you_like.mods.skinchanger.gui.additional.ModOptionsMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu;
 import me.do_you_like.mods.skinchanger.gui.additional.PlayerSelectMenu.StringSelectionType;
-import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernScroller;
 import me.do_you_like.mods.skinchanger.options.SelectionOptions;
-import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
+import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernHeader;
+import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernScroller;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernSlider;
 
 import net.minecraft.client.Minecraft;
@@ -263,9 +263,10 @@ public class SkinChangerMenu extends ModernGui {
         skinSettings.setOffsetBetweenDrawables(24F);
 
         skinSettings.getSubDrawables().add(new ModernButton(12, 5, 20, buttonWidth, 20, "Load from Player").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(13, 5, 20, buttonWidth, 20, "Load from URL").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(14, 5, 20, buttonWidth, 20, "Load from File").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(15, 5, 20, buttonWidth, 20, "Reset Skin").setAsPartOfHeader(skinSettings));
+        skinSettings.getSubDrawables().add(new ModernButton(13, 5, 20, buttonWidth, 20, "Load from UUID").setAsPartOfHeader(skinSettings));
+        skinSettings.getSubDrawables().add(new ModernButton(14, 5, 20, buttonWidth, 20, "Load from URL").setAsPartOfHeader(skinSettings));
+        skinSettings.getSubDrawables().add(new ModernButton(15, 5, 20, buttonWidth, 20, "Load from File").setAsPartOfHeader(skinSettings));
+        skinSettings.getSubDrawables().add(new ModernButton(16, 5, 20, buttonWidth, 20, "Reset Skin").setAsPartOfHeader(skinSettings));
 
         // ----------------------------------
 
@@ -279,10 +280,11 @@ public class SkinChangerMenu extends ModernGui {
 
         capeSettings.setOffsetBetweenDrawables(24F);
 
-        capeSettings.getSubDrawables().add(new ModernButton(16, 5, 20, buttonWidth, 20, "Load from Player").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(17, 5, 20, buttonWidth, 20, "Load from URL").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(18, 5, 20, buttonWidth, 20, "Load from File").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(19, 5, 20, buttonWidth, 20, "Reset Cape").setAsPartOfHeader(capeSettings));
+        capeSettings.getSubDrawables().add(new ModernButton(17, 5, 20, buttonWidth, 20, "Load from Player").setAsPartOfHeader(capeSettings));
+        capeSettings.getSubDrawables().add(new ModernButton(18, 5, 20, buttonWidth, 20, "Load from UUID").setAsPartOfHeader(capeSettings));
+        capeSettings.getSubDrawables().add(new ModernButton(19, 5, 20, buttonWidth, 20, "Load from URL").setAsPartOfHeader(capeSettings));
+        capeSettings.getSubDrawables().add(new ModernButton(20, 5, 20, buttonWidth, 20, "Load from File").setAsPartOfHeader(capeSettings));
+        capeSettings.getSubDrawables().add(new ModernButton(21, 5, 20, buttonWidth, 20, "Reset Cape").setAsPartOfHeader(capeSettings));
 
         // ----------------------------------
 
@@ -317,8 +319,13 @@ public class SkinChangerMenu extends ModernGui {
 
                 break;
 
-            // Skin from a URL
+            // Skin from a UUID
             case 13:
+
+                break;
+
+            // Skin from a URL
+            case 14:
                 if (this.p_playerSelectMenu == null) {
                     this.p_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.P_URL);
                 }
@@ -328,17 +335,19 @@ public class SkinChangerMenu extends ModernGui {
                 break;
 
             // Skin from a file
-            case 14:
+            case 15:
                 this.selectionOptions.loadFromFile((location) -> this.fakePlayer.setSkinLocation(location), false);
 
                 break;
-            case 15:
+
+            // Reset Skin
+            case 16:
                 this.fakePlayer.setSkinLocation(this.originalSkin);
 
                 break;
 
             // Cape from a player name
-            case 16:
+            case 17:
                 if (this.c_playerSelectMenu == null) {
                     this.c_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.C_USERNAME);
                 }
@@ -347,8 +356,14 @@ public class SkinChangerMenu extends ModernGui {
 
                 break;
 
+            // Cape from a UUID
+            case 18:
+
+
+                break;
+
             // Cape from a URL
-            case 17:
+            case 19:
                 if (this.c_playerSelectMenu == null) {
                     this.c_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.C_URL);
                 }
@@ -358,13 +373,13 @@ public class SkinChangerMenu extends ModernGui {
                 break;
 
             // Cape from a file
-            case 18:
+            case 20:
                 this.selectionOptions.loadFromFile((location) -> this.fakePlayer.setCapeLocation(location), true);
 
                 break;
 
             // Resets the cape of the entity
-            case 19:
+            case 21:
                 this.fakePlayer.setCapeLocation(this.originalCape);
 
                 break;
