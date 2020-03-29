@@ -53,7 +53,7 @@ public class CacheRetriever {
     // Upgrade insecure requests. This will enforce on all urls except optifine
     private static final boolean FORCE_HTTPS = true;
 
-    private HashMap<String, String> cachedValues = new HashMap<>();
+    private final HashMap<String, String> cachedValues = new HashMap<>();
 
     @Getter
     private final SkinChangerMod mod;
@@ -255,7 +255,7 @@ public class CacheRetriever {
 
             bufferedReader.close();
 
-            long time = Long.valueOf(line);
+            long time = Long.parseLong(line);
 
             return System.currentTimeMillis() > time;
         } catch (IOException ex) {

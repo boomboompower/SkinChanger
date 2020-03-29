@@ -31,10 +31,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ThreadFactory {
 
     // The current ThreadCount
-    private AtomicInteger threadNumber = new AtomicInteger(0);
+    private final AtomicInteger threadNumber = new AtomicInteger(0);
 
     // Async task scheduler
-    private ExecutorService POOL;
+    private final ExecutorService POOL;
 
     /**
      * Creates a new Thread Factory

@@ -37,8 +37,8 @@ import net.minecraft.util.ResourceLocation;
 
 public class SelectionOptions {
 
-    private HashMap<AbstractClientPlayer, NetworkPlayerInfo> cachedPlayerInfo = new HashMap<>();
-    private ThreadFactory threadFactory = new ThreadFactory("SelectionOptions");
+    private final HashMap<AbstractClientPlayer, NetworkPlayerInfo> cachedPlayerInfo = new HashMap<>();
+    private final ThreadFactory threadFactory = new ThreadFactory("SelectionOptions");
 
     public void loadFromFile(SimpleCallback<ResourceLocation> callback, boolean isCape) {
         // Calling this code on the main thread will hang the game

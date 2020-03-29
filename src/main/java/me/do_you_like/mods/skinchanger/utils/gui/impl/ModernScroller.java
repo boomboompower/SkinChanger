@@ -35,16 +35,16 @@ import me.do_you_like.mods.skinchanger.options.SimpleCallback;
 public class ModernScroller implements InteractiveDrawable {
 
     @Getter
-    private int x;
+    private final int x;
 
     @Getter
-    private int y;
+    private final int y;
 
     @Getter
-    private int width;
+    private final int width;
 
     @Getter
-    private int height;
+    private final int height;
 
     @Getter
     private boolean translatable;
@@ -54,7 +54,7 @@ public class ModernScroller implements InteractiveDrawable {
     private float currentProgress;
     private boolean dragging = false;
 
-    private List<SimpleCallback<Float>> callbacks = Lists.newArrayList();
+    private final List<SimpleCallback<Float>> callbacks = Lists.newArrayList();
 
     public ModernScroller(int x, int y, int width, int height) {
         this.x = x;

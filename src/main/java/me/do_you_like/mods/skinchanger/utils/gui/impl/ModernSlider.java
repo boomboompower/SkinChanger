@@ -31,25 +31,25 @@ import net.minecraft.client.renderer.GlStateManager;
 public class ModernSlider implements InteractiveDrawable {
 
     @Getter
-    private int id;
+    private final int id;
 
     @Getter
-    private int x;
+    private final int x;
 
     @Getter
-    private int y;
+    private final int y;
 
     @Getter
-    private int width;
+    private final int width;
 
     @Getter
-    private int height;
+    private final int height;
 
     @Getter
-    private String prefix;
+    private final String prefix;
 
     @Getter
-    private String suffix;
+    private final String suffix;
 
     @Getter
     private String displayString;
@@ -71,8 +71,8 @@ public class ModernSlider implements InteractiveDrawable {
     private boolean dragging = false;
 
     private double sliderValue;
-    private double minValue;
-    private double maxValue;
+    private final double minValue;
+    private final double maxValue;
 
     public ModernSlider(int id, int xPos, int yPos, int width, int height, String prefix) {
         this(id, xPos, yPos, width, height, prefix, "", 0, 1, 0.5);
@@ -139,7 +139,7 @@ public class ModernSlider implements InteractiveDrawable {
                 strWidth = mc.fontRendererObj.getStringWidth(buttonText);
             }
 
-            mc.fontRendererObj.drawString(buttonText, (this.x + ((float) this.width / 2) - (float) strWidth / 2), this.y + (this.height - 8) / 2, color, false);
+            mc.fontRendererObj.drawString(buttonText, (this.x + ((float) this.width / 2) - (float) strWidth / 2), this.y + ((float) this.height - 8) / 2, color, false);
         }
 
         GlStateManager.disableAlpha();

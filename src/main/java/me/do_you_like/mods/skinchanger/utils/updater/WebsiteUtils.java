@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,17 +59,17 @@ import org.apache.commons.io.IOUtils;
 public class WebsiteUtils {
 
     @Deprecated
-    private Minecraft mc = Minecraft.getMinecraft(); // The Minecraft instance
+    private final Minecraft mc = Minecraft.getMinecraft(); // The Minecraft instance
     @Deprecated
-    private AtomicInteger threadNumber = new AtomicInteger(0); // The current ThreadCount
+    private final AtomicInteger threadNumber = new AtomicInteger(0); // The current ThreadCount
     
     @Deprecated
-    private ExecutorService POOL = Executors.newFixedThreadPool(8, r -> new Thread(r, String
+    private final ExecutorService POOL = Executors.newFixedThreadPool(8, r -> new Thread(r, String
         .format("WebsiteUtils Thread %s",
             this.threadNumber.incrementAndGet()))); // Async task scheduler
     
     @Deprecated
-    private ScheduledExecutorService RUNNABLE_POOL = Executors.newScheduledThreadPool(2,
+    private final ScheduledExecutorService RUNNABLE_POOL = Executors.newScheduledThreadPool(2,
         r -> new Thread(r, "WebsiteUtils Thread " + this.threadNumber
             .incrementAndGet())); // Repeating task scheduler
     
@@ -334,7 +335,7 @@ public class WebsiteUtils {
             connection.setReadTimeout(15000);
             connection.setConnectTimeout(15000);
             connection.setDoOutput(true);
-            return IOUtils.toString(connection.getInputStream(), "UTF-8");
+            return IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             
             // Generic handling for bad errors, captures the error type and message (if specified)
@@ -365,7 +366,7 @@ public class WebsiteUtils {
                 builder.append(c);
             }
         }
-        return builder.toString().trim().isEmpty() ? 0 : Integer.valueOf(builder.toString().trim());
+        return builder.toString().trim().isEmpty() ? 0 : Integer.parseInt(builder.toString().trim());
     }
     
     // Handle message sending
@@ -379,18 +380,8 @@ public class WebsiteUtils {
         
         if (utils.needsUpdate()) {
             utils.runAsync(() -> {
-                try {
-                    Thread.sleep(3000L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                while (Minecraft.getMinecraft().thePlayer == null) {
-                    try {
-                        Thread.sleep(100L);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+                sleep();
+
                 sendMessage("&9&m---------------------------------------------");
                 sendMessage(" ");
                 if (this.showUpdateHeader) {
@@ -413,18 +404,8 @@ public class WebsiteUtils {
         if (!this.hasSeenHigherMessage && utils.isRunningNewerVersion()) {
             this.hasSeenHigherMessage = true;
             utils.runAsync(() -> {
-                try {
-                    Thread.sleep(3000L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                while (Minecraft.getMinecraft().thePlayer == null) {
-                    try {
-                        Thread.sleep(100L);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+                sleep();
+
                 sendMessage("&9&m-----------------------------------------------");
                 sendMessage(" ");
                 sendMessage(" &b\u21E8 &aYou are running a newer version of " + this.modName +"!");
@@ -433,7 +414,23 @@ public class WebsiteUtils {
             });
         }
     }
-    
+
+    @SuppressWarnings("BusyWait")
+    private void sleep() {
+        try {
+            Thread.sleep(3000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        while (Minecraft.getMinecraft().thePlayer == null) {
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * Sends a message to the player, this supports color codes
      *

@@ -22,7 +22,7 @@ import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 
 public class ModOptionsMenu extends SkinChangerMenu {
 
-    private SkinChangerMenu skinChangerMenu;
+    private final SkinChangerMenu skinChangerMenu;
 
     public ModOptionsMenu(SkinChangerMenu skinChangerMenu) {
         this.skinChangerMenu = skinChangerMenu;

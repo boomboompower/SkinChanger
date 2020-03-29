@@ -52,13 +52,14 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     private int y;
 
     @Getter
-    private String headerText;
+    private final String headerText;
 
     @Getter
     @Setter
     private float scaleSize;
 
     @Getter
+    @Setter
     private boolean drawUnderline;
 
     @Getter
@@ -74,16 +75,17 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     private Color headerColor;
 
     @Getter
-    private List<ModernDrawable> subDrawables;
+    private final List<ModernDrawable> subDrawables;
 
     @Getter
     @Setter
     private float offsetBetweenDrawables = 12;
 
-    private int widthOfSub;
+    private final ModernGui modernGui;
 
     private ScaledResolution scaledResolution;
-    private ModernGui modernGui;
+
+    private int widthOfSub;
 
     /**
      * Basic constructor for UI headers. Scale size is 1.5 of normal text. Draws an underline.

@@ -34,7 +34,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 public class ReflectionUtils {
 
     // Stores logs which have already been sent.
-    private static List<String> logs = new ArrayList<>();
+    private static final List<String> logs = new ArrayList<>();
 
     /**
      * Finds a method from a given name. Supports forge mapped names

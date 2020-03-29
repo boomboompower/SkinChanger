@@ -45,7 +45,7 @@ import net.minecraft.util.ResourceLocation;
  */
 public class SkinChangerMenu extends ModernGui {
 
-    private SelectionOptions selectionOptions = new SelectionOptions();
+    private final SelectionOptions selectionOptions = new SelectionOptions();
     private ModOptionsMenu optionsMenu;
 
     private PlayerSelectMenu p_playerSelectMenu;
@@ -55,9 +55,9 @@ public class SkinChangerMenu extends ModernGui {
     private PlayerSelectMenu c_urlSelectMenu;
 
     // Store the basic values.
-    private ResourceLocation originalSkin = Minecraft.getMinecraft().thePlayer.getLocationSkin();
-    private ResourceLocation originalCape = Minecraft.getMinecraft().thePlayer.getLocationCape();
-    private String originalSkinType = Minecraft.getMinecraft().thePlayer.getSkinType();
+    private final ResourceLocation originalSkin = Minecraft.getMinecraft().thePlayer.getLocationSkin();
+    private final ResourceLocation originalCape = Minecraft.getMinecraft().thePlayer.getLocationCape();
+    private final String originalSkinType = Minecraft.getMinecraft().thePlayer.getSkinType();
 
     private ModernButton m_optionsButton;
     private ModernButton m_revertButton;
@@ -69,8 +69,6 @@ public class SkinChangerMenu extends ModernGui {
 
     private FakePlayerRender fakePlayer;
 
-    // Minecraft's blur shader
-    private ResourceLocation blurShader = new ResourceLocation("shaders/post/blur.json");
     // The location of the shader method.
     private MethodHandle shade;
 
@@ -95,7 +93,7 @@ public class SkinChangerMenu extends ModernGui {
 
         bottomPosBox -= 5;
 
-        float leftPosBox = this.width / 2 + 20;
+        float leftPosBox = (float) this.width / 2 + 20;
         float rightPosBox = this.width - 20;
 
         // 20 pixel margins.

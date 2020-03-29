@@ -39,7 +39,7 @@ import net.minecraft.util.ResourceLocation;
 public class FakePlayerRender {
 
     // The player should be the same across every instance and every thread.
-    private static FakePlayer fakePlayer = new FakePlayer(Minecraft.getMinecraft().thePlayer);
+    private static final FakePlayer fakePlayer = new FakePlayer(Minecraft.getMinecraft().thePlayer);
 
     @Getter
     private final CosmeticFactory cosmeticFactory;

@@ -35,7 +35,7 @@ import me.do_you_like.mods.skinchanger.utils.general.BetterJsonObject;
 public class ConfigurationHandler {
 
     @SaveableField(customName = "SuperSecretValue")
-    private String specialValue = "HelloWorld";
+    private final String specialValue = "HelloWorld";
 
     private final SkinChangerMod mod;
     private final File configFile;
@@ -142,9 +142,7 @@ public class ConfigurationHandler {
         this.saveableValues.put(clazz.getClass(), storedData.toArray(new ConfigurationData[0]));
 
         if (!hasSaveableField) {
-            System.out.println("Class \'%s\' was called through ConfigurationHandler#addAsSaveable however no @SaveableField annotations were present on any fields. It is advised to deregister that class as calling this method for no purpose may degrade performance. ");
-
-            return;
+            System.out.println("Class '%s' was called through ConfigurationHandler#addAsSaveable however no @SaveableField annotations were present on any fields. It is advised to deregister that class as calling this method for no purpose may degrade performance. ");
         }
     }
 

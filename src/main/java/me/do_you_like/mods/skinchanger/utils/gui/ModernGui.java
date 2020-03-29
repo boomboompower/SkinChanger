@@ -52,19 +52,18 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     protected final FontRenderer fontRendererObj = this.mc.fontRendererObj;
     protected final SkinChangerMod mod = SkinChangerMod.getInstance();
 
-    private List<ModernTextBox> textList = Lists.newArrayList();
-    private List<ModernDrawable> modernList = Lists.newLinkedList();
+    private final List<ModernTextBox> textList = Lists.newArrayList();
+    private final List<ModernDrawable> modernList = Lists.newLinkedList();
 
     /**
      * Do not use this. Use {@link #modernList} instead since it contains support for all Modern Types.
      *
      * @deprecated Superseded by {@link #modernList}
      */
-    @SuppressWarnings("DeprecatedIsStillUsed") // Don't tell me, tell them :)))
     @Deprecated
-    private List<ModernButton> buttonList = Collections.emptyList();
+    private final List<ModernButton> buttonList = Collections.emptyList();
 
-    private List<InteractiveDrawable> selectedDrawables = Lists.newArrayList();
+    private final List<InteractiveDrawable> selectedDrawables = Lists.newArrayList();
 
     protected float yTranslation = 0;
 
@@ -88,19 +87,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         } catch (Exception ex) {
             drawString(this.fontRendererObj, "An error occurred during preRender();", 5, 5, Color.RED.getRGB());
 
-            int startCount = 0;
-
-            if (ex.getMessage() != null) {
-                startCount = 1;
-
-                drawString(this.fontRendererObj, ex.getMessage(), 10, 16, Color.RED.getRGB());
-            }
-
-            for (int i = startCount; i < ex.getStackTrace().length; i++) {
-                StackTraceElement element = ex.getStackTrace()[i];
-
-                drawString(this.fontRendererObj, element.toString(), 10, 16 + (i * 12), Color.RED.getRGB());
-            }
+            drawError(ex);
 
             return;
         }
@@ -114,21 +101,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         } catch (Exception ex) {
             drawString(this.fontRendererObj, "An error occurred during onRender();", 5, 5, Color.RED.getRGB());
 
-            int startCount = 0;
-
-            if (ex.getMessage() != null) {
-                startCount = 1;
-
-                drawString(this.fontRendererObj, ex.getMessage(), 10, 16, Color.RED.getRGB());
-            }
-
-            for (int i = startCount; i < ex.getStackTrace().length; i++) {
-                StackTraceElement element = ex.getStackTrace()[i];
-
-                drawString(this.fontRendererObj, element.toString(), 10, 16 + (i * 12), Color.RED.getRGB());
-            }
-
-            return;
+            drawError(ex);
         }
 
         try {
@@ -164,19 +137,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         } catch (Exception ex) {
             drawString(this.fontRendererObj, "An error occurred during postRender();", 5, 5, Color.RED.getRGB());
 
-            int startCount = 0;
-
-            if (ex.getMessage() != null) {
-                startCount = 1;
-
-                drawString(this.fontRendererObj, ex.getMessage(), 10, 16, Color.RED.getRGB());
-            }
-
-            for (int i = startCount; i < ex.getStackTrace().length; i++) {
-                StackTraceElement element = ex.getStackTrace()[i];
-
-                drawString(this.fontRendererObj, element.toString(), 10, 16 + (i * 12), Color.RED.getRGB());
-            }
+            drawError(ex);
         }
     }
 
@@ -252,8 +213,6 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
         this.textList.clear();
         this.modernList.clear();
-        //noinspection deprecation
-        this.buttonList.clear();
 
         initGui();
     }
@@ -465,5 +424,23 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
 
         drawRect(x, startY + 1, x + 1, endY, color);
+    }
+
+    // =============================================== PRIVATE ================================================= //
+
+    private void drawError(Exception ex) {
+        int startCount = 0;
+
+        if (ex.getMessage() != null) {
+            startCount = 1;
+
+            drawString(this.fontRendererObj, ex.getMessage(), 10, 16, Color.RED.getRGB());
+        }
+
+        for (int i = startCount; i < ex.getStackTrace().length; i++) {
+            StackTraceElement element = ex.getStackTrace()[i];
+
+            drawString(this.fontRendererObj, element.toString(), 10, 16 + (i * 12), Color.RED.getRGB());
+        }
     }
 }

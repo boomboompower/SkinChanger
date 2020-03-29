@@ -44,15 +44,15 @@ public class ModernButton extends Gui implements InteractiveDrawable {
     protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
 
     @Getter
-    private int id;
+    private final int id;
 
     @Setter
     @Getter
     private int width;
 
     private int height;
-    private int xPosition;
-    private int yPosition;
+    private final int xPosition;
+    private final int yPosition;
 
     @Getter
     private boolean enabled;
@@ -68,8 +68,6 @@ public class ModernButton extends Gui implements InteractiveDrawable {
     @Getter
     private boolean hovered;
 
-    @Getter
-    private String buttonId;
     private String displayString;
 
     private Color enabledColor = null;
@@ -88,18 +86,14 @@ public class ModernButton extends Gui implements InteractiveDrawable {
     private boolean translatable;
 
     public ModernButton(int buttonId, int x, int y, String buttonText) {
-        this(buttonId, "", x, y, 200, 20, buttonText);
+        this(buttonId, x, y, 200, 20, buttonText);
     }
 
     public ModernButton(int buttonId, String idName, int x, int y, String buttonText) {
-        this(buttonId, idName, x, y, 200, 20, buttonText);
+        this(buttonId, x, y, 200, 20, buttonText);
     }
 
     public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
-        this(buttonId, "", x, y, widthIn, heightIn, buttonText);
-    }
-
-    public ModernButton(int buttonId, String idName, int x, int y, int widthIn, int heightIn, String buttonText) {
         this.width = 200;
         this.height = 20;
         this.enabled = true;
@@ -109,7 +103,6 @@ public class ModernButton extends Gui implements InteractiveDrawable {
         this.yPosition = y;
         this.width = widthIn;
         this.height = heightIn;
-        this.buttonId = idName;
         this.displayString = buttonText;
     }
 
@@ -136,7 +129,7 @@ public class ModernButton extends Gui implements InteractiveDrawable {
             this.hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
             int i = this.getHoverState(this.hovered);
 
-            int j = 14737632;
+            int textColor = 14737632;
 
             if (this.enabled) {
                 drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getEnabledColor().getRGB());
@@ -144,17 +137,7 @@ public class ModernButton extends Gui implements InteractiveDrawable {
                 drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getDisabledColor().getRGB());
             }
 
-            if (!this.enabled) {
-                j = 10526880;
-            } else if (this.hovered) {
-                j = 16777120;
-            }
-
-            if (this.enabled && this.favourite) {
-                fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
-            }
-
-            fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, false);
+            renderButtonString(fontrenderer, xPosition, yPosition, textColor);
         }
     }
 
@@ -182,17 +165,7 @@ public class ModernButton extends Gui implements InteractiveDrawable {
                 drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
             }
 
-            if (!this.enabled) {
-                j = 10526880;
-            } else if (this.hovered) {
-                j = 16777120;
-            }
-
-            if (this.enabled && this.favourite) {
-                fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
-            }
-
-            fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + (this.height - 8) / 2, j, false);
+            renderButtonString(fontrenderer, xPosition, yPosition, j);
         }
     }
 
@@ -296,5 +269,27 @@ public class ModernButton extends Gui implements InteractiveDrawable {
         this.buttonData = buttonData;
 
         return this;
+    }
+
+    /**
+     * Renders the string of the button
+     *
+     * @param fontrenderer the FontRenderer object
+     * @param xPosition the x position of the button
+     * @param yPosition the y position of the button
+     * @param textColor the color of the text
+     */
+    private void renderButtonString(FontRenderer fontrenderer, int xPosition, int yPosition, int textColor) {
+        if (!this.enabled) {
+            textColor = 10526880;
+        } else if (this.hovered) {
+            textColor = 16777120;
+        }
+
+        if (this.enabled && this.favourite) {
+            fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
+        }
+
+        fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + ((float) this.height - 8) / 2, textColor, false);
     }
 }

@@ -45,9 +45,9 @@ public class LocalFileData extends SimpleTexture {
     private boolean textureUploaded;
 
     // The buffer for this texture
-    private IImageBuffer imageBuffer;
+    private final IImageBuffer imageBuffer;
     // The location of this texture
-    private File fileLocation;
+    private final File fileLocation;
 
     /**
      * Loads a texture from a local file to a ResourceLocation

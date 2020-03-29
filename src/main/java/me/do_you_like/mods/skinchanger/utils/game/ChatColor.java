@@ -140,7 +140,7 @@ public enum ChatColor {
             }
         }
 
-        // Rebuids the string from the chars
+        // Rebuilds the string from the chars
         return new String(chars);
     }
 

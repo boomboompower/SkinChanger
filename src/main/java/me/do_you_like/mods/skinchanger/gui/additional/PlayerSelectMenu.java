@@ -45,8 +45,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     private final CacheRetriever cacheRetriever;
     private final ThreadFactory threadFactory;
 
-    private SkinChangerMenu skinChangerMenu;
-    private StringSelectionType selectionType;
+    private final SkinChangerMenu skinChangerMenu;
+    private final StringSelectionType selectionType;
 
     private int errorMessageTimer = 0;
     private String lastErrorMessage = null;
@@ -261,11 +261,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         }
 
         // 30 is a magic number
-        if (in < 30) {
-            return 30;
-        }
-
-        return in;
+        return Math.max(in, 30);
     }
 
     /**
@@ -282,7 +278,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         C_UUID("Enter the UUID of the player. (ABCD-EFGH-...)");
 
         @Getter
-        private String displaySentence;
+        private final String displaySentence;
 
         // If a UUID has been generated we should store
         // it so we don't have to parse it twice

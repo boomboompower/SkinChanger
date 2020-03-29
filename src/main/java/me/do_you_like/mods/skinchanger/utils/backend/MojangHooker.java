@@ -412,7 +412,7 @@ public class MojangHooker {
             connection.setConnectTimeout(15000);
             connection.setDoOutput(true);
             
-            response = IOUtils.toString(connection.getInputStream(), "UTF-8");
+            response = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
             JsonObject object = new JsonObject();
@@ -482,7 +482,7 @@ public class MojangHooker {
         try {
             uri = new URI(url);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Invalid URL \'" + url + "\'");
+            throw new IllegalArgumentException("Invalid URL '" + url + "'");
         }
 
         String host = uri.getHost();

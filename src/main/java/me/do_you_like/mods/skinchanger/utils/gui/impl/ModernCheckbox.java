@@ -28,15 +28,16 @@ import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 public class ModernCheckbox implements InteractiveDrawable {
 
     @Getter
-    private int x;
+    private final int x;
 
     @Getter
-    private int y;
+    private final int y;
 
     @Getter
-    private int width;
+    private final int width;
 
-    @Getter int height;
+    @Getter
+    private final int height;
 
     @Getter
     @Setter
@@ -67,20 +68,7 @@ public class ModernCheckbox implements InteractiveDrawable {
         float x = this.x;
         float y = this.y;
 
-        float finalX = x + this.width;
-        float finalY = y + this.height;
-
-        Color color = Color.WHITE;
-
-        if (!this.enabled) {
-            color = color.darker();
-        }
-
-        ModernGui.drawRectangleOutlineF(x - 1, y - 1, finalX, finalY, color.getRGB());
-
-        if (this.checked) {
-            ModernGui.drawRect((int) x + 1, (int) y + 1, (int) finalX - 1, (int) finalY - 1, color.getRGB());
-        }
+        renderCheckbox(x, y);
     }
 
     @Override
@@ -88,20 +76,7 @@ public class ModernCheckbox implements InteractiveDrawable {
         float x = xPos + this.x;
         float y = recommendedYOffset + 1;
 
-        float finalX = x + this.width;
-        float finalY = y + this.height;
-
-        Color color = Color.WHITE;
-
-        if (!this.enabled) {
-            color = color.darker();
-        }
-
-        ModernGui.drawRectangleOutlineF(x - 1, y - 1, finalX, finalY, color.getRGB());
-
-        if (this.checked) {
-            ModernGui.drawRect((int) x + 1, (int) y + 1, (int) finalX - 1, (int) finalY - 1, color.getRGB());
-        }
+        renderCheckbox(x, y);
     }
 
 
@@ -135,11 +110,34 @@ public class ModernCheckbox implements InteractiveDrawable {
         return mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
     }
 
+    /**
+     * Actually draws the Checkbox
+     *
+     * @param x starting x position of the Checkbox
+     * @param y starting y position of the Checkbox
+     */
+    private void renderCheckbox(float x, float y) {
+        float finalX = x + this.width;
+        float finalY = y + this.height;
+
+        Color color = Color.WHITE;
+
+        if (!this.enabled) {
+            color = color.darker();
+        }
+
+        ModernGui.drawRectangleOutlineF(x - 1, y - 1, finalX, finalY, color.getRGB());
+
+        if (this.checked) {
+            ModernGui.drawRect((int) x + 1, (int) y + 1, (int) finalX - 1, (int) finalY - 1, color.getRGB());
+        }
+    }
+
     private float min(float first, float second) {
-        return first <= second ? first : second;
+        return Math.min(first, second);
     }
 
     private float max(float first, float second) {
-        return first >= second ? first : second;
+        return Math.max(first, second);
     }
 }

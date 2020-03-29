@@ -34,12 +34,19 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+/**
+ * The Official SkinChanger mod
+ *
+ * @author boombompower
+ * @version 3.0.0
+ */
 @Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "*", clientSideOnly = true)
 public class SkinChangerMod {
 
     public static final String MOD_ID = "skinchanger";
     public static final String VERSION = "3.0.0";
 
+    // Forge will instantiate this
     @Mod.Instance
     private static SkinChangerMod instance;
 
@@ -85,6 +92,11 @@ public class SkinChangerMod {
         this.mojangHooker = new MojangHooker();
     }
 
+    /**
+     * Getter for the SkinChanger mod instance
+     *
+     * @return the SkinChanger mod instance.
+     */
     public static SkinChangerMod getInstance() {
         return instance;
     }

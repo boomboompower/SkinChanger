@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import me.do_you_like.mods.skinchanger.utils.game.ChatColor;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -31,7 +30,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ChatComponentText;
 
 /**
- * Locks the UI methods. Declutters the subclasses method list.
+ * Locks the UI methods. Unclutters the subclasses method list.
  */
 public class UILock extends GuiScreen {
 

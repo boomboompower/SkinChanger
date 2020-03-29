@@ -32,7 +32,7 @@ public enum OSType {
     LINUX("~/.minecraft"),
     UNKNOWN("?");
 
-    private String normalDirectory;
+    private final String normalDirectory;
 
     OSType(String directory) {
         this.normalDirectory = directory;
