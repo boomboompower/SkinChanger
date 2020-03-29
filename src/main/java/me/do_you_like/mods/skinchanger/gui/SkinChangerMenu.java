@@ -185,7 +185,7 @@ public class SkinChangerMenu extends ModernGui {
 
     @Override
     public void onGuiClose() {
-        //this.mc.entityRenderer.stopUseShader();
+        this.mc.entityRenderer.stopUseShader();
     }
 
     @Override
