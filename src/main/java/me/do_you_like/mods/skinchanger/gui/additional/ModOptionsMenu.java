@@ -17,7 +17,6 @@
 
 package me.do_you_like.mods.skinchanger.gui.additional;
 
-import lombok.experimental.var;
 import me.do_you_like.mods.skinchanger.gui.SkinChangerMenu;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernButton;
 import me.do_you_like.mods.skinchanger.utils.gui.impl.ModernCheckbox;
@@ -36,10 +35,10 @@ public class ModOptionsMenu extends SkinChangerMenu {
         // Call first
         setAsSubMenu(this.skinChangerMenu);
 
-        var bored = new ModernHeader(this, 5, 5, "Hello World", 1, false);
+        ModernHeader bored = new ModernHeader(this, 5, 5, "Hello World", 1, false);
 
-        var firstMeme = new ModernCheckbox(5, 10, 50, 50, true, "Hello world!");
-        var secondMeme = new ModernCheckbox(5, 10, 50, 50, true, "Hello world!");
+        ModernCheckbox firstMeme = new ModernCheckbox(5, 10, 50, 50, true, "Hello world!");
+        ModernCheckbox secondMeme = new ModernCheckbox(5, 10, 50, 50, true, "Hello world!");
 
         bored.addChild(firstMeme);
         bored.addChild(secondMeme);
