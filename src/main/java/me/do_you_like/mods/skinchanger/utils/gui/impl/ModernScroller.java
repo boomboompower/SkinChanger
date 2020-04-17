@@ -24,14 +24,15 @@ import java.util.List;
 
 import lombok.Getter;
 
+import me.do_you_like.mods.skinchanger.options.SimpleCallback;
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
-import me.do_you_like.mods.skinchanger.options.SimpleCallback;
+import me.do_you_like.mods.skinchanger.utils.gui.StartEndUIElement;
 
 /**
  * A class which handles scrolling.
  */
-public class ModernScroller implements InteractiveUIElement {
+public class ModernScroller implements InteractiveUIElement, StartEndUIElement {
 
     @Getter
     private final int x;

@@ -46,13 +46,12 @@ import net.minecraft.util.ResourceLocation;
 public class SkinChangerMenu extends ModernGui {
 
     private final SelectionOptions selectionOptions = new SelectionOptions();
+
+    protected static float rotation = 0;
+
     private ModOptionsMenu optionsMenu;
 
-    private PlayerSelectMenu p_playerSelectMenu;
-    private PlayerSelectMenu p_urlSelectMenu;
-
-    private PlayerSelectMenu c_playerSelectMenu;
-    private PlayerSelectMenu c_urlSelectMenu;
+    private PlayerSelectMenu selectionMenu;
 
     // Store the basic values.
     private final ResourceLocation originalSkin = Minecraft.getMinecraft().thePlayer.getLocationSkin();
@@ -64,8 +63,6 @@ public class SkinChangerMenu extends ModernGui {
     private ModernButton m_applyButton;
 
     private SkinChangerMenu instance;
-
-    protected float rotation = 0;
 
     private FakePlayerRender fakePlayer;
 
@@ -122,12 +119,10 @@ public class SkinChangerMenu extends ModernGui {
         float sliderXPos = ((leftPosBox + rightPosBox) / 2) - sliderWidth / 2;
         float sliderYPos = bottomPosBox - sliderHeight;
 
-        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, "Rotation: ", "\u00B0", 0.0F, 360.0F, this.rotation) {
+        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, "Rotation: ", "\u00B0", 0.0F, 360.0F, rotation) {
             @Override
             public void onSliderUpdate() {
-                SkinChangerMenu.this.rotation = (float) getValue();
-
-                setRotation((float) getValue());
+                rotation = (float) getValue();
             }
         };
 
@@ -194,7 +189,7 @@ public class SkinChangerMenu extends ModernGui {
 
         int scale = (int) ((1.5 * this.width) / 10);
 
-        this.fakePlayer.renderFakePlayer(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, this.rotation);
+        this.fakePlayer.renderFakePlayer(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, rotation);
 
         GlStateManager.popMatrix();
     }
@@ -309,26 +304,31 @@ public class SkinChangerMenu extends ModernGui {
         switch (button.getId()) {
             // Skin from a username
             case 12:
-                if (this.p_playerSelectMenu == null) {
-                    this.p_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.P_USERNAME);
+                if (this.selectionMenu == null) {
+                    this.selectionMenu = new PlayerSelectMenu(this, StringSelectionType.P_USERNAME);
                 }
 
-                this.p_playerSelectMenu.display();
+                this.selectionMenu.displayExtra(this, StringSelectionType.P_USERNAME);
 
                 break;
 
             // Skin from a UUID
             case 13:
+                if (this.selectionMenu == null) {
+                    this.selectionMenu = new PlayerSelectMenu(this, StringSelectionType.P_UUID);
+                }
+
+                this.selectionMenu.displayExtra(this, StringSelectionType.P_UUID);
 
                 break;
 
             // Skin from a URL
             case 14:
-                if (this.p_playerSelectMenu == null) {
-                    this.p_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.P_URL);
+                if (this.selectionMenu == null) {
+                    this.selectionMenu = new PlayerSelectMenu(this, StringSelectionType.P_URL);
                 }
 
-                this.p_playerSelectMenu.display();
+                this.selectionMenu.displayExtra(this, StringSelectionType.P_URL);
 
                 break;
 
@@ -346,27 +346,31 @@ public class SkinChangerMenu extends ModernGui {
 
             // Cape from a player name
             case 17:
-                if (this.c_playerSelectMenu == null) {
-                    this.c_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.C_USERNAME);
+                if (this.selectionMenu == null) {
+                    this.selectionMenu = new PlayerSelectMenu(this, StringSelectionType.C_USERNAME);
                 }
 
-                this.c_playerSelectMenu.display();
+                this.selectionMenu.displayExtra(this, StringSelectionType.C_USERNAME);
 
                 break;
 
             // Cape from a UUID
             case 18:
+                if (this.selectionMenu == null) {
+                    this.selectionMenu = new PlayerSelectMenu(this, StringSelectionType.C_UUID);
+                }
 
+                this.selectionMenu.displayExtra(this, StringSelectionType.C_UUID);
 
                 break;
 
             // Cape from a URL
             case 19:
-                if (this.c_playerSelectMenu == null) {
-                    this.c_playerSelectMenu = new PlayerSelectMenu(this, StringSelectionType.C_URL);
+                if (this.selectionMenu == null) {
+                    this.selectionMenu = new PlayerSelectMenu(this, StringSelectionType.C_URL);
                 }
 
-                this.c_playerSelectMenu.display();
+                this.selectionMenu.displayExtra(this, StringSelectionType.C_URL);
 
                 break;
 
@@ -405,24 +409,6 @@ public class SkinChangerMenu extends ModernGui {
             this.m_optionsButton.setText("\u2190");
         }
 
-        if (this.p_playerSelectMenu != null) {
-            this.p_playerSelectMenu.rotation = menu.rotation;
-        }
-
-        if (this.p_urlSelectMenu != null) {
-            this.p_urlSelectMenu.rotation = menu.rotation;
-        }
-
-        if (this.c_playerSelectMenu != null) {
-            this.c_playerSelectMenu.rotation = menu.rotation;
-        }
-
-        if (this.c_urlSelectMenu != null) {
-            this.c_urlSelectMenu.rotation = menu.rotation;
-        }
-
-        this.rotation = menu.rotation;
-
         this.instance = menu;
     }
 
@@ -437,23 +423,14 @@ public class SkinChangerMenu extends ModernGui {
             // Try parse it as a URL
             URL url = new URL(incomingInput);
 
-            return this.p_urlSelectMenu.handleIncomingInput(incomingInput);
+            return this.selectionMenu.handleIncomingInput(incomingInput, StringSelectionType.P_URL);
         } catch (MalformedURLException ignored) { }
 
         // Try parse it as a player name
         if (incomingInput.length() < 2 || incomingInput.length() > 16) {
             return false;
         } else {
-            return this.p_playerSelectMenu.handleIncomingInput(incomingInput);
+            return this.selectionMenu.handleIncomingInput(incomingInput, StringSelectionType.P_USERNAME);
         }
-    }
-
-    /**
-     * Forces sets the rotation of the FakePlayer to this value
-     *
-     * @param rotation the rotation of the FakePlayer
-     */
-    public void setRotation(float rotation) {
-        this.rotation = rotation;
     }
 }

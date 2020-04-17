@@ -37,8 +37,8 @@ public class ModOptionsMenu extends SkinChangerMenu {
 
         ModernHeader bored = new ModernHeader(this, 5, 5, "Hello World", 1, false);
 
-        ModernCheckbox firstMeme = new ModernCheckbox(5, 10, 50, 50, true, "Hello world!");
-        ModernCheckbox secondMeme = new ModernCheckbox(5, 10, 50, 50, true, "Hello world!");
+        ModernCheckbox firstMeme = new ModernCheckbox(5, 10, 5, 5, true, "Hello world!");
+        ModernCheckbox secondMeme = new ModernCheckbox(5, 10, 5, 5, true, "Hello world!");
 
         bored.addChild(firstMeme);
         bored.addChild(secondMeme);
@@ -47,14 +47,14 @@ public class ModOptionsMenu extends SkinChangerMenu {
     }
 
     @Override
-    protected void onButtonPressedExtra(ModernButton button) {
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        super.drawScreen(mouseX, mouseY, partialTicks);
 
+        
     }
 
     @Override
-    public void setRotation(float rotation) {
-        this.rotation = rotation;
+    protected void onButtonPressedExtra(ModernButton button) {
 
-        this.skinChangerMenu.setRotation(rotation);
     }
 }

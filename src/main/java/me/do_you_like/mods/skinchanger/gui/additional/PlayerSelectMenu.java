@@ -45,8 +45,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     private final CacheRetriever cacheRetriever;
     private final ThreadFactory threadFactory;
 
-    private final SkinChangerMenu skinChangerMenu;
-    private final StringSelectionType selectionType;
+    private SkinChangerMenu skinChangerMenu;
+    private StringSelectionType selectionType;
 
     private int errorMessageTimer = 0;
     private String lastErrorMessage = null;
@@ -237,16 +237,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         }
     }
 
-    @Override
-    public boolean handleIncomingInput(String incomingInput) {
+    public boolean handleIncomingInput(String incomingInput, StringSelectionType selectionType) {
         return false;
-    }
-
-    @Override
-    public void setRotation(float rotation) {
-        this.rotation = rotation;
-
-        this.skinChangerMenu.setRotation(rotation);
     }
 
     /**
@@ -262,6 +254,20 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 
         // 30 is a magic number
         return Math.max(in, 30);
+    }
+
+    /**
+     * Extra things
+     *
+     * @param parentMenu the SkinChanger menu
+     * @param type the type which it should be switched to
+     */
+    public void displayExtra(SkinChangerMenu parentMenu, StringSelectionType type) {
+        this.skinChangerMenu = parentMenu;
+
+        this.selectionType = type;
+
+        display();
     }
 
     /**

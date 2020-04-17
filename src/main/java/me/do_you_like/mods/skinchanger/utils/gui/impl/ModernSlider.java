@@ -24,11 +24,12 @@ import java.awt.*;
 
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.StartEndUIElement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class ModernSlider implements InteractiveUIElement {
+public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
 
     @Getter
     private final int id;

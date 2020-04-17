@@ -32,7 +32,7 @@ public class InstallerCore {
 
     private static final String MOD_NAME = "SkinChanger";
 
-    private static final String BUILT_FOR = "1.8.9"; // TODO Update  this across versions.
+    private static final String BUILT_FOR = "1.8.9"; // TODO Update this across versions.
     private static final String MOD_VERSION = "3.0.0"; // TODO Update this on releases
 
     public static void main(String[] args) {

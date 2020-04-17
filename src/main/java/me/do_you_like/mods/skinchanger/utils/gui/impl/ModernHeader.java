@@ -20,6 +20,7 @@ package me.do_you_like.mods.skinchanger.utils.gui.impl;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import me.do_you_like.mods.skinchanger.utils.general.Prerequisites;
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.StartEndUIElement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -85,6 +87,8 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
     private ScaledResolution scaledResolution;
 
     private int widthOfSub;
+    private int heightOfSub;
+    private int furthestSubX;
 
     /**
      * Basic constructor for UI headers. Scale size is 1.5 of normal text. Draws an underline.
@@ -165,18 +169,11 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         this.headerColor = color;
 
         this.scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
-        this.children = new ArrayList<ModernUIElement>() {
-            @Override
-            public boolean add(ModernUIElement o) {
-                if (o.getWidth() > ModernHeader.this.widthOfSub) {
-                    ModernHeader.this.widthOfSub = o.getWidth();
-                }
+        this.children = new ArrayList<>();
 
-                return super.add(o);
-            }
-        };
-
-        this.widthOfSub = Minecraft.getMinecraft().fontRendererObj.getStringWidth(header);
+        this.widthOfSub = (int) (Minecraft.getMinecraft().fontRendererObj.getStringWidth(header) * this.scaleSize);
+        this.heightOfSub = (int) (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT * this.scaleSize);
+        this.furthestSubX = 2;
     }
 
     @Override
@@ -198,6 +195,18 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         if (fontRenderer == null) {
             return;
         }
+
+        int endingBoxY = this.y + this.heightOfSub + 10;
+
+        if (this.drawUnderline) {
+            endingBoxY += 5;
+        }
+
+        if (this.children.isEmpty()) {
+            endingBoxY -= 8;
+        }
+
+        ModernGui.drawRect(this.x - 2, this.y - 2, this.x + this.widthOfSub + this.furthestSubX, endingBoxY, new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB());
 
         // Push the stack, making our own GL sandbox.
         GlStateManager.pushMatrix();
@@ -247,7 +256,11 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
                     }
                 }
 
-                yOffset += this.offsetBetweenChildren;
+                if (child instanceof StartEndUIElement) {
+                    yOffset += ((StartEndUIElement) child).getHeight() + 4;
+                } else {
+                    yOffset += this.offsetBetweenChildren;
+                }
             }
         }
     }
@@ -284,6 +297,7 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
      *
      * @return the width of the string.
      */
+    @Override
     public int getWidth() {
         if (getFontRenderer() == null) {
             return 0;
@@ -336,23 +350,33 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
     }
 
     public int getHeightOfHeader() {
-        if (this.children.size() == 0) {
-            FontRenderer fontRenderer = getFontRenderer();
-
-            if (fontRenderer == null) {
-                return 0;
-            }
-
-            return (int) (fontRenderer.FONT_HEIGHT * this.scaleSize);
-        }
-
-        return (int) (((12 * this.scaleSize) + this.offsetBetweenChildren / 2) * this.children.size());
+        return this.heightOfSub;
     }
 
-    public void addChild(ModernUIElement drawable) {
-        drawable.setAsPartOfHeader(this);
+    public void addChild(ModernUIElement element) {
+        element.setAsPartOfHeader(this);
 
-        this.children.add(drawable);
+        if (element.renderRelativeToHeader()) {
+            if (element.getX() > this.furthestSubX) {
+                this.furthestSubX = element.getX();
+            }
+
+            if (element.getWidth() + element.getX() > this.widthOfSub) {
+                this.widthOfSub = element.getWidth() + element.getX() + 2;
+            }
+        } else if (element.getWidth() > this.widthOfSub) {
+            this.widthOfSub = element.getWidth() + 2;
+        }
+
+        if (element instanceof StartEndUIElement) {
+            StartEndUIElement startEnd = (StartEndUIElement) element;
+
+            this.heightOfSub += startEnd.getHeight() + 4;
+        } else {
+            this.heightOfSub += Objects.requireNonNull(getFontRenderer()).FONT_HEIGHT;
+        }
+
+        this.children.add(element);
     }
 
     @Override

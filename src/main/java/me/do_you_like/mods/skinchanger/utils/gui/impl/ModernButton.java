@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
+import me.do_you_like.mods.skinchanger.utils.gui.StartEndUIElement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -39,18 +40,19 @@ import java.awt.*;
  * @version 2.0
  * @since 3.0.0
  */
-public class ModernButton extends Gui implements InteractiveUIElement {
+public class ModernButton extends Gui implements InteractiveUIElement, StartEndUIElement {
 
     protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
 
     @Getter
     private final int id;
 
-    @Setter
     @Getter
     private int width;
 
+    @Getter
     private int height;
+
     private final int xPosition;
     private final int yPosition;
 

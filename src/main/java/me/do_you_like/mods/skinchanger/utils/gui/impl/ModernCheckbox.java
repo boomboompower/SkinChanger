@@ -24,10 +24,11 @@ import lombok.Setter;
 
 import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.StartEndUIElement;
 
 import net.minecraft.client.Minecraft;
 
-public class ModernCheckbox implements InteractiveUIElement {
+public class ModernCheckbox implements InteractiveUIElement, StartEndUIElement {
 
     @Getter
     private final int x;
@@ -104,6 +105,7 @@ public class ModernCheckbox implements InteractiveUIElement {
         this.checked = !this.checked;
     }
 
+    @Override
     public boolean isInside(int mouseX, int mouseY, float yTranslation) {
         //if (!this.visible) {
         //    return false;
@@ -117,9 +119,17 @@ public class ModernCheckbox implements InteractiveUIElement {
             xPosition += this.parentHeader.getX();
         }
 
+        System.out.println(this.text);
+        System.out.println(isLabelEnabled());
+
         if (isLabelEnabled()) {
             xPosition += getLabelOffset();
         }
+
+        System.out.println();
+        System.out.println();
+
+        ModernGui.drawRect(xPosition, yPosition, xPosition + width, yPosition + height, Color.RED.getRGB());
 
         yPosition += yTranslation;
 

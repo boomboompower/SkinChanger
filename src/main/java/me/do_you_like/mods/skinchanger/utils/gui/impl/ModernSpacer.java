@@ -24,6 +24,7 @@ import lombok.Setter;
 
 import me.do_you_like.mods.skinchanger.utils.gui.ModernUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
+import me.do_you_like.mods.skinchanger.utils.gui.StartEndUIElement;
 
 import org.lwjgl.input.Keyboard;
 
@@ -32,7 +33,7 @@ import org.lwjgl.input.Keyboard;
  *
  * @since 3.0.0
  */
-public class ModernSpacer implements ModernUIElement {
+public class ModernSpacer implements ModernUIElement, StartEndUIElement {
 
     @Getter
     @Setter
@@ -51,6 +52,11 @@ public class ModernSpacer implements ModernUIElement {
 
     @Override
     public int getWidth() {
+        return 5;
+    }
+
+    @Override
+    public int getHeight() {
         return 5;
     }
 
