@@ -25,8 +25,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import me.do_you_like.mods.skinchanger.utils.general.Prerequisites;
-import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
-import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 
 import net.minecraft.client.Minecraft;
@@ -41,7 +41,7 @@ import net.minecraft.client.renderer.GlStateManager;
  * @version 1.1
  * @author boomboompower
  */
-public class ModernHeader extends Gui implements InteractiveDrawable {
+public class ModernHeader extends Gui implements InteractiveUIElement {
 
     @Getter
     @Setter
@@ -74,12 +74,11 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     @Setter
     private Color headerColor;
 
-    @Getter
-    private final List<ModernDrawable> subDrawables;
+    private final List<ModernUIElement> children;
 
     @Getter
     @Setter
-    private float offsetBetweenDrawables = 12;
+    private float offsetBetweenChildren = 12;
 
     private final ModernGui modernGui;
 
@@ -166,9 +165,9 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
         this.headerColor = color;
 
         this.scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
-        this.subDrawables = new ArrayList<ModernDrawable>() {
+        this.children = new ArrayList<ModernUIElement>() {
             @Override
-            public boolean add(ModernDrawable o) {
+            public boolean add(ModernUIElement o) {
                 if (o.getWidth() > ModernHeader.this.widthOfSub) {
                     ModernHeader.this.widthOfSub = o.getWidth();
                 }
@@ -230,25 +229,25 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
         // Pop the changes to the gl stack.
         GlStateManager.popMatrix();
 
-        if (this.subDrawables.size() > 0) {
-            float yOffset = (12 * this.scaleSize) + this.offsetBetweenDrawables / 2;
+        if (this.children.size() > 0) {
+            float yOffset = (12 * this.scaleSize) + this.offsetBetweenChildren / 2;
 
-            for (ModernDrawable drawable : this.subDrawables) {
-                if (drawable.isEnabled()) {
+            for (ModernUIElement child : this.children) {
+                if (child.isEnabled()) {
 
                     // Renders relative to this headers position.
-                    if (drawable.renderRelativeToHeader()) {
+                    if (child.renderRelativeToHeader()) {
                         GlStateManager.pushMatrix();
 
-                        drawable.renderFromHeader((int) xPos, (int) yPos, yTranslation, mouseX, mouseY, (int) yOffset);
+                        child.renderFromHeader((int) xPos, (int) yPos, yTranslation, mouseX, mouseY, (int) yOffset);
 
                         GlStateManager.popMatrix();
                     } else {
-                        drawable.render(mouseX, mouseY, yTranslation);
+                        child.render(mouseX, mouseY, yTranslation);
                     }
                 }
 
-                yOffset += this.offsetBetweenDrawables;
+                yOffset += this.offsetBetweenChildren;
             }
         }
     }
@@ -266,8 +265,18 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     }
 
     @Override
-    public InteractiveDrawable setAsPartOfHeader(ModernHeader parent) {
-        return this;
+    public void setAsPartOfHeader(ModernHeader parent) {
+        throw new IllegalStateException("A header cannot be placed in a header");
+    }
+
+    @Override
+    public void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
+        throw new IllegalStateException("A header cannot be placed in a header");
+    }
+
+    @Override
+    public boolean renderRelativeToHeader() {
+        return false;
     }
 
     /**
@@ -327,7 +336,7 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
     }
 
     public int getHeightOfHeader() {
-        if (this.subDrawables.size() == 0) {
+        if (this.children.size() == 0) {
             FontRenderer fontRenderer = getFontRenderer();
 
             if (fontRenderer == null) {
@@ -337,18 +346,24 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
             return (int) (fontRenderer.FONT_HEIGHT * this.scaleSize);
         }
 
-        return (int) (((12 * this.scaleSize) + this.offsetBetweenDrawables / 2) * this.subDrawables.size());
+        return (int) (((12 * this.scaleSize) + this.offsetBetweenChildren / 2) * this.children.size());
+    }
+
+    public void addChild(ModernUIElement drawable) {
+        drawable.setAsPartOfHeader(this);
+
+        this.children.add(drawable);
     }
 
     @Override
     public void onLeftClick(int mouseX, int mouseY, float yTranslation) {
-        if (this.subDrawables.size() > 0) {
-            for (ModernDrawable sub : this.subDrawables) {
+        if (this.children.size() > 0) {
+            for (ModernUIElement child : this.children) {
                 // Special case :V
-                if (sub instanceof ModernButton) {
-                    ModernButton button = (ModernButton) sub;
+                if (child instanceof ModernButton) {
+                    ModernButton button = (ModernButton) child;
 
-                    if (!sub.isEnabled()) {
+                    if (!child.isEnabled()) {
                         continue;
                     }
 
@@ -359,8 +374,8 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
                             this.modernGui.buttonPressed(button);
                         }
                     }
-                } else if (sub instanceof InteractiveDrawable) {
-                    InteractiveDrawable interactive = (InteractiveDrawable) sub;
+                } else if (child instanceof InteractiveUIElement) {
+                    InteractiveUIElement interactive = (InteractiveUIElement) child;
 
                     if (interactive.isInside(mouseX, mouseY, yTranslation)) {
                         interactive.onLeftClick(mouseX, mouseY, yTranslation);
@@ -379,7 +394,7 @@ public class ModernHeader extends Gui implements InteractiveDrawable {
      * Skinny   1.24 (larger skinny text)
      * Skinny   1.05 (normal skinny text)
      * Normal   1.0
-     * Fat      0.94 (only k's are slightly distored, seems fat).
+     * Fat      0.94 (only k's are slightly distorted, seems fat).
      * Skinny   0.75 (a bit distorted, but skinny)
      * Half     0.5 (lowest scale where text is not distorted)
      */

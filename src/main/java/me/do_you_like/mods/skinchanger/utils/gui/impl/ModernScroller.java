@@ -24,15 +24,14 @@ import java.util.List;
 
 import lombok.Getter;
 
-import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
-import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 import me.do_you_like.mods.skinchanger.options.SimpleCallback;
 
 /**
  * A class which handles scrolling.
  */
-public class ModernScroller implements InteractiveDrawable {
+public class ModernScroller implements InteractiveUIElement {
 
     @Getter
     private final int x;
@@ -126,7 +125,7 @@ public class ModernScroller implements InteractiveDrawable {
     }
 
     @Override
-    public ModernDrawable setAsPartOfHeader(ModernHeader parent) {
+    public void setAsPartOfHeader(ModernHeader parent) {
         throw new UnsupportedOperationException("ModernScrollbar's cannot be added to a header.");
     }
 

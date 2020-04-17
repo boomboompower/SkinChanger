@@ -258,13 +258,13 @@ public class SkinChangerMenu extends ModernGui {
 
         ModernHeader skinSettings = new ModernHeader(this, 15, 30, "Skin Settings", 1.24F, true, Color.WHITE);
 
-        skinSettings.setOffsetBetweenDrawables(24F);
+        skinSettings.setOffsetBetweenChildren(24F);
 
-        skinSettings.getSubDrawables().add(new ModernButton(12, 5, 20, buttonWidth, 20, "Load from Player").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(13, 5, 20, buttonWidth, 20, "Load from UUID").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(14, 5, 20, buttonWidth, 20, "Load from URL").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(15, 5, 20, buttonWidth, 20, "Load from File").setAsPartOfHeader(skinSettings));
-        skinSettings.getSubDrawables().add(new ModernButton(16, 5, 20, buttonWidth, 20, "Reset Skin").setAsPartOfHeader(skinSettings));
+        skinSettings.addChild(new ModernButton(12, 5, 20, buttonWidth, 20, "Load from Player"));
+        skinSettings.addChild(new ModernButton(13, 5, 20, buttonWidth, 20, "Load from UUID"));
+        skinSettings.addChild(new ModernButton(14, 5, 20, buttonWidth, 20, "Load from URL"));
+        skinSettings.addChild(new ModernButton(15, 5, 20, buttonWidth, 20, "Load from File"));
+        skinSettings.addChild(new ModernButton(16, 5, 20, buttonWidth, 20, "Reset Skin"));
 
         // ----------------------------------
 
@@ -276,13 +276,13 @@ public class SkinChangerMenu extends ModernGui {
 
         ModernHeader capeSettings = new ModernHeader(this, 15, capeSettingY, "Cape Settings", 1.24F, true, Color.WHITE);
 
-        capeSettings.setOffsetBetweenDrawables(24F);
+        capeSettings.setOffsetBetweenChildren(24F);
 
-        capeSettings.getSubDrawables().add(new ModernButton(17, 5, 20, buttonWidth, 20, "Load from Player").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(18, 5, 20, buttonWidth, 20, "Load from UUID").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(19, 5, 20, buttonWidth, 20, "Load from URL").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(20, 5, 20, buttonWidth, 20, "Load from File").setAsPartOfHeader(capeSettings));
-        capeSettings.getSubDrawables().add(new ModernButton(21, 5, 20, buttonWidth, 20, "Reset Cape").setAsPartOfHeader(capeSettings));
+        capeSettings.addChild(new ModernButton(17, 5, 20, buttonWidth, 20, "Load from Player"));
+        capeSettings.addChild(new ModernButton(18, 5, 20, buttonWidth, 20, "Load from UUID"));
+        capeSettings.addChild(new ModernButton(19, 5, 20, buttonWidth, 20, "Load from URL"));
+        capeSettings.addChild(new ModernButton(20, 5, 20, buttonWidth, 20, "Load from File"));
+        capeSettings.addChild(new ModernButton(21, 5, 20, buttonWidth, 20, "Reset Cape"));
 
         // ----------------------------------
 
@@ -387,6 +387,8 @@ public class SkinChangerMenu extends ModernGui {
     /**
      * Should be called by a Subclass so that buttons are configured correctly.
      * Also makes the FakePlayer maintain its rotation across menus.
+     * <p>
+     * This should always be called first if it's going to be used.
      *
      * @param menu the REAL SkinChangerMenu instance (Main UI instance)
      */

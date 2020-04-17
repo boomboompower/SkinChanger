@@ -18,16 +18,16 @@
 package me.do_you_like.mods.skinchanger.utils.gui;
 
 /**
- * An type of Drawable which can be interacted with in a GUI. (Such as buttons, sliders etc)
+ * An type of ModernUIElement which can be interacted with in a GUI. (Such as buttons, sliders etc)
  *
  * @author boomboompower
  * @since 3.0.0
  * @version 1.0
  */
-public interface InteractiveDrawable extends ModernDrawable {
+public interface InteractiveUIElement extends ModernUIElement {
 
     /**
-     * Called when this Drawable is left clicked by the user
+     * Called when this element is left clicked by the user
      *
      * @param mouseX the x position of the mouse
      * @param mouseY the y position of the mouse
@@ -36,7 +36,7 @@ public interface InteractiveDrawable extends ModernDrawable {
     public void onLeftClick(int mouseX, int mouseY, float yTranslation);
 
     /**
-     * Called when this Drawable is right clicked by the user
+     * Called when this element is right clicked by the user
      *
      * @param mouseX the x position of the mouse
      * @param mouseY the y position of the mouse
@@ -46,7 +46,7 @@ public interface InteractiveDrawable extends ModernDrawable {
     }
 
     /**
-     * Called when this Drawable is middle clicked by the user
+     * Called when this element is middle clicked by the user
      *
      * @param mouseX the x position of the mouse
      * @param mouseY the y position of the mouse
@@ -56,7 +56,7 @@ public interface InteractiveDrawable extends ModernDrawable {
     }
 
     /**
-     * Called when the mouse is released off this drawable
+     * Called when the mouse is released off this element
      *
      * @param mouseX the x position of the mouse
      * @param mouseY the y position of the mouse
@@ -66,13 +66,13 @@ public interface InteractiveDrawable extends ModernDrawable {
     }
 
     /**
-     * Queries the drawable to determine if the mouse is inside of the drawable (only useful for
-     * {@link InteractiveDrawable}
+     * Queries the element to determine if the mouse is inside of the element (only useful for
+     * {@link InteractiveUIElement}
      *
      * @param mouseX the raw x location of the mouse
      * @param mouseY the raw y location of the mouse
      * @param yTranslation the translation in the y axis
-     * @return true if the mouse is inside this drawable (such as inside a button).
+     * @return true if the mouse is inside this element (such as inside a button).
      */
     public boolean isInside(int mouseX, int mouseY, float yTranslation);
 }

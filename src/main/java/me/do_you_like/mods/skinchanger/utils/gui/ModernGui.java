@@ -53,7 +53,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     protected final SkinChangerMod mod = SkinChangerMod.getInstance();
 
     private final List<ModernTextBox> textList = Lists.newArrayList();
-    private final List<ModernDrawable> modernList = Lists.newLinkedList();
+    private final List<ModernUIElement> modernList = Lists.newLinkedList();
 
     /**
      * Do not use this. Use {@link #modernList} instead since it contains support for all Modern Types.
@@ -63,7 +63,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     @Deprecated
     private final List<ModernButton> buttonList = Collections.emptyList();
 
-    private final List<InteractiveDrawable> selectedDrawables = Lists.newArrayList();
+    private final List<InteractiveUIElement> selectedElements = Lists.newArrayList();
 
     protected float yTranslation = 0;
 
@@ -105,16 +105,16 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
 
         try {
-            for (ModernDrawable drawable : this.modernList) {
+            for (ModernUIElement elements : this.modernList) {
                 GlStateManager.pushMatrix();
 
-                if (drawable.isTranslatable()) {
+                if (elements.isTranslatable()) {
                     GlStateManager.translate(0, this.yTranslation, 0);
                 }
 
-                drawable.render(mouseX, mouseY, this.yTranslation);
+                elements.render(mouseX, mouseY, this.yTranslation);
 
-                if (drawable.isTranslatable()) {
+                if (elements.isTranslatable()) {
                     GlStateManager.translate(0, -this.yTranslation, 0);
                 }
 
@@ -156,16 +156,16 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        for (ModernDrawable draw : this.modernList) {
-            if (draw instanceof InteractiveDrawable) {
-                InteractiveDrawable drawable = (InteractiveDrawable) draw;
+        for (ModernUIElement draw : this.modernList) {
+            if (draw instanceof InteractiveUIElement) {
+                InteractiveUIElement element = (InteractiveUIElement) draw;
 
-                if (!drawable.isEnabled()) {
+                if (!element.isEnabled()) {
                     continue;
                 }
 
                 // Patch for buttons :)
-                if (!(draw instanceof ModernButton) && !drawable.isInside(mouseX, mouseY, this.yTranslation)) {
+                if (!(draw instanceof ModernButton) && !element.isInside(mouseX, mouseY, this.yTranslation)) {
                     continue;
                 } else if (draw instanceof ModernButton && !((ModernButton) draw).isHovered()) {
                     continue;
@@ -173,19 +173,19 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
                 switch (mouseButton) {
                     case 0:
-                        drawable.onLeftClick(mouseX, mouseY, this.yTranslation);
+                        element.onLeftClick(mouseX, mouseY, this.yTranslation);
 
-                        this.selectedDrawables.add(drawable);
+                        this.selectedElements.add(element);
 
-                        if (drawable instanceof ModernButton) {
-                            buttonPressed((ModernButton) drawable);
+                        if (element instanceof ModernButton) {
+                            buttonPressed((ModernButton) element);
                         }
                         break;
                     case 1:
-                        drawable.onRightClick(mouseX, mouseY, this.yTranslation);
+                        element.onRightClick(mouseX, mouseY, this.yTranslation);
                         break;
                     case 2:
-                        drawable.onMiddleClick(mouseX, mouseY, this.yTranslation);
+                        element.onMiddleClick(mouseX, mouseY, this.yTranslation);
                         break;
                     default:
                         System.err.println("Unimplemented click (ID: " + mouseButton + "). Are you running the environment correctly?");
@@ -230,8 +230,8 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             return;
         }
 
-        this.selectedDrawables.forEach((d) -> d.onMouseReleased(mouseX, mouseY, this.yTranslation));
-        this.selectedDrawables.clear();
+        this.selectedElements.forEach((d) -> d.onMouseReleased(mouseX, mouseY, this.yTranslation));
+        this.selectedElements.clear();
     }
 
     @Override
@@ -248,19 +248,19 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     /**
      * Registers an element into the element loader.
      *
-     * @param drawable the drawable to register. Can be a {@link ModernDrawable} or {@link ModernTextBox}
+     * @param element the element to register. Can be a {@link ModernUIElement} or {@link ModernTextBox}
      */
-    public final void registerElement(Object drawable) {
-        if (drawable == null) {
+    public final void registerElement(Object element) {
+        if (element == null) {
             return;
         }
 
-        if (drawable instanceof ModernDrawable) {
-            this.modernList.add((ModernDrawable) drawable);
-        } else if (drawable instanceof ModernTextBox) {
-            this.textList.add((ModernTextBox) drawable);
+        if (element instanceof ModernUIElement) {
+            this.modernList.add((ModernUIElement) element);
+        } else if (element instanceof ModernTextBox) {
+            this.textList.add((ModernTextBox) element);
         } else {
-            System.err.println("Unable to register element (Elem: " + drawable.getClass() + ") as it was not a ModernDrawable.");
+            System.err.println("Unable to register element (Elem: " + element.getClass() + ") as it was not a ModernDrawable.");
         }
     }
 
@@ -269,7 +269,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
      *
      * @param startingX the starting x position of the text
      * @param startingY the starting y position of the text
-     * @param separation the Y valye  separatation between each line
+     * @param separation the Y value separation between each line
      * @param lines the lines which will be drawn
      */
     public void writeInformation(int startingX, int startingY, int separation, String... lines) {
@@ -281,7 +281,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
      *
      * @param startingX the starting x position of the text
      * @param startingY the starting y position of the text
-     * @param separation the Y valye separatation between each line
+     * @param separation the Y value separation between each line
      * @param centered true if the text being rendered should be rendered as a centered string
      * @param lines the lines which will be drawn
      */

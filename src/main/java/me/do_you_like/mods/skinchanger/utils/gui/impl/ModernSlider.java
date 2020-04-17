@@ -22,13 +22,13 @@ import lombok.Setter;
 
 import java.awt.*;
 
-import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class ModernSlider implements InteractiveDrawable {
+public class ModernSlider implements InteractiveUIElement {
 
     @Getter
     private final int id;
@@ -148,8 +148,7 @@ public class ModernSlider implements InteractiveDrawable {
     }
 
     @Override
-    public InteractiveDrawable setAsPartOfHeader(ModernHeader parent) {
-        return this;
+    public void setAsPartOfHeader(ModernHeader parent) {
     }
 
     @Override

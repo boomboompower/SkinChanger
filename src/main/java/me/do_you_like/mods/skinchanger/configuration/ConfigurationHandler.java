@@ -18,6 +18,7 @@
 package me.do_you_like.mods.skinchanger.configuration;
 
 import com.google.gson.JsonElement;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ import me.do_you_like.mods.skinchanger.configuration.meta.ConfigurationData;
 import me.do_you_like.mods.skinchanger.configuration.meta.SaveableClassData;
 import me.do_you_like.mods.skinchanger.configuration.meta.SaveableField;
 import me.do_you_like.mods.skinchanger.utils.general.BetterJsonObject;
-
 
 public class ConfigurationHandler {
 

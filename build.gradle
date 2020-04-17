@@ -145,6 +145,7 @@ sourceJar {
 }
 
 sourceSets {
+    //noinspection GroovyAssignabilityCheck
     main {
         // This is just to get Mixin working in dev environment.
         // The class is just a simple Tweaker class similar to

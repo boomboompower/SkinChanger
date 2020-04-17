@@ -22,10 +22,12 @@ import java.awt.Color;
 import lombok.Getter;
 import lombok.Setter;
 
-import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 
-public class ModernCheckbox implements InteractiveDrawable {
+import net.minecraft.client.Minecraft;
+
+public class ModernCheckbox implements InteractiveUIElement {
 
     @Getter
     private final int x;
@@ -47,6 +49,9 @@ public class ModernCheckbox implements InteractiveDrawable {
     @Setter
     private boolean checked;
 
+    @Getter
+    private final String text;
+
     private ModernHeader parentHeader;
 
     public ModernCheckbox(int x, int y, int width, int height) {
@@ -54,6 +59,10 @@ public class ModernCheckbox implements InteractiveDrawable {
     }
 
     public ModernCheckbox(int x, int y, int width, int height, boolean checked) {
+        this(x, y, width, height, false, null);
+    }
+
+    public ModernCheckbox(int x, int y, int width, int height, boolean checked, String text) {
         this.x = x;
         this.y = y;
 
@@ -61,6 +70,8 @@ public class ModernCheckbox implements InteractiveDrawable {
         this.height = height;
 
         this.checked = checked;
+
+        this.text = text;
     }
 
     @Override
@@ -68,7 +79,8 @@ public class ModernCheckbox implements InteractiveDrawable {
         float x = this.x;
         float y = this.y;
 
-        renderCheckbox(x, y);
+        // Label :)
+        renderWithLabel(x, y);
     }
 
     @Override
@@ -76,15 +88,15 @@ public class ModernCheckbox implements InteractiveDrawable {
         float x = xPos + this.x;
         float y = recommendedYOffset + 1;
 
-        renderCheckbox(x, y);
+        // Label :)
+        renderWithLabel(x, y);
     }
 
 
     @Override
-    public InteractiveDrawable setAsPartOfHeader(ModernHeader parent) {
+    public void setAsPartOfHeader(ModernHeader parent) {
         this.parentHeader = parent;
 
-        return this;
     }
 
     @Override
@@ -101,13 +113,50 @@ public class ModernCheckbox implements InteractiveDrawable {
         int yPosition = this.y;
 
         if (this.parentHeader != null) {
-            yPosition = (int) this.parentHeader.getOffsetBetweenDrawables();
+            yPosition = (int) this.parentHeader.getOffsetBetweenChildren();
             xPosition += this.parentHeader.getX();
+        }
+
+        if (isLabelEnabled()) {
+            xPosition += getLabelOffset();
         }
 
         yPosition += yTranslation;
 
         return mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
+    }
+
+    public boolean isLabelEnabled() {
+        return this.text != null && !this.text.trim().isEmpty();
+    }
+
+    public int getLabelOffset() {
+        if (!isLabelEnabled()) {
+            return 0;
+        }
+
+        return Minecraft.getMinecraft().fontRendererObj.getStringWidth(this.text) + 5;
+    }
+
+    /**
+     * Core rendering code; shifts the checkbox if a label exists
+     *
+     * @param x the incoming x position (may be modified)
+     * @param y the incoming y position
+     */
+    private void renderWithLabel(float x, float y) {
+        if (isLabelEnabled()) {
+            // Middle of text box.
+            int yToUse = (int) y + (this.height / 2);
+
+            Minecraft.getMinecraft().fontRendererObj.drawString(this.text, (int) x, yToUse, Color.WHITE.getRGB());
+
+            // Shift the TextBox
+            x += getLabelOffset();
+        }
+
+        // Normal checkbox
+        renderCheckbox(x, y);
     }
 
     /**

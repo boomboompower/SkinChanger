@@ -20,7 +20,7 @@ package me.do_you_like.mods.skinchanger.utils.gui.impl;
 import lombok.Getter;
 import lombok.Setter;
 
-import me.do_you_like.mods.skinchanger.utils.gui.InteractiveDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.InteractiveUIElement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -39,7 +39,7 @@ import java.awt.*;
  * @version 2.0
  * @since 3.0.0
  */
-public class ModernButton extends Gui implements InteractiveDrawable {
+public class ModernButton extends Gui implements InteractiveUIElement {
 
     protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
 
@@ -194,16 +194,14 @@ public class ModernButton extends Gui implements InteractiveDrawable {
     }
 
     @Override
-    public InteractiveDrawable setAsPartOfHeader(ModernHeader parent) {
+    public void setAsPartOfHeader(ModernHeader parent) {
         this.partOfHeader = true;
 
         this.parentHeader = parent;
-
-        return this;
     }
 
     @Override
-    public InteractiveDrawable disableTranslatable() {
+    public InteractiveUIElement disableTranslatable() {
         this.translatable = false;
 
         return this;

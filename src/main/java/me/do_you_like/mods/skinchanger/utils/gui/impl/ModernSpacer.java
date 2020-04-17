@@ -22,17 +22,17 @@ import java.awt.Color;
 import lombok.Getter;
 import lombok.Setter;
 
-import me.do_you_like.mods.skinchanger.utils.gui.ModernDrawable;
+import me.do_you_like.mods.skinchanger.utils.gui.ModernUIElement;
 import me.do_you_like.mods.skinchanger.utils.gui.ModernGui;
 
 import org.lwjgl.input.Keyboard;
 
 /**
- * Provides spacing between drawables. Similar to a "break" tag in html
+ * Provides spacing between elements. Similar to a "break" tag in html
  *
  * @since 3.0.0
  */
-public class ModernSpacer implements ModernDrawable {
+public class ModernSpacer implements ModernUIElement {
 
     @Getter
     @Setter
@@ -77,9 +77,8 @@ public class ModernSpacer implements ModernDrawable {
     }
 
     @Override
-    public ModernDrawable setAsPartOfHeader(ModernHeader parent) {
+    public void setAsPartOfHeader(ModernHeader parent) {
         this.partOfHeader = true;
 
-        return this;
     }
 }
