@@ -85,9 +85,9 @@ jobs:
           tag_name: ${{ github.run_number }}
           release_name: Release ${{ github.run_number }}
           body: |
-            Automagically generated for ${{ github.action }} with id ${{ github.run_id }}
+            Automagically generated with id ${{ github.run_id }}
             Message: 
-            ${commitmsg}
+            ```${{ commitmsg }}```
           draft: false
           prerelease: true
       - name: Upload Mod
