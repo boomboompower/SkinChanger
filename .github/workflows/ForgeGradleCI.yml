@@ -43,6 +43,16 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      
+      - name : Get GH Context
+        env: 
+          GITHUB_CONTEXT: ${{ toJson(github) }} 
+        run: |
+          echo 'Hello watcher!'
+
+      - name: Commit message
+        run: |
+           echo ::set-env name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
 
         # Required so gradlew can build the JAR file
       - name: Grant execute permission for gradlew
@@ -63,7 +73,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      # Upload the main mod to the artifacts tab
+      # Upload the main mod to the releases tab
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -72,9 +82,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.run_id }}
-          release_name: Release ${{ github.run_id }}
-          body: Automagically generated for ${{ github.action }} with id ${{ github.run_number }}
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          body: |
+            Automagically generated for ${{ github.action }} with id ${{ github.run_id }}
+            Message: 
+            ${commitmsg}
           draft: false
           prerelease: true
       - name: Upload Mod
