@@ -71,11 +71,10 @@ jobs:
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTION: ${{ github.github_action }} 
         with:
           tag_name: ${{ github.run_id }}
           release_name: Release ${{ github.run_id }}
-          body: 'Automagically generated for $GITHUB_ACTION '
+          body: Automagically generated for ${{ github.action }} with id ${{ github.run_number }}
           draft: false
           prerelease: true
       - name: Upload Mod
