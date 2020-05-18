@@ -1,0 +1,88 @@
+# Builds the mod on the three OS
+#
+# creator: boomboompower
+# version: 1.0
+
+name: Java CI with Forge
+
+# Trigger the integration for pull requests
+on: [pull_request]
+
+jobs:
+  windows:
+    name: Windows Mod CI
+
+    # Use latest windows version
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+        # Sets up the forge workspace (using CI)
+      - name: Launch Forge Workspace
+        run: ./gradlew setupCIWorkspace clean
+
+        # Uses ForgeGradle to build the jar
+      - name: Build with Gradle
+        run: ./gradlew build
+
+  linux:
+    name: Linux Mod CI
+
+    # Use latest linux distro
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+        # Required so gradlew can build the JAR file
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+        # Sets up the forge workspace (using CI)
+      - name: Launch Forge Workspace
+        run: ./gradlew setupCIWorkspace clean
+
+        # Deletes any unnecessary files which shouldn't
+        # exist in the first place.
+      - name: Clean output directories
+        run: |
+          rm -f -R out
+          rm -f -R build
+
+        # Uses ForgeGradle to build the jar
+      - name: Build with Gradle
+        run: ./gradlew build
+        
+  macOS:
+    name: macOS Mod CI
+
+    # Use latest macOS version
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+        # Required so gradlew can build the JAR file
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+        # Sets up the forge workspace (using CI)
+      - name: Launch Forge Workspace
+        run: ./gradlew setupCIWorkspace clean
+
+        # Uses ForgeGradle to build the jar
+      - name: Build with Gradle
+        run: ./gradlew build
