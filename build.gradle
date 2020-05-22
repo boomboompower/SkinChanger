@@ -22,23 +22,13 @@ buildscript {
             name = "forge"
             url = "https://files.minecraftforge.net/maven"
         }
-
-        // Sponge Repository
-        maven {
-            name = "sponge"
-            url = "https://repo.spongepowered.org/maven"
-        }
     }
     dependencies {
         classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
-
-        // For Mixins
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
     }
 }
 
 apply plugin: "net.minecraftforge.gradle.forge"
-apply plugin: 'org.spongepowered.mixin'
 
 version = '3.0.0'
 group = "me.do_you_like.skinchanger"
@@ -62,11 +52,6 @@ repositories {
     mavenCentral()
 
     maven {
-        name = 'sponge'
-        url = 'https://repo.spongepowered.org/maven'
-    }
-
-    maven {
         url "https://jitpack.io"
     }
 }
@@ -74,16 +59,6 @@ repositories {
 // General mod dependencies, we rely on Gson, Lombok and Mixin
 dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
-
-    // Add the Mixin library to our jar file but exclude modules which
-    // Already exist in vanilla minecraft and in forge.
-    provided('org.spongepowered:mixin:0.7.10-SNAPSHOT') {
-        exclude module: 'launchwrapper'
-        exclude module: 'guava'
-        exclude module: 'gson'
-        exclude module: 'commons-io'
-        exclude module: 'log4j-core'
-    }
 
     compile 'org.projectlombok:lombok:1.16.20'
 }
@@ -126,10 +101,8 @@ jar {
     }
 
     manifest.attributes(
-            'Main-Class' : 'me.do_you_like.mods.skinchanger.installer.InstallerCore',
-            'MixinConfigs' : 'mixins.skinchanger.json',
-            'TweakOrder' : '0',
-            'TweakClass' : 'org.spongepowered.asm.launch.MixinTweaker',
+            'Main-Class' : 'wtf.boomy.mods.skinchanger.installer.InstallerCore',
+            'FMLCorePlugin": "wtf.boomy.mods.skinchanger.core.FMLLoadingPlugin',
             'FMLCorePluginContainsFMLMod' : true,
             'ForceLoadAsMod' : true
     )
@@ -155,11 +128,6 @@ sourceSets {
         java {
             exclude '**/priv'
         }
-
-        // Groovy does not like that refMap is referred to as a string
-        // Which is why I suppress the warning (it still works as a string).
-        // noinspection GroovyAssignabilityCheck
-        refMap = "mixins.skinchanger.refmap.json"
     }
 }
 
@@ -168,12 +136,4 @@ sourceSets {
 configurations {
     provided
     compile.extendsFrom(provided)
-}
-
-// Tells Mixin which environment we are building in.
-// Specify "notch" or "searge" here
-// "notch" = obfuscated
-// "searge" = MCP mappings
-mixin {
-    defaultObfuscationEnv searge
 }
