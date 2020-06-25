@@ -17,8 +17,6 @@
 
 package wtf.boomy.mods.skinchanger.utils.backend;
 
-import lombok.Getter;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
@@ -55,10 +53,8 @@ public class CacheRetriever {
 
     private final HashMap<String, String> cachedValues = new HashMap<>();
 
-    @Getter
     private final SkinChangerMod mod;
 
-    @Getter
     private final File cacheDirectory;
 
     /**
@@ -376,6 +372,14 @@ public class CacheRetriever {
         }
 
         return existed;
+    }
+
+    public SkinChangerMod getMod() {
+        return this.mod;
+    }
+
+    public File getCacheDirectory() {
+        return this.cacheDirectory;
     }
 
     /**

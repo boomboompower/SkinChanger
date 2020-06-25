@@ -17,8 +17,6 @@
 
 package wtf.boomy.mods.skinchanger.cosmetic;
 
-import lombok.Getter;
-
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.ShaderPatch;
@@ -35,13 +33,11 @@ import net.minecraft.util.ResourceLocation;
 public class CosmeticFactory {
 
     /** GUI blur when enabling she SkinChanger mod */
-    @Getter
     private final ShaderPatch blurShader;
 
     private FakePlayerRender fakePlayerRender;
 
     /** SkinChanger mod instance */
-    @Getter
     private final SkinChangerMod mod;
 
     public CosmeticFactory(SkinChangerMod mod) {
@@ -62,5 +58,13 @@ public class CosmeticFactory {
         }
 
         return this.fakePlayerRender;
+    }
+
+    public ShaderPatch getBlurShader() {
+        return blurShader;
+    }
+
+    public SkinChangerMod getMod() {
+        return mod;
     }
 }

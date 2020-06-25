@@ -19,8 +19,6 @@ package wtf.boomy.mods.skinchanger;
 
 import com.mojang.authlib.GameProfile;
 
-import lombok.Getter;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.resources.IReloadableResourceManager;
@@ -52,25 +50,17 @@ import java.io.File;
 public class SkinChangerMod {
 
     public static final String MOD_ID = "skinchanger";
-    public static final String VERSION = "3.0.0";
+    public static final String VERSION = "3.0.1";
 
     // Forge will instantiate this
     @Mod.Instance
     private static SkinChangerMod instance;
 
-    @Getter
     private ConfigurationHandler configurationHandler;
-
-    @Getter
     private CosmeticFactory cosmeticFactory;
-
-    @Getter
     private CacheRetriever cacheRetriever;
-
-    @Getter
     private MojangHooker mojangHooker;
 
-    @Getter
     private File modConfigDirectory;
 
     private final SkinChangerStorage skinChangerStorage;
@@ -125,5 +115,25 @@ public class SkinChangerMod {
 
     public SkinChangerStorage getStorage() {
         return this.skinChangerStorage;
+    }
+
+    public ConfigurationHandler getConfigurationHandler() {
+        return configurationHandler;
+    }
+
+    public CosmeticFactory getCosmeticFactory() {
+        return cosmeticFactory;
+    }
+
+    public CacheRetriever getCacheRetriever() {
+        return cacheRetriever;
+    }
+
+    public MojangHooker getMojangHooker() {
+        return mojangHooker;
+    }
+
+    public File getModConfigDirectory() {
+        return modConfigDirectory;
     }
 }

@@ -17,8 +17,6 @@
 
 package wtf.boomy.mods.skinchanger.gui.additional;
 
-import lombok.Getter;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
@@ -281,12 +279,10 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         P_UUID("Enter the UUID of the player. (ABCD-EFGH-...)"),
         C_UUID("Enter the UUID of the player. (ABCD-EFGH-...)");
 
-        @Getter
         private final String displaySentence;
 
         // If a UUID has been generated we should store
         // it so we don't have to parse it twice
-        @Getter
         private UUID storedUUID;
 
         StringSelectionType(String displaySentence) {
@@ -348,6 +344,19 @@ public class PlayerSelectMenu extends SkinChangerMenu {
          */
         public boolean isTypeOfUUID() {
             return this == P_UUID || this == C_UUID;
+        }
+
+        /**
+         * If a UUID has been generated we should store it so we don't have to parse it twice
+         *
+         * @return the stored uuid.
+         */
+        public UUID getStoredUUID() {
+            return this.storedUUID;
+        }
+
+        public String getDisplaySentence() {
+            return this.displaySentence;
         }
     }
 }

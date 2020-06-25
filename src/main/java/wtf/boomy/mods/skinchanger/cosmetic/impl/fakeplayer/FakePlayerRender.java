@@ -17,8 +17,6 @@
 
 package wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer;
 
-import lombok.Getter;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -41,7 +39,6 @@ public class FakePlayerRender {
     // The player should be the same across every instance and every thread.
     private static final FakePlayer fakePlayer = new FakePlayer(Minecraft.getMinecraft().thePlayer);
 
-    @Getter
     private final CosmeticFactory cosmeticFactory;
 
     /**
@@ -260,5 +257,9 @@ public class FakePlayerRender {
     @SuppressWarnings("SameParameterValue")
     private float lerp(float point1, float point2, float alpha) {
         return (1 - alpha) * point1 + alpha * point2;
+    }
+
+    public CosmeticFactory getCosmeticFactory() {
+        return this.cosmeticFactory;
     }
 }

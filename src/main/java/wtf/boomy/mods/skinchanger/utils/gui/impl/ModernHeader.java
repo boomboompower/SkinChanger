@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import wtf.boomy.mods.skinchanger.utils.general.Prerequisites;
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernUIElement;
@@ -45,41 +42,22 @@ import net.minecraft.client.renderer.GlStateManager;
  */
 public class ModernHeader extends Gui implements InteractiveUIElement {
 
-    @Getter
-    @Setter
     private int x;
 
-    @Getter
-    @Setter
     private int y;
 
-    @Getter
     private final String headerText;
 
-    @Getter
-    @Setter
     private float scaleSize;
 
-    @Getter
-    @Setter
     private boolean drawUnderline;
-
-    @Getter
-    @Setter
     private boolean visible = true;
-
-    @Getter
-    @Setter
     private boolean drawCentered = false;
 
-    @Getter
-    @Setter
     private Color headerColor;
 
     private final List<ModernUIElement> children;
 
-    @Getter
-    @Setter
     private float offsetBetweenChildren = 12;
 
     private final ModernGui modernGui;
@@ -409,6 +387,75 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         }
     }
 
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    @Override
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public String getHeaderText() {
+        return this.headerText;
+    }
+
+    public float getScaleSize() {
+        return scaleSize;
+    }
+
+    public void setScaleSize(float scaleSize) {
+        this.scaleSize = scaleSize;
+    }
+
+    public float getOffsetBetweenChildren() {
+        return offsetBetweenChildren;
+    }
+
+    public void setOffsetBetweenChildren(float offsetBetweenChildren) {
+        this.offsetBetweenChildren = offsetBetweenChildren;
+    }
+
+    public boolean isDrawCentered() {
+        return drawCentered;
+    }
+
+    public void setDrawCentered(boolean drawCentered) {
+        this.drawCentered = drawCentered;
+    }
+
+    public boolean isDrawUnderline() {
+        return drawUnderline;
+    }
+
+    public void setDrawUnderline(boolean drawUnderline) {
+        this.drawUnderline = drawUnderline;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public Color getHeaderColor() {
+        return headerColor;
+    }
+
+    public void setHeaderColor(Color headerColor) {
+        this.headerColor = headerColor;
+    }
 
     /* Some good scales.
      *

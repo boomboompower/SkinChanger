@@ -17,16 +17,13 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
@@ -40,34 +37,22 @@ import java.awt.*;
  * @version 2.0
  * @since 3.0.0
  */
-public class ModernButton extends Gui implements InteractiveUIElement, StartEndUIElement {
+public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
     protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
 
-    @Getter
     private final int id;
 
-    @Getter
     private int width;
-
-    @Getter
     private int height;
 
     private final int xPosition;
     private final int yPosition;
 
-    @Getter
     private boolean enabled;
-
-    @Setter
-    @Getter
     private boolean visible;
-
-    @Getter
-    @Setter
     private boolean favourite;
 
-    @Getter
     private boolean hovered;
 
     private String displayString;
@@ -75,16 +60,13 @@ public class ModernButton extends Gui implements InteractiveUIElement, StartEndU
     private Color enabledColor = null;
     private Color disabledColor = null;
 
-    @Getter
     private Object buttonData;
 
-    @Getter
     private boolean partOfHeader;
 
     private ModernHeader parentHeader;
     private int recommendedYPosition;
 
-    @Getter
     private boolean translatable;
 
     public ModernButton(int buttonId, int x, int y, String buttonText) {
@@ -134,9 +116,9 @@ public class ModernButton extends Gui implements InteractiveUIElement, StartEndU
             int textColor = 14737632;
 
             if (this.enabled) {
-                drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getEnabledColor().getRGB());
+                ModernGui.drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getEnabledColor().getRGB());
             } else {
-                drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getDisabledColor().getRGB());
+                ModernGui.drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getDisabledColor().getRGB());
             }
 
             renderButtonString(fontrenderer, xPosition, yPosition, textColor);
@@ -162,9 +144,9 @@ public class ModernButton extends Gui implements InteractiveUIElement, StartEndU
             int j = 14737632;
 
             if (this.enabled) {
-                drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getEnabledColor().getRGB());
+                ModernGui.drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getEnabledColor().getRGB());
             } else {
-                drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
+                ModernGui.drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
             }
 
             renderButtonString(fontrenderer, xPosition, yPosition, j);
@@ -291,5 +273,53 @@ public class ModernButton extends Gui implements InteractiveUIElement, StartEndU
         }
 
         fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + ((float) this.height - 8) / 2, textColor, false);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public boolean isHovered() {
+        return hovered;
+    }
+
+    public String getDisplayString() {
+        return displayString;
+    }
+
+    public Object getButtonData() {
+        return buttonData;
+    }
+
+    public boolean isPartOfHeader() {
+        return partOfHeader;
+    }
+
+    @Override
+    public boolean isTranslatable() {
+        return translatable;
     }
 }

@@ -19,9 +19,6 @@ package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
 import java.awt.Color;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import wtf.boomy.mods.skinchanger.utils.gui.ModernUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
@@ -35,12 +32,7 @@ import org.lwjgl.input.Keyboard;
  */
 public class ModernSpacer implements ModernUIElement, StartEndUIElement {
 
-    @Getter
-    @Setter
     private int x;
-
-    @Getter
-    @Setter
     private int y;
 
     private boolean partOfHeader;
@@ -86,5 +78,23 @@ public class ModernSpacer implements ModernUIElement, StartEndUIElement {
     public void setAsPartOfHeader(ModernHeader parent) {
         this.partOfHeader = true;
 
+    }
+
+    @Override
+    public int getX() {
+        return this.x;
+    }
+
+    @Override
+    public int getY() {
+        return this.y;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 }

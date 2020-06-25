@@ -22,8 +22,6 @@ import com.google.common.collect.Lists;
 import java.awt.Color;
 import java.util.List;
 
-import lombok.Getter;
-
 import wtf.boomy.mods.skinchanger.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
@@ -34,19 +32,12 @@ import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
  */
 public class ModernScroller implements InteractiveUIElement, StartEndUIElement {
 
-    @Getter
     private final int x;
-
-    @Getter
     private final int y;
 
-    @Getter
     private final int width;
-
-    @Getter
     private final int height;
 
-    @Getter
     private boolean translatable;
 
     private float lastYLoc;
@@ -149,5 +140,30 @@ public class ModernScroller implements InteractiveUIElement, StartEndUIElement {
         }
 
         this.callbacks.add(callback);
+    }
+
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getY() {
+        return y;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
+    @Override
+    public boolean isTranslatable() {
+        return translatable;
     }
 }

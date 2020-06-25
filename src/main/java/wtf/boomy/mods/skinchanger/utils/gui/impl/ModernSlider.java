@@ -17,9 +17,6 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.awt.*;
 
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
@@ -31,44 +28,22 @@ import net.minecraft.client.renderer.GlStateManager;
 
 public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
 
-    @Getter
     private final int id;
-
-    @Getter
     private final int x;
-
-    @Getter
     private final int y;
 
-    @Getter
     private final int width;
-
-    @Getter
     private final int height;
 
-    @Getter
     private final String prefix;
-
-    @Getter
     private final String suffix;
 
-    @Getter
     private String displayString;
 
-    @Getter
-    @Setter
     private boolean visible = true;
-
-    @Getter
-    @Setter
     private boolean enabled = true;
-
-    @Getter
     private boolean hovered = false;
-
-    @Getter
     private boolean translatable = true;
-
     private boolean dragging = false;
 
     private double sliderValue;
@@ -221,5 +196,75 @@ public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
 
     public void setValue(double value) {
         this.sliderValue = (value - this.minValue) / (this.maxValue - this.minValue);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getY() {
+        return y;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public String getSuffix() {
+        return suffix;
+    }
+
+    public String getDisplayString() {
+        return displayString;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isHovered() {
+        return hovered;
+    }
+
+    public void setTranslatable(boolean translatable) {
+        this.translatable = translatable;
+    }
+
+    @Override
+    public boolean isTranslatable() {
+        return translatable;
+    }
+
+    public boolean isDragging() {
+        return dragging;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

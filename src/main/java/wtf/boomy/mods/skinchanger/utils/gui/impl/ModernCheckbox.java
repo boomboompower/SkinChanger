@@ -19,9 +19,6 @@ package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
 import java.awt.Color;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
@@ -30,27 +27,15 @@ import net.minecraft.client.Minecraft;
 
 public class ModernCheckbox implements InteractiveUIElement, StartEndUIElement {
 
-    @Getter
     private final int x;
-
-    @Getter
     private final int y;
 
-    @Getter
     private final int width;
-
-    @Getter
     private final int height;
 
-    @Getter
-    @Setter
     private boolean enabled = true;
-
-    @Getter
-    @Setter
     private boolean checked;
 
-    @Getter
     private final String text;
 
     private ModernHeader parentHeader;
@@ -198,5 +183,42 @@ public class ModernCheckbox implements InteractiveUIElement, StartEndUIElement {
 
     private float max(float first, float second) {
         return Math.max(first, second);
+    }
+
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getY() {
+        return y;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 }
