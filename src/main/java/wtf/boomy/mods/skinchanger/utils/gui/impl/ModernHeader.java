@@ -184,7 +184,8 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
             endingBoxY -= 8;
         }
 
-        ModernGui.drawRect(this.x - 2, this.y - 2, this.x + this.widthOfSub + this.furthestSubX, endingBoxY, new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB());
+        // The background box of the component
+        // ModernGui.drawRect(this.x - 2, this.y - 2, this.x + this.widthOfSub + this.furthestSubX, endingBoxY, new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB());
 
         // Push the stack, making our own GL sandbox.
         GlStateManager.pushMatrix();
