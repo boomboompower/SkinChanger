@@ -31,69 +31,69 @@ import org.lwjgl.input.Keyboard;
  * @since 3.0.0
  */
 public class ModernSpacer implements ModernUIElement, StartEndUIElement {
-
+    
     private int x;
     private int y;
-
+    
     private boolean partOfHeader;
-
+    
     public ModernSpacer(int x, int y) {
         this.x = x;
         this.y = y;
     }
-
+    
     @Override
     public int getWidth() {
         return 5;
     }
-
+    
     @Override
     public int getHeight() {
         return 5;
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float yTranslation) {
     }
-
+    
     @Override
     public void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
         // Debug
         if (Keyboard.isKeyDown(Keyboard.KEY_G) && Keyboard.isKeyDown(Keyboard.KEY_H)) {
             ModernGui.drawRect(
-                xPos + this.x,
-                yPos + recommendedYOffset + this.y,
-                xPos + this.x + this.getWidth(),
-                this.y + yPos + recommendedYOffset + 5,
-                new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
+                    xPos + this.x,
+                    yPos + recommendedYOffset + this.y,
+                    xPos + this.x + this.getWidth(),
+                    this.y + yPos + recommendedYOffset + 5,
+                    new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
         }
     }
-
+    
     @Override
     public boolean isEnabled() {
         return this.partOfHeader;
     }
-
+    
     @Override
     public void setAsPartOfHeader(ModernHeader parent) {
         this.partOfHeader = true;
-
+        
     }
-
+    
     @Override
     public int getX() {
         return this.x;
     }
-
+    
     @Override
     public int getY() {
         return this.y;
     }
-
+    
     public void setX(int x) {
         this.x = x;
     }
-
+    
     public void setY(int y) {
         this.y = y;
     }

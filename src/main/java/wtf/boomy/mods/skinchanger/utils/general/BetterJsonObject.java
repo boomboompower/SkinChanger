@@ -41,24 +41,24 @@ import java.io.IOException;
  */
 @SuppressWarnings({"WeakerAccess", "ResultOfMethodCallIgnored", "UnusedReturnValue"}) // Don't care
 public class BetterJsonObject {
-
+    
     /**
      * Our pretty printer
      */
     private final Gson prettyPrinter = new GsonBuilder().setPrettyPrinting().create();
-
+    
     /**
      * The data holder for our json
      */
     private JsonObject data;
-
+    
     /**
      * The quickest BetterJsonObject constructor, because why not
      */
     public BetterJsonObject() {
         this.data = new JsonObject();
     }
-
+    
     /**
      * The default constructor the BetterJsonObject class, uses a json string
      * as the parameter and attempts to load it, a new JsonObject will be
@@ -71,14 +71,14 @@ public class BetterJsonObject {
             this.data = new JsonObject();
             return;
         }
-
+        
         try {
             this.data = JsonParser.parseString(jsonIn).getAsJsonObject();
         } catch (JsonSyntaxException | JsonIOException ex) {
             ex.printStackTrace();
         }
     }
-
+    
     /**
      * The alternative constructor for the BetterJsonObject class, this uses
      * another JsonObject as the data set. A new JsonObject will be created
@@ -89,7 +89,7 @@ public class BetterJsonObject {
     public BetterJsonObject(JsonObject objectIn) {
         this.data = objectIn != null ? objectIn : new JsonObject();
     }
-
+    
     /**
      * The optional string method, returns an empty string if
      * the key is null, empty or the data does not contain
@@ -97,12 +97,13 @@ public class BetterJsonObject {
      * is not a string
      *
      * @param key the key the value will be loaded from
+     *
      * @return the value in the json data set or empty if the key cannot be found
      */
     public String optString(String key) {
         return optString(key, "");
     }
-
+    
     /**
      * The optional string method, returns the default value if
      * the key is null, empty or the data does not contain
@@ -110,21 +111,22 @@ public class BetterJsonObject {
      * the data value is not a string
      *
      * @param key the key the value will be loaded from
+     *
      * @return the value in the json data set or the default if the key cannot be found
      */
     public String optString(String key, String value) {
         if (key == null || key.isEmpty() || !has(key)) {
             return value;
         }
-
+        
         JsonPrimitive primitive = asPrimitive(get(key));
-
+        
         if (primitive != null && primitive.isString()) {
             return primitive.getAsString();
         }
         return value;
     }
-
+    
     /**
      * The optional int method, returns 0 if
      * the key is null, empty or the data does not contain
@@ -132,12 +134,13 @@ public class BetterJsonObject {
      * is not a string
      *
      * @param key the key the value will be loaded from
+     *
      * @return the value in the json data set or empty if the key cannot be found
      */
     public int optInt(String key) {
         return optInt(key, 0);
     }
-
+    
     /**
      * The optional int method, returns the default value if
      * the key is null, empty or the data does not contain
@@ -145,15 +148,16 @@ public class BetterJsonObject {
      * the data value is not a number
      *
      * @param key the key the value will be loaded from
+     *
      * @return the value in the json data set or the default if the key cannot be found
      */
     public int optInt(String key, int value) {
         if (key == null || key.isEmpty() || !has(key)) {
             return value;
         }
-
+        
         JsonPrimitive primitive = asPrimitive(get(key));
-
+        
         try {
             if (primitive != null && primitive.isNumber()) {
                 return primitive.getAsInt();
@@ -162,7 +166,7 @@ public class BetterJsonObject {
         }
         return value;
     }
-
+    
     /**
      * The optional double method, returns 0.0D if
      * the key is null, empty or the data does not contain
@@ -170,12 +174,13 @@ public class BetterJsonObject {
      * is not a string
      *
      * @param key the key the value will be loaded from
+     *
      * @return the value in the json data set or empty if the key cannot be found
      */
     public double optDouble(String key) {
         return optDouble(key, 0);
     }
-
+    
     /**
      * The optional double method, returns the default value if
      * the key is null, empty or the data does not contain
@@ -183,15 +188,16 @@ public class BetterJsonObject {
      * the data value is not a number
      *
      * @param key the key the value will be loaded from
+     *
      * @return the value in the json data set or the default if the key cannot be found
      */
     public double optDouble(String key, double value) {
         if (key == null || key.isEmpty() || !has(key)) {
             return value;
         }
-
+        
         JsonPrimitive primitive = asPrimitive(get(key));
-
+        
         try {
             if (primitive != null && primitive.isNumber()) {
                 return primitive.getAsDouble();
@@ -200,7 +206,7 @@ public class BetterJsonObject {
         }
         return value;
     }
-
+    
     /**
      * The optional boolean method, returns false if
      * the key is null, empty or the data does not contain
@@ -208,12 +214,13 @@ public class BetterJsonObject {
      * is not a string
      *
      * @param key the key the value will be loaded from
+     *
      * @return the value in the json data set or empty if the key cannot be found
      */
     public boolean optBoolean(String key) {
         return optBoolean(key, false);
     }
-
+    
     /**
      * The optional boolean method, returns the default value if
      * the key is null, empty or the data does not contain
@@ -221,21 +228,22 @@ public class BetterJsonObject {
      * the data value is not a boolean
      *
      * @param key the key the value will be loaded from
+     *
      * @return the value in the json data set or the default if the key cannot be found
      */
     public boolean optBoolean(String key, boolean value) {
         if (key == null || key.isEmpty() || !has(key)) {
             return value;
         }
-
+        
         JsonPrimitive primitive = asPrimitive(get(key));
-
+        
         if (primitive != null && primitive.isBoolean()) {
             return primitive.getAsBoolean();
         }
         return value;
     }
-
+    
     /**
      * Returns true if this data contains the following key
      *
@@ -246,17 +254,18 @@ public class BetterJsonObject {
     public boolean has(String key) {
         return this.data.has(key);
     }
-
+    
     /**
      * Gets a raw JsonElement from a key.
      *
      * @param key the key of which to grab the element from.
+     *
      * @return a JsonElement or null if there is no element with this key
      */
     public JsonElement get(String key) {
         return this.data.get(key);
     }
-
+    
     /**
      * Returns the data the information is being loaded from
      *
@@ -265,7 +274,7 @@ public class BetterJsonObject {
     public JsonObject getData() {
         return this.data;
     }
-
+    
     /**
      * Adds a string to the to the json data file with the
      * key that it'll be associated with
@@ -279,7 +288,7 @@ public class BetterJsonObject {
         }
         return this;
     }
-
+    
     /**
      * Adds a number to the to the json data file with the
      * key that it'll be associated with
@@ -293,7 +302,7 @@ public class BetterJsonObject {
         }
         return this;
     }
-
+    
     /**
      * Adds a boolean to the to the json data file with the
      * key that it'll be associated with
@@ -307,7 +316,7 @@ public class BetterJsonObject {
         }
         return this;
     }
-
+    
     /**
      * Adds another BetterJsonObject into this one
      *
@@ -320,7 +329,7 @@ public class BetterJsonObject {
         }
         return this;
     }
-
+    
     /**
      * This feature is a HUGE WIP and may not work, it is safer
      * to use the toString method with a BufferedWriter instead
@@ -328,6 +337,7 @@ public class BetterJsonObject {
      * We are not responsible for any overwritten files, please use this carefully
      *
      * @param file File to write to
+     *
      * @apiNote Use with caution, we are not responsible for you breaking files
      */
     public void writeToFile(File file) {
@@ -335,7 +345,7 @@ public class BetterJsonObject {
             // Do nothing if future issues may occur
             return;
         }
-
+        
         try {
             if (!file.exists()) {
                 File parent = file.getParentFile();
@@ -344,7 +354,7 @@ public class BetterJsonObject {
                 }
                 file.createNewFile();
             }
-
+            
             FileWriter writer = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             bufferedWriter.write(toPrettyString()); // Use our pretty printer
@@ -354,18 +364,19 @@ public class BetterJsonObject {
             e.printStackTrace();
         }
     }
-
+    
     /**
      * Converts the JsonElement to the JsonPrimitive class to allow for better
      * functionality
      *
      * @param element the element to be transferred
+     *
      * @return the JsonPrimitive instance or null if is not an instanceof the JsonPrimitive class
      */
     private JsonPrimitive asPrimitive(JsonElement element) {
         return element instanceof JsonPrimitive ? (JsonPrimitive) element : null;
     }
-
+    
     /**
      * Returns the data values toString method
      *
@@ -375,7 +386,7 @@ public class BetterJsonObject {
     public String toString() {
         return this.data.toString();
     }
-
+    
     /**
      * Returns the pretty printed data String with
      * indents and other things
@@ -385,7 +396,7 @@ public class BetterJsonObject {
     public String toPrettyString() {
         return this.prettyPrinter.toJson(this.data);
     }
-
+    
     /**
      * Returns the pretty print version of Gson
      *

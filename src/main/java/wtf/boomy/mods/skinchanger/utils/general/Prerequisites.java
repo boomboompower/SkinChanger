@@ -25,13 +25,13 @@ package wtf.boomy.mods.skinchanger.utils.general;
  * @since 3.0.0
  */
 public final class Prerequisites {
-
+    
     // Private constructor, no instances allowed
     private Prerequisites(Prerequisites paradox) {
         // To create an instance of this class one must have an instance of this class.
         Prerequisites.notNull(paradox, "Paradox.");
     }
-
+    
     /**
      * Ensures a value is not null. If it is, an error will be thrown.
      *
@@ -40,22 +40,22 @@ public final class Prerequisites {
     public static void notNull(Object value) {
         notNull(value, "Value was null.");
     }
-
+    
     /**
      * Ensures a value is not null. If it is, an error will be thrown.
      *
-     * @param value the value to check
+     * @param value        the value to check
      * @param errorMessage the message to send
      */
     public static void notNull(Object value, String errorMessage) {
         if (value != null) {
             return;
         }
-
+        
         // Hit em with the fat exception
         throw new IllegalArgumentException(errorMessage);
     }
-
+    
     /**
      * Ensures a value is not null or empty. If it is, an error will be thrown.
      *
@@ -64,11 +64,11 @@ public final class Prerequisites {
     public static void notNullOrEmpty(String value) {
         notNullOrEmpty(value, "Value was either null or empty.");
     }
-
+    
     /**
      * Ensures a value is not null or empty. If it is, an error will be thrown.
      *
-     * @param value the value to check
+     * @param value        the value to check
      * @param errorMessage the message to send
      */
     public static void notNullOrEmpty(String value, String errorMessage) {
@@ -76,11 +76,11 @@ public final class Prerequisites {
         if (value != null && !value.isEmpty()) {
             return;
         }
-
+        
         // Hit em with the fat exception
         throw new IllegalArgumentException(errorMessage);
     }
-
+    
     /**
      * Ensures a value (string) is not empty. If it is, an error will be thrown.
      *
@@ -89,22 +89,22 @@ public final class Prerequisites {
     public static void notEmpty(String value) {
         notEmpty(value, "Value was empty.");
     }
-
+    
     /**
      * Ensures a value (string) is not empty. If it is, an error will be thrown.
      *
-     * @param value the value to check
+     * @param value        the value to check
      * @param errorMessage the message to send
      */
     public static void notEmpty(String value, String errorMessage) {
         if (value == null || !value.isEmpty()) {
             return;
         }
-
+        
         // Hit em with the fat exception
         throw new IllegalArgumentException(errorMessage);
     }
-
+    
     /**
      * Ensures a condition is met. If the condition is not met then an IllegalArgumentException
      * will be thrown with the default message.
@@ -114,19 +114,19 @@ public final class Prerequisites {
     public static void conditionMet(boolean condition) {
         conditionMet(condition, "Condition was not met.");
     }
-
+    
     /**
      * Ensures a condition is met. If the condition is not met then an IllegalArgumentException
      * will be thrown with an error message.
      *
-     * @param condition the condition to check, if its false then the error will be thrown
+     * @param condition    the condition to check, if its false then the error will be thrown
      * @param errorMessage the error message to be appended to the Stacktrace
      */
     public static void conditionMet(boolean condition, String errorMessage) {
         if (condition) {
             return;
         }
-
+        
         // Hit em with the fat exception
         throw new IllegalArgumentException(errorMessage);
     }

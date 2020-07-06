@@ -17,6 +17,7 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui;
 
+import cc.hyperium.gui.ScissorState;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
@@ -31,10 +32,12 @@ import org.lwjgl.input.Mouse;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
+import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernHeader;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import wtf.boomy.mods.skinchanger.utils.gui.lock.UILock;
 
 import java.awt.Color;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,6 +69,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     private final List<InteractiveUIElement> selectedElements = Lists.newArrayList();
 
     protected float yTranslation = 0;
+    protected int topYSnip = 0;
 
     @Override
     public final void initGui() {
@@ -81,7 +85,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public final void drawScreen(int mouseX, int mouseY, float partialTicks) {
         try {
             preRender(mouseX, mouseY);
         } catch (Exception ex) {
@@ -107,6 +111,10 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         try {
             for (ModernUIElement elements : this.modernList) {
                 GlStateManager.pushMatrix();
+                
+                if (elements instanceof ModernHeader) {
+                    ScissorState.scissor(0, topYSnip, this.width + 30, (int) (this.height * 1.75));
+                }
 
                 if (elements.isTranslatable()) {
                     GlStateManager.translate(0, this.yTranslation, 0);
@@ -116,6 +124,10 @@ public abstract class ModernGui extends UILock implements UISkeleton {
 
                 if (elements.isTranslatable()) {
                     GlStateManager.translate(0, -this.yTranslation, 0);
+                }
+                
+                if (elements instanceof ModernHeader) {
+                    ScissorState.endScissor();
                 }
 
                 GlStateManager.popMatrix();

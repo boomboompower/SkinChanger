@@ -149,10 +149,10 @@ public enum ChatColor {
      * then stripping the formatted message of all codes. Useful for getting a literal string.
      *
      * @param altColorChat the code which should be translated to the color symbol
-     * @param message the message to format then unformat.
+     * @param message the message to format then immediately strip of formatting.
      * @return a completely stripped string.
      */
-    public static String formatUnformat(char altColorChat, String message) {
+    public static String formatThenStrip(char altColorChat, String message) {
         return stripColor(translateAlternateColorCodes(altColorChat, message));
     }
 }

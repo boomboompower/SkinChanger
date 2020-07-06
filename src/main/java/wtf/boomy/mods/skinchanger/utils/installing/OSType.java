@@ -22,22 +22,22 @@ package wtf.boomy.mods.skinchanger.utils.installing;
  * Minecraft installation directories.
  *
  * @author boomboompower
- * @since 3.0.0
  * @version 1.0
+ * @since 3.0.0
  */
 public enum OSType {
-
+    
     WINDOWS("C:\\Users\\USERNAME\\AppData\\Roaming\\.minecraft"),
     MAC("~/Library/Application Support/minecraft"),
     LINUX("~/.minecraft"),
     UNKNOWN("?");
-
+    
     private final String normalDirectory;
-
+    
     OSType(String directory) {
         this.normalDirectory = directory;
     }
-
+    
     public String getNormalDirectory() {
         return this.normalDirectory;
     }

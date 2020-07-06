@@ -27,26 +27,30 @@ import net.minecraft.util.ResourceLocation;
  * A class to contain all the cosmetic components of SkinChanger.
  * These are configurable in-game and will likely increase performance if they are disabled.
  *
- * @since 3.0.0
  * @author boomboompower
+ * @since 3.0.0
  */
 public class CosmeticFactory {
-
-    /** GUI blur when enabling she SkinChanger mod */
+    
+    /**
+     * GUI blur when enabling she SkinChanger mod
+     */
     private final ShaderPatch blurShader;
-
+    
     private FakePlayerRender fakePlayerRender;
-
-    /** SkinChanger mod instance */
+    
+    /**
+     * SkinChanger mod instance
+     */
     private final SkinChangerMod mod;
-
+    
     public CosmeticFactory(SkinChangerMod mod) {
         this.mod = mod;
-
+        
         // Blur shader magic
         this.blurShader = new ShaderPatch(new ResourceLocation("skinchanger", "shaders/post/customblur.json"));
     }
-
+    
     /**
      * Returns the FakePlayer rendering class
      *
@@ -56,14 +60,14 @@ public class CosmeticFactory {
         if (this.fakePlayerRender == null) {
             this.fakePlayerRender = new FakePlayerRender(this);
         }
-
+        
         return this.fakePlayerRender;
     }
-
+    
     public ShaderPatch getBlurShader() {
         return blurShader;
     }
-
+    
     public SkinChangerMod getMod() {
         return mod;
     }

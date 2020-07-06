@@ -25,6 +25,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface SaveableClassData {
-
+    
+    /**
+     * The saveName for a class, all fields under this class will be saved under this key
+     *
+     * @return the save name for the class
+     */
     String saveName();
 }

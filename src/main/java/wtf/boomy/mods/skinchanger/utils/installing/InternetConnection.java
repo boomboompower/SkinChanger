@@ -24,15 +24,15 @@ import java.net.URLConnection;
 /**
  * Detects if the client has access to the Internet or not
  *
- * @since 3.0.0
  * @version 1.0
+ * @since 3.0.0
  */
 @SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class InternetConnection {
-
+    
     private InternetConnection() {
     }
-
+    
     /**
      * Detects an internet connection by trying to connect to Google.
      * The client has 10 seconds to make a connection before the assumption is made
@@ -42,17 +42,17 @@ public class InternetConnection {
     public static boolean hasInternetConnection() {
         try {
             URL url = new URL("https://google.com");
-
+            
             URLConnection connection = url.openConnection();
-
+            
             connection.setConnectTimeout(10000);
-
+            
             connection.connect();
-
+            
             return true;
         } catch (IOException ex) {
             return false;
         }
     }
-
+    
 }

@@ -37,63 +37,68 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Patcher method for SkinChanger, modifies the game to allow for the Skin and Cape tweaks.
+ *
+ * @author boomboompower
+ */
 public class ClassTransformer implements IClassTransformer {
-
-    private boolean patchSkinMethod = true;
-    private boolean patchCapeMethod = true;
-    private boolean patchSkinTypeMethod = true;
-
+    
+    public static boolean patchSkinMethod = true;
+    public static boolean patchCapeMethod = true;
+    public static boolean patchSkinTypeMethod = true;
+    
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     public ClassTransformer() {
         ThreadFactory threadFactory = new ThreadFactory("SkinChangerTransformer");
-
+        
         threadFactory.runAsync(() -> {
             try {
                 String defaultText = "PatchSkins: yes" + System.lineSeparator() + "PatchCapes: yes" + System.lineSeparator() + "PatchSkinType: yes";
                 File file = new File(new File("config", "skinchanger"), "asm.text");
-
+                
                 if (!file.getParentFile().exists()) {
                     writeToFile(file, defaultText);
-
+                    
                     return;
                 }
-
+                
                 if (!file.exists()) {
                     writeToFile(file, defaultText);
-
+                    
                     return;
                 }
-
+                
                 FileReader reader = null;
                 BufferedReader bufferedReader = null;
-
+                
                 try {
                     reader = new FileReader(file);
                     bufferedReader = new BufferedReader(reader);
-
+                    
                     List<String> lines = bufferedReader.lines().collect(Collectors.toList());
-
+                    
                     for (String s : lines) {
                         if (!s.contains(": ")) {
                             continue;
                         }
-
+                        
                         String[] components = s.split(": ", 1);
                         String id = components[0];
                         String value = components[1];
-
+                        
                         boolean toPatch = value.equalsIgnoreCase("true") || value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("1");
-
+                        
                         if (id.equalsIgnoreCase("PatchSkins")) {
-                            this.patchSkinMethod = toPatch;
+                            patchSkinMethod = toPatch;
                         }
-
+                        
                         if (id.equalsIgnoreCase("PatchCapes")) {
-                            this.patchCapeMethod = toPatch;
+                            patchCapeMethod = toPatch;
                         }
-
+                        
                         if (id.equalsIgnoreCase("PatchSkinType")) {
-                            this.patchSkinTypeMethod = toPatch;
+                            patchSkinTypeMethod = toPatch;
                         }
                     }
                 } catch (Exception ex) {
@@ -111,96 +116,96 @@ public class ClassTransformer implements IClassTransformer {
             }
         });
     }
-
+    
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
-        if (!this.patchSkinMethod && !this.patchCapeMethod && !this.patchSkinTypeMethod) {
+        if (!patchSkinMethod && !patchCapeMethod && !patchSkinTypeMethod) {
             return bytes;
         }
-
+        
         // In a dev environment, the obfuscated name and remapped name will be the same
         boolean isDevEnv = (name.equals(transformedName));
-
+        
         if (transformedName.equals("net.minecraft.client.network.NetworkPlayerInfo")) {
             ClassReader reader = new ClassReader(bytes);
             ClassNode classNode = new ClassNode();
             reader.accept(classNode, ClassReader.SKIP_FRAMES);
-
+            
             classNode.methods.forEach(m -> transformNetworkPlayerInfo(isDevEnv, classNode, m));
-
+            
             ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
             classNode.accept(writer);
             return writer.toByteArray();
         }
-
+        
         return bytes;
     }
-
+    
     private void transformNetworkPlayerInfo(boolean isDevEnv, ClassNode clazz, MethodNode method) {
         String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(clazz.name, method.name, method.desc);
-
-        if (this.patchSkinMethod && methodName.equals("getLocationSkin")) {
+        
+        if (patchSkinMethod && methodName.equals("getLocationSkin")) {
             System.out.println("Patching getLocationSkin (" + method.name + ")");
-
+            
             method.instructions.insert(createForName(isDevEnv, "isUsingSkin", "getSkin"));
-
+            
             System.out.println("Finished patching getLocationSkin (" + method.name + ")");
-
+            
             SkinChangerMod.getInstance().getStorage().setSkinPatchApplied(true);
-        } else if (this.patchCapeMethod && methodName.equals("getLocationCape")) {
+        } else if (patchCapeMethod && methodName.equals("getLocationCape")) {
             System.out.println("Patching getLocationCape (" + method.name + ")");
-
+            
             method.instructions.insert(createForName(isDevEnv, "isUsingCape", "getCape"));
-
+            
             System.out.println("Finished patching getLocationCape (" + method.name + ")");
-
+            
             SkinChangerMod.getInstance().getStorage().setCapePatchApplied(true);
-        } else if (this.patchSkinTypeMethod && methodName.equalsIgnoreCase("getSkinType")) {
+        } else if (patchSkinTypeMethod && methodName.equalsIgnoreCase("getSkinType")) {
             System.out.println("Patching getSkinType (" + method.name + ")");
-
+            
             method.instructions.insert(createForSkinType(isDevEnv));
-
+            
             System.out.println("Finished patching getSkinType (" + method.name + ")");
-
+            
             SkinChangerMod.getInstance().getStorage().setSkinTypePatchApplied(true);
         }
     }
-
+    
     private InsnList createForName(boolean devEnv, String isUsingX, String getX) {
         String gameProfileField = devEnv ? "gameProfile" : "field_178867_a";
-
+        
         // Constructs a list of bytecode asm instructions to and adds them to the start of the method
         return constructList(
                 // We load the gameProfile from the class
                 // and send it to SkinStorage#isUsingSkin
                 getModInstance(),
                 getStorage(),
-
+                
                 // We load it into the stack
                 new VarInsnNode(Opcodes.ALOAD, 0),
-
+                
                 // We call the isUsingX statement in the SkinStorage class, parsing in the GameProfile from the NetworkPlayerInfo file
                 new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/network/NetworkPlayerInfo", gameProfileField, "Lcom/mojang/authlib/GameProfile;"),
                 invokeVirtual("wtf/boomy/mods/skinchanger/cosmetic/impl/SkinChangerStorage", isUsingX, "(Lcom/mojang/authlib/GameProfile;)Z"),
-
+                
                 // Using the knowledge above, we continue if the isUsingX method returns true
                 whenTrue(
                         // We invoke the getX method from the SkinStorage class
                         getModInstance(),
                         getStorage(),
                         invokeVirtual("wtf/boomy/mods/skinchanger/cosmetic/impl/SkinChangerStorage", getX, "()Lnet/minecraft/util/ResourceLocation;"),
-
+                        
                         // Finally, we return the X value they wanted, the method has been successfully injected into.
                         new InsnNode(Opcodes.ARETURN)
                 )
         );
     }
-
+    
     private InsnList createForSkinType(boolean devEnv) {
         String gameProfileField = devEnv ? "gameProfile" : "field_178867_a";
-
+        
         LabelNode skip = new LabelNode();
-
+        
         // Constructs a list of bytecode asm instructions to and adds them to the start of the method
         return constructList(
                 getModInstance(), // INVOKESTATIC
@@ -216,31 +221,31 @@ public class ClassTransformer implements IClassTransformer {
                 skip
         );
     }
-
+    
     private MethodInsnNode getModInstance() {
         return new MethodInsnNode(Opcodes.INVOKESTATIC, "wtf/boomy/mods/skinchanger/SkinChangerMod", "getInstance", "()Lwtf/boomy/mods/skinchanger/SkinChangerMod;", false);
     }
-
+    
     private MethodInsnNode getStorage() {
         return invokeVirtual("wtf/boomy/mods/skinchanger/SkinChangerMod", "getStorage", "()Lwtf/boomy/mods/skinchanger/cosmetic/impl/SkinChangerStorage;");
     }
-
+    
     private MethodInsnNode invokeVirtual(String owner, String name, String desc) {
         return new MethodInsnNode(Opcodes.INVOKEVIRTUAL, owner, name, desc, false);
     }
-
+    
     private InsnList whenTrue(Object... args) {
         LabelNode label = new LabelNode();
-
+        
         return constructList(new JumpInsnNode(Opcodes.IFEQ, label), constructList(args), label);
     }
-
+    
     private InsnList whenLess(Object... args) {
         LabelNode label = new LabelNode();
-
+        
         return constructList(new JumpInsnNode(Opcodes.IFLE, label), constructList(args), label);
     }
-
+    
     private InsnList constructList(Object... args) {
         InsnList list = new InsnList();
         for (Object arg : args) {
@@ -252,12 +257,12 @@ public class ClassTransformer implements IClassTransformer {
         }
         return list;
     }
-
+    
     /**
      * This must run independently, Gson is not loaded when this is called
      * and will crash the game if it's used. Therefore we need our own method.
      *
-     * @param file the file to save the value to
+     * @param file  the file to save the value to
      * @param value the value to write to the file.
      */
     @SuppressWarnings({"ResultOfMethodCallIgnored", "DuplicatedCode"})
@@ -266,7 +271,7 @@ public class ClassTransformer implements IClassTransformer {
             // Do nothing if future issues may occur
             return;
         }
-
+        
         try {
             if (!file.exists()) {
                 File parent = file.getParentFile();
@@ -275,7 +280,7 @@ public class ClassTransformer implements IClassTransformer {
                 }
                 file.createNewFile();
             }
-
+            
             FileWriter writer = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             bufferedWriter.write(value);

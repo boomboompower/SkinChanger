@@ -23,16 +23,16 @@ import java.io.File;
  * Detects the operating system being used by the client
  *
  * @author boomboompower
- * @since 3.0.0
  * @version 1.0
+ * @since 3.0.0
  */
 public class OperatingSystem {
-
+    
     private static OSType osType;
-
+    
     static {
         String osName = System.getProperty("os.name");
-
+        
         if (osName.startsWith("Windows")) {
             osType = OSType.WINDOWS;
         } else if (osName.startsWith("Mac") || osName.startsWith("Darwin")) {
@@ -43,13 +43,13 @@ public class OperatingSystem {
             osType = OSType.UNKNOWN;
         }
     }
-
+    
     /**
      * No constructor allowed in a utility class
      */
     private OperatingSystem() {
     }
-
+    
     /**
      * Detects the operating system type which this jar is running on.
      *
@@ -59,9 +59,9 @@ public class OperatingSystem {
         if (osType != null) {
             return osType;
         }
-
+        
         String osName = System.getProperty("os.name");
-
+        
         if (osName.startsWith("Windows")) {
             osType = OSType.WINDOWS;
         } else if (osName.startsWith("Mac") || osName.startsWith("Darwin")) {
@@ -71,19 +71,20 @@ public class OperatingSystem {
         } else {
             osType = OSType.UNKNOWN;
         }
-
+        
         return osType;
     }
-
+    
     /**
      * Gets the default Minecraft installation directory based on a system
      *
      * @param system the OS to grab the MC Home Dir from.
+     *
      * @return a directory containing the Minecraft directory.
      */
     public static File getMinecraftDirectory(OSType system) {
         String path;
-
+        
         switch (system) {
             case WINDOWS:
                 path = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Roaming\\.minecraft\\";
@@ -95,11 +96,11 @@ public class OperatingSystem {
             default:
                 path = null;
         }
-
+        
         if (path == null) {
             return null;
         }
-
+        
         return new File(path);
     }
 }

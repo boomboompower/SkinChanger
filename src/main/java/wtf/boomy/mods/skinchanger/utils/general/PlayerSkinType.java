@@ -18,18 +18,16 @@
 package wtf.boomy.mods.skinchanger.utils.general;
 
 /**
- * Tries to normalize player skin types. Even though they are pretty crappy in 1.8.9
- *
- * This was a heavily requested feature in the initial versions of SkinChanger.
+ * Brings enumeration to the built-in skin types (as of 1.8.9)
  */
 public enum PlayerSkinType {
-
+    
     STEVE("Steve", "default"),
     ALEX("Alex", "slim");
-
+    
     private final String displayName;
     private final String secretName;
-
+    
     /**
      * Constructs the enum
      *
@@ -39,18 +37,18 @@ public enum PlayerSkinType {
         this.displayName = name().toLowerCase();
         this.secretName = secretName;
     }
-
+    
     /**
      * Constructs the enum
      *
      * @param displayName the name the user will see
-     * @param secretName the id used in the RenderManager
+     * @param secretName  the id used in the RenderManager
      */
     PlayerSkinType(String displayName, String secretName) {
         this.displayName = displayName;
         this.secretName = secretName;
     }
-
+    
     /**
      * Returns the display name which the user will see when selecting this skin type
      *
@@ -59,7 +57,7 @@ public enum PlayerSkinType {
     public String getDisplayName() {
         return this.displayName;
     }
-
+    
     /**
      * Returns the associated {@link net.minecraft.client.renderer.entity.RenderManager} -> skinMap value for this skin type.
      *
@@ -68,7 +66,7 @@ public enum PlayerSkinType {
     public String getSecretName() {
         return this.secretName;
     }
-
+    
     /**
      * Retrieves the next skin type after this skin.
      *
@@ -77,21 +75,22 @@ public enum PlayerSkinType {
     public PlayerSkinType getNextSkin() {
         // At the next index.
         int nextOrdinal = ordinal() + 1;
-
+        
         // Don't overflow.
         if (nextOrdinal > values().length - 1) {
             // Just return the one at the 0th index.
             return values()[0];
         }
-
+        
         // Attempt to retrieve the next index.
         return values()[nextOrdinal];
     }
-
+    
     /**
      * Retrieves a {@link PlayerSkinType} from a string. If none is found then {@link PlayerSkinType#STEVE} will be returned.
      *
      * @param str the value / name of the type
+     *
      * @return a {@link PlayerSkinType} from a value. Or {@link PlayerSkinType#STEVE} if none is found.
      */
     public static PlayerSkinType getTypeFromString(String str) {
@@ -99,25 +98,26 @@ public enum PlayerSkinType {
         if (str == null || str.trim().isEmpty()) {
             return STEVE;
         }
-
+        
         for (PlayerSkinType t : values()) {
             // If the string matches a name, return that value.
             if (t.name().equalsIgnoreCase(str) ||
-                t.getDisplayName().equalsIgnoreCase(str) ||
-                t.getSecretName().equalsIgnoreCase(str)) {
-
+                    t.getDisplayName().equalsIgnoreCase(str) ||
+                    t.getSecretName().equalsIgnoreCase(str)) {
+                
                 return t;
             }
         }
-
+        
         // None was found, just return the default.
         return STEVE;
     }
-
+    
     /**
      * Retrieves the next value in this Enum from the current value
      *
      * @param type the current enum
+     *
      * @return the next {@link PlayerSkinType} after the inputted type.
      */
     public static PlayerSkinType getNextType(PlayerSkinType type) {

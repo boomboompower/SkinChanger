@@ -31,7 +31,7 @@ import java.util.List;
  * NOTE: This class is temporary and it's methods will eventually be tuned into a new gui.
  */
 public class SkinCommand extends ModCommand {
-
+    
     // Cached main menu, saves memory and options.
     private SkinChangerMenu mainMenu = null;
     
@@ -43,12 +43,12 @@ public class SkinCommand extends ModCommand {
     public String getCommandName() {
         return "skinchanger";
     }
-
+    
     @Override
     public List<String> getAliases() {
         return Arrays.asList("changeskin", "changecape");
     }
-
+    
     @Override
     public void onCommand(ICommandSender sender, String[] args) {
         // TODO remove this during production.
@@ -56,37 +56,37 @@ public class SkinCommand extends ModCommand {
             if (args[0].equalsIgnoreCase("fix")) {
                 org.lwjgl.opengl.Display.setResizable(false);
                 org.lwjgl.opengl.Display.setResizable(true);
-
+                
                 return;
             } else if (args[0].equalsIgnoreCase("reload")) {
                 this.mainMenu = new SkinChangerMenu();
-
+                
                 args = new String[0];
             }
         }
-
+        
         SkinChangerMenu menu = getMenu(args.length > 0 ? args[0] : null);
-
+        
         // Something went wrong or an argument was incorrect.
         if (menu == null) {
             sendMessage(ChatColor.RED + "Invalid command arguments, try without arguments.");
-
+            
             return;
         }
-
+        
         menu.display();
     }
-
+    
     @Override
     protected boolean shouldMultithreadCommand(String[] args) {
         return true;
     }
-
+    
     @Override
     public boolean isUsernameIndex(String[] args, int index) {
         return index == 0;
     }
-
+    
     /**
      * Gets the cached SkinChanger menu
      *
@@ -99,14 +99,14 @@ public class SkinCommand extends ModCommand {
         if (this.mainMenu == null) {
             this.mainMenu = new SkinChangerMenu();
         }
-
+        
         // If the player has specified an input it should be handled
         if (incomingInput != null && !incomingInput.isEmpty()) {
             if (!this.mainMenu.handleIncomingInput(incomingInput)) {
                 return null;
             }
         }
-
+        
         return this.mainMenu;
     }
 }

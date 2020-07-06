@@ -29,69 +29,76 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
+/**
+ * Class to automatically install the mod to the mods folder (for the appropriate mod version)
+ *
+ * Tries to determine where the Minecraft installation is located, and places itself in the mods
+ * directory.
+ */
 public class InstallerCore {
-
+    
     private static final String MOD_NAME = "SkinChanger";
-
+    
     private static final String BUILT_FOR = "1.8.9"; // TODO Update this across versions.
     private static final String MOD_VERSION = "3.0.0"; // TODO Update this on releases
-
+    
     public static void main(String[] args) {
+        // Cannot run in headless mode since there are no built in display options.
         if (!GraphicsEnvironment.isHeadless()) {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception ignored) {
             }
-
+            
             int result = showStartupMenu();
-
+            
             // User cancelled the operation
             if (result == -1) {
                 return;
             }
-
+            
             // User clicked no
             if (result == 1) {
                 return;
             }
-
+            
             OSType osType = OperatingSystem.getOSType();
             File minecraftDirectory = OperatingSystem.getMinecraftDirectory(osType);
-
+            
             if (osType == OSType.UNKNOWN || minecraftDirectory == null) {
                 onInstallationFailed("Your operating system is not supported by the installer.\nPlease place the mod file in your mods folder manually.");
-
+                
                 return;
             }
-
+            
             if (!minecraftDirectory.exists()) {
                 onInstallationFailed("Your operating system was supported\nhowever your minecraft directory did not exist.");
-
+                
                 return;
             }
-
+            
             File mcModDir = new File(minecraftDirectory, "mods");
-
+            
             if (!mcModDir.exists()) {
                 mcModDir.mkdirs();
             }
-
+            
             if (InstallerCore.class.getProtectionDomain() == null || InstallerCore.class.getProtectionDomain().getCodeSource() == null || InstallerCore.class.getProtectionDomain().getCodeSource().getLocation() == null) {
                 onInstallationFailed("Your mod file may be corrupt.");
-
+                
                 return;
             }
-
+            
             File currentPath = new File(InstallerCore.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-
+            
             if (!currentPath.exists() || currentPath.isDirectory()) {
                 onInstallationFailed("You are running the installer in a development environment.");
-
+                
                 return;
             }
-
+            
             File installLocation = new File(mcModDir, BUILT_FOR);
-
+            
             try {
                 // Remove other versions of the mod.
                 // If it fails then we should do nothing
@@ -103,33 +110,33 @@ public class InstallerCore {
                     }
                 } catch (NullPointerException ignored) {
                 }
-
+                
                 Files.copy(currentPath.toPath(), new File(installLocation, getModFileName() + ".jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
                 onInstallationFailed("The mod was unable to be written to the installation directory.");
-
+                
                 ex.printStackTrace();
-
+                
                 return;
             } catch (SecurityException ex) {
                 onInstallationFailed("The installer did not have permission to copy the mod to the mods directory. \nTry running the jar as an admin.");
-
+                
                 ex.printStackTrace();
-
+                
                 return;
             }
-
+            
             // Remove the file from the current directory.
             try {
                 currentPath.deleteOnExit();
             } catch (SecurityException ignored) {
                 // Had no permission to delete the file.
             }
-
+            
             JOptionPane.showMessageDialog(null, MOD_NAME + " (v" + MOD_VERSION + ") has been installed at: \n " + installLocation.getAbsolutePath() + "\n\nFrom: \n" + currentPath.getAbsolutePath() + "\n\nYou may delete this file now!", "Installation Successful", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-
+    
     private static int showStartupMenu() {
         String[] lines = new String[] {
                 "You are running the " + MOD_NAME + " installer for Minecraft v" + BUILT_FOR,
@@ -142,31 +149,31 @@ public class InstallerCore {
                 "If the installer fails, you will need to place the mod in your mods folder manually",
                 "Do you wish to continue?"
         };
-
+        
         return JOptionPane.showConfirmDialog(null, String.join("\n", lines), MOD_NAME + " Installer", JOptionPane.YES_NO_OPTION);
     }
-
+    
     private static String getModFileName() {
         return MOD_NAME + " v" + MOD_VERSION;
     }
-
+    
     private static void onInstallationFailed() {
         onInstallationFailed("");
     }
-
+    
     private static void onInstallationFailed(String additional) {
         String message = "Unable to install " + MOD_NAME + ", please place it in your \".minecraft/mods\" directory manually.";
-
+        
         if (OperatingSystem.getOSType() != OSType.UNKNOWN) {
             message += "\n\nIt should be located at: \n" + OperatingSystem.getMinecraftDirectory(OperatingSystem.getOSType());
         } else {
             message += "\n\nThe installer was unable to find the minecraft directory for your operating system.";
         }
-
+        
         if (additional.trim().length() > 0) {
             message += "\n\n" + additional;
         }
-
+        
         JOptionPane.showMessageDialog(null, message, "Installation Failed", JOptionPane.ERROR_MESSAGE);
     }
 }

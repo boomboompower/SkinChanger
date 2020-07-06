@@ -26,131 +26,264 @@ import wtf.boomy.mods.skinchanger.configuration.meta.SaveableField;
 import wtf.boomy.mods.skinchanger.utils.general.BetterJsonObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ConfigurationHandler {
-
-    @SaveableField(customName = "SuperSecretValue")
-    private final String specialValue = "HelloWorld";
-
+    
+    @SaveableField
+    private boolean usingAnimatedPlayer = true;
+    
+    @SaveableField
+    private boolean usingAnimatedCape = true;
+    
     private final SkinChangerMod mod;
     private final File configFile;
-
+    private final File capesDirectory;
+    
     private final HashMap<Class<?>, ConfigurationData[]> saveableValues = new HashMap<>();
-
+    
     public ConfigurationHandler(SkinChangerMod mod) {
         this.mod = mod;
-
+        
         this.configFile = new File(mod.getModConfigDirectory(), "config.json");
+        this.capesDirectory = new File(mod.getModConfigDirectory(), "capes");
+        
+        extractCapesDirectory();
     }
-
+    
     public void save() {
         if (this.saveableValues.isEmpty()) {
             return;
         }
-
+        
         BetterJsonObject saveObject = new BetterJsonObject();
-
+        
         for (Map.Entry<Class<?>, ConfigurationData[]> o : this.saveableValues.entrySet()) {
             Class<?> clazz = o.getKey();
-
+            
             // Where all our values will be saved to.
             BetterJsonObject classSpecific = new BetterJsonObject();
-
+            
             // The list of fields in the class containing data.
             ConfigurationData[] dataList = o.getValue();
-
+            
             // Loop through each data value.
             for (ConfigurationData data : dataList) {
                 // Retrieves the value from the field.
                 Object value = data.getValue();
-
+                
                 // Converts the field value into JSON.
                 JsonElement serializedData = saveObject.getGsonData().toJsonTree(value);
-
+                
                 // Add the JSON to our JSON config.
                 saveObject.getData().add(data.getSaveName(), serializedData);
             }
-
+            
             String clazzSaveName = o.getKey().getName();
-
+            
             if (clazz.isAnnotationPresent(SaveableClassData.class)) {
                 clazzSaveName = clazz.getAnnotation(SaveableClassData.class).saveName();
             }
-
+            
             // Adds that classes config module to the config file.
             saveObject.add(clazzSaveName, saveObject);
         }
-
+        
         saveObject.writeToFile(this.configFile);
     }
-
+    
     public void load() {
-
+    
     }
-
+    
     public void addAsSaveable(Object clazz) {
         if (clazz == null) {
             return;
         }
-
+        
         // If the class is already registered, don't add it again.
         if (this.saveableValues.containsKey(clazz.getClass())) {
             return;
         }
-
+        
         Field[] clazzFields = clazz.getClass().getDeclaredFields();
-
+        
         // Don't touch it if it has no fields
         if (clazzFields.length <= 0) {
             return;
         }
-
+        
         List<ConfigurationData> storedData = new ArrayList<>();
-
+        
         // True if a field has been found with a SaveableField attribute.
         boolean hasSaveableField = false;
-
+        
         for (Field f : clazzFields) {
             // Check if the field is actually saveable
             if (!f.isAnnotationPresent(SaveableField.class)) {
                 continue;
             }
-
+            
             hasSaveableField = true;
-
+            
             SaveableField saveable = f.getAnnotation(SaveableField.class);
-
+            
             String nameToSave = f.getName();
-
+            
             if (!saveable.customName().isEmpty()) {
                 nameToSave = saveable.customName();
             }
-
+            
             // Create an instance of this field.
             ConfigurationData data = new ConfigurationData(f, nameToSave, saveable.shouldOverwriteOnLoad());
-
+            
             data.initialize(clazz);
-
+            
             storedData.add(data);
         }
-
+        
         this.saveableValues.put(clazz.getClass(), storedData.toArray(new ConfigurationData[0]));
-
+        
         if (!hasSaveableField) {
             System.out.println("Class '%s' was called through ConfigurationHandler#addAsSaveable however no @SaveableField annotations were present on any fields. It is advised to deregister that class as calling this method for no purpose may degrade performance. ");
         }
     }
-
+    
+    /**
+     * Extracts the {@code capes.zip} file from the mod resources so the user does not need to
+     * download capes to use them (as they will already be on the computer).
+     * <p>
+     * This task will not be run if the capes directory already exists, or cannot be created.
+     */
+    public void extractCapesDirectory() {
+        // If the capes location exists and is a file we will delete the file
+        // if we cannot delete the file we will not attempt extraction since
+        // files can only be placed in a folder, not in another file (☞ﾟヮﾟ)☞
+        if (this.capesDirectory.exists() && this.capesDirectory.isFile()) {
+            if (!this.capesDirectory.delete()) {
+                return;
+            }
+        }
+        
+        // Something has already been extracted so we will terminate
+        // instead of trying to overwrite the existing files.
+        if (this.capesDirectory.exists()) {
+            return;
+        }
+        
+        // Tries to make the capes directory, breaks on a paradox
+        // if this fails the extraction is cancelled because it means
+        // the file will not be able to be extracted to an existing folder.
+        if (!this.capesDirectory.mkdirs()) {
+            return;
+        }
+        
+        try {
+            // Attempt to load the capes resource
+            InputStream content = getClass().getResourceAsStream("/capes.zip");
+            
+            // It's only around 34.6kb, but if the mod is distributed without it we can ignore the extraction.
+            if (content == null) {
+                return;
+            }
+            
+            // Increases the performance, usually completes in ~32ms, 2048 is quicker but uses more memory.
+            byte[] buffer = new byte[512];
+            
+            ZipInputStream zipFile = new ZipInputStream(content);
+            ZipEntry entry;
+            
+            // Iterates through the contents of the zip, if no more entries exist then the loop will end
+            while ((entry = zipFile.getNextEntry()) != null) {
+                // If the entry is a directory it will be skipped.
+                if (!entry.isDirectory()) {
+                    FileOutputStream output = null;
+                    
+                    try {
+                        // Creates a file relative to the path in the zip file
+                        File unzippedFile = new File(this.capesDirectory, entry.getName());
+                        
+                        // If for some reason the parent file of this entry doesn't exist, it should be made.
+                        // This attempts to make the parent folder.
+                        if (!unzippedFile.getParentFile().exists()) {
+                            if (!unzippedFile.getParentFile().mkdirs()) {
+                                continue;
+                            }
+                        }
+                        
+                        // Try make the file we will write to
+                        if (!unzippedFile.exists()) {
+                            if (!unzippedFile.createNewFile()) {
+                                continue;
+                            }
+                        }
+                        
+                        // Creates an output stream out of the existing file.
+                        output = new FileOutputStream(unzippedFile);
+                        
+                        int len;
+                        
+                        // Reads the bytes from the zip entry using the buffer for the specified length.
+                        while ((len = zipFile.read(buffer)) > 0) {
+                            output.write(buffer, 0, len);
+                        }
+                    } finally {
+                        // Closes the output file if possible.
+                        if (output != null) {
+                            output.close();
+                        }
+                    }
+                }
+                
+                // Releases the entry once we are done with it.
+                zipFile.closeEntry();
+            }
+            
+            // Releases the zip once we are done with it
+            zipFile.close();
+            
+            // Releases the resource once we are done. Saves memory.
+            content.close();
+        } catch (IOException ex) {
+            // Any errors shouldn't crash the game, this is cosmetic after all.
+            ex.printStackTrace();
+        }
+    }
+    
     public SkinChangerMod getMod() {
         return this.mod;
     }
-
+    
     public File getConfigFile() {
         return this.configFile;
+    }
+    
+    public File getCapesDirectory() {
+        return this.capesDirectory;
+    }
+    
+    public void setUsingAnimatedPlayer(boolean usingAnimatedPlayer) {
+        this.usingAnimatedPlayer = usingAnimatedPlayer;
+    }
+    
+    public void setUsingAnimatedCape(boolean usingAnimatedCape) {
+        this.usingAnimatedCape = usingAnimatedCape;
+    }
+    
+    public boolean isUsingAnimatedPlayer() {
+        return usingAnimatedPlayer;
+    }
+    
+    public boolean isUsingAnimatedCape() {
+        return this.usingAnimatedCape;
     }
 }

@@ -22,72 +22,124 @@ import wtf.boomy.mods.skinchanger.utils.general.Prerequisites;
 import java.lang.reflect.Field;
 
 /**
- * Stores the data for fields.
+ * Stores the data for a serializable field, allows for an OOP approach to retrieving data from a field.
+ *
+ * @author boomboompower
  */
 public class ConfigurationData {
-
+    
     private final Field field;
     private final String saveName;
     private final boolean overwriteOnLoad;
-
-    private Object parent;
-
+    
+    private Object parent; // null for static fields
+    
+    /**
+     * Constructor for a serializable field
+     *
+     * @param fieldIn the field to load data from
+     */
+    public ConfigurationData(Field fieldIn) {
+        this(fieldIn, fieldIn.getName(), true);
+    }
+    
+    /**
+     * Constructor for a serializable field
+     *
+     * @param fieldIn  the field to load data from
+     * @param saveName the name of the field as it appears in the json
+     */
     public ConfigurationData(Field fieldIn, String saveName) {
         this(fieldIn, saveName, true);
     }
-
+    
+    /**
+     * Constructor for a serializable field
+     *
+     * @param fieldIn         the field to load data from
+     * @param saveName        the name of the field as it appears in the json
+     * @param overwriteOnLoad true if the data of the field should be overwritten as soon as it is loaded.
+     */
     public ConfigurationData(Field fieldIn, String saveName, boolean overwriteOnLoad) {
         Prerequisites.notNull(fieldIn);
         Prerequisites.notNull(saveName);
-
+        
         this.field = fieldIn;
         this.saveName = saveName;
         this.overwriteOnLoad = overwriteOnLoad;
     }
-
+    
+    /**
+     * Returns the actual field instance which we will modify
+     *
+     * @return the field instance of the value we are saving/loading to/from memory.
+     */
     public Field getField() {
         return this.field;
     }
-
+    
+    /**
+     * Returns the name of the field as it appears in the json
+     *
+     * @return the name of the field in the JSON, e.g "varXYZ" can be called "xyz" in json.
+     */
     public String getSaveName() {
         return this.saveName;
     }
-
+    
+    /**
+     * Should this field be immediately updated as soon as it is loaded?
+     *
+     * @return true if the field should be updated as soon as it is loaded
+     */
     public boolean isOverwriteOnLoad() {
         return this.overwriteOnLoad;
     }
-
+    
+    /**
+     * Retrieves the value from the field using the instance provided in the constructor.
+     * In the event of an error this method will simply return null and print an error.
+     *
+     * @return the value of the field or null on error.
+     */
     public Object getValue() {
         boolean accessible = this.field.isAccessible();
-
+        
         try {
             boolean modified = false;
-
+            
             if (!accessible) {
                 modified = true;
-
+                
                 this.field.setAccessible(true);
             }
-
+            
             Object value = this.field.get(this.parent);
-
+            
             if (modified) {
                 this.field.setAccessible(false);
             }
-
+            
             return value;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
+        
         return null;
     }
-
+    
+    /**
+     * Initializes the field with a parent object (this is the class instance containing the field).
+     * <br />
+     * This method will be ignored if the field has already been initialized.
+     *
+     * @param parent the parent of the field
+     */
     public void initialize(Object parent) {
         if (this.parent != null || parent == null) {
             return;
         }
-
+        
         this.parent = parent;
     }
 }

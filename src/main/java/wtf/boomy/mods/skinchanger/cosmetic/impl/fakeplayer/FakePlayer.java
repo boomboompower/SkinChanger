@@ -52,16 +52,21 @@ public class FakePlayer extends AbstractClientPlayer {
     public FakePlayer() {
         this(Minecraft.getMinecraft().thePlayer.worldObj);
     }
-
+    
+    /**
+     * Clones the resources from a user
+     *
+     * @param player the player to clone
+     */
     public FakePlayer(AbstractClientPlayer player) {
         this(player.worldObj);
-
+        
         getPlayerInfo().setLocationSkin(player.getLocationSkin());
         getPlayerInfo().setLocationCape(player.getLocationCape());
         getPlayerInfo().setSkinType(player.getSkinType());
     }
-
-    // This is required for comparability.
+    
+    // All entities require a world constructor
     public FakePlayer(World world) {
         super(world, FAKE_GAME_PROFILE);
     }
@@ -69,6 +74,45 @@ public class FakePlayer extends AbstractClientPlayer {
     @Override
     public FakePlayerInfo getPlayerInfo() {
         return this.playerInfo == null ? this.playerInfo = new FakePlayerInfo(this) : this.playerInfo;
+    }
+    
+    @Override
+    public void addChatComponentMessage(IChatComponent component) {
+    }
+    
+    @Override
+    public void addStat(StatBase stat, int amount) {
+    }
+    
+    @Override
+    public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
+    }
+    
+    @Override
+    public void onUpdate() {
+    }
+    
+    @Override
+    public void onDeath(DamageSource source) {
+    }
+    
+    @Override
+    public void travelToDimension(int dim) {
+    }
+    
+    @Override
+    public boolean isEntityInvulnerable(DamageSource source) {
+        return true;
+    }
+    
+    @Override
+    public boolean canAttackPlayer(EntityPlayer player) {
+        return false;
+    }
+    
+    @Override
+    public boolean canCommandSenderUseCommand(int permLevel, String commandName) {
+        return false;
     }
     
     @Override
@@ -86,45 +130,6 @@ public class FakePlayer extends AbstractClientPlayer {
         return new Vec3(0, 0, 0);
     }
     
-    @Override
-    public boolean canCommandSenderUseCommand(int permLevel, String commandName) {
-        return false;
-    }
-    
-    @Override
-    public void addChatComponentMessage(IChatComponent chatmessagecomponent) {
-    }
-    
-    @Override
-    public void addStat(StatBase stat, int amount) {
-    }
-    
-    @Override
-    public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
-    }
-    
-    @Override
-    public boolean isEntityInvulnerable(DamageSource source){
-        return true;
-    }
-    
-    @Override
-    public boolean canAttackPlayer(EntityPlayer player){
-        return false;
-    }
-    
-    @Override
-    public void onDeath(DamageSource source) {
-    }
-    
-    @Override
-    public void onUpdate() {
-    }
-    
-    @Override
-    public void travelToDimension(int dim) {
-    }
-
     /**
      * Copies resources from one player to another.
      *
@@ -135,12 +140,12 @@ public class FakePlayer extends AbstractClientPlayer {
         getPlayerInfo().setLocationCape(player.getLocationCape());
         getPlayerInfo().setSkinType(player.getSkinType());
     }
-
+    
     /**
      * Copies resources from an external source
      *
-     * @param skin the skin resource
-     * @param cape the cape resource
+     * @param skin     the skin resource
+     * @param cape     the cape resource
      * @param skinType the skin type
      */
     public void copyFrom(ResourceLocation skin, ResourceLocation cape, String skinType) {

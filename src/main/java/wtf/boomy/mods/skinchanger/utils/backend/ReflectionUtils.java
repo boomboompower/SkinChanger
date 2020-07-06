@@ -32,14 +32,14 @@ import java.util.List;
  * of java's internal reflection implementations whilst remaining sun-free!
  */
 public class ReflectionUtils {
-
+    
     // Stores logs which have already been sent.
     private static final List<String> logs = new ArrayList<>();
-
+    
     /**
      * Finds a method from a given name. Supports forge mapped names
      *
-     * @param clazz the class to search
+     * @param clazz       the class to search
      * @param methodNames the different method names
      * @param methodTypes the constructor of the method
      *
@@ -54,37 +54,37 @@ public class ReflectionUtils {
             throw new ReflectionHelper.UnableToFindMethodException(methodNames, e);
         }
     }
-
+    
     /**
      * Force sets a private value
      *
      * @param classToAccess the class to access
-     * @param instance the instance of the class
-     * @param value the value to set the field to
-     * @param fieldNames the names of each field
+     * @param instance      the instance of the class
+     * @param value         the value to set the field to
+     * @param fieldNames    the names of each field
      */
     public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, E value, String... fieldNames) {
         try {
             ReflectionHelper.setPrivateValue(classToAccess, instance, value,
-                ObfuscationReflectionHelper.remapFieldNames(classToAccess.getName(), fieldNames));
+                    ObfuscationReflectionHelper.remapFieldNames(classToAccess.getName(), fieldNames));
         } catch (Throwable e) {
             sendLog("[" + classToAccess.getSimpleName() + "] No methods found for arguments: %s !", Arrays.toString(fieldNames));
         }
     }
-
+    
     /**
      * Just so logs aren't spammed. Display the error once.
      *
-     * @param message the message which will be sent
+     * @param message    the message which will be sent
      * @param formatting formatting for the message
      */
     private static void sendLog(String message, Object... formatting) {
         if (logs.contains(message)) {
             return;
         }
-
+        
         System.out.println(String.format(message, formatting));
-
+        
         logs.add(message);
     }
 }

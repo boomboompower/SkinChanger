@@ -2,7 +2,7 @@
   "comments": [
     "This code is adapted from Minecraft's own blur shader",
     "",
-    "The radius of the blur has been downscaled to be less harsh",
+    "The radius of the blur has been decreased for a smoother blur",
     "Internally, Minecraft's blur shader will still be used"
   ],
 

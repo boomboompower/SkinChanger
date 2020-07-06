@@ -18,82 +18,68 @@
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
 import java.awt.Color;
-import java.util.Timer;
-import java.util.TimerTask;
+
+import net.minecraft.client.gui.FontRenderer;
 
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ChatAllowedCharacters;
 
+/**
+ * A modified vanilla class textbox
+ */
 public class ModernTextBox {
-
-    private String alertMessage = "";
-
+    
     private final int id;
-    private final FontRenderer fontRendererInstance;
-    public int xPosition;
-    public int yPosition;
-    /** The width of this text field. */
+    
+    public int x;
+    public int y;
+    
     public int width;
     public int height;
-    /** Has the current text being edited on the textbox. */
+    
     private String text = "";
+    
     private int maxStringLength = 16;
     private int cursorCounter;
-    private boolean enableBackgroundDrawing = true;
-    /** if true the textbox can lose focus by clicking elsewhere on the screen */
-    private boolean canLoseFocus = true;
-    /** If this value is true along with isEnabled, keyTyped will process the keys. */
+    
     private boolean isFocused = false;
-    /** If this value is true along with isFocused, keyTyped will process the keys. */
     private boolean isEnabled = true;
-    /** The current character index that should be used as start of the rendered text. */
-    private int lineScrollOffset;
+    
+    private int lineScrollOffset; // The current character index that should be used as start of the rendered text.
     private int cursorPosition;
-    /** other selection position, maybe the same as the cursor */
+    
     private int selectionEnd;
     private int enabledColor = 14737632;
     private int disabledColor = 7368816;
-    /** True if this textbox is visible */
-    private boolean visible = true;
-
-    private boolean onlyAllowNumbers;
+    
     private final String noTextMessage;
-
-    private boolean alertRunning = false;
-
+    
     public ModernTextBox(int componentId, int x, int y, int width, int height) {
-        this(componentId, x, y, width, height, false);
+        this(componentId, x, y, width, height, "Write Here!");
     }
-
-    public ModernTextBox(int componentId, int x, int y, int width, int height, boolean onlyAllowNumbers) {
-        this(componentId, x, y, width, height, "Write Here!", onlyAllowNumbers);
-    }
-
-    public ModernTextBox(int componentId, int x, int y, int width, int height, String noTextMessage, boolean onlyAllowNumbers) {
+    
+    public ModernTextBox(int componentId, int x, int y, int width, int height, String noTextMessage) {
         this.id = componentId;
-        this.fontRendererInstance = Minecraft.getMinecraft().fontRendererObj;
-        this.xPosition = x;
-        this.yPosition = y;
+        this.x = x;
+        this.y = y;
         this.width = width;
         this.height = height;
         this.noTextMessage = noTextMessage;
-        this.onlyAllowNumbers = onlyAllowNumbers;
     }
-
+    
     /**
      * Increments the cursor counter
      */
     public void updateCursorCounter() {
         ++this.cursorCounter;
     }
-
+    
     /**
      * Sets the text of the textbox
      */
@@ -104,21 +90,16 @@ public class ModernTextBox {
             return;
         }
         
-        if (format(text).length() > this.maxStringLength) {
-            this.text = format(text).substring(0, this.maxStringLength);
-        } else {
-            this.text = format(text);
-        }
         this.setCursorPositionEnd();
     }
-
+    
     /**
      * @return Returns the contents of the textbox
      */
     public String getText() {
         return this.text;
     }
-
+    
     /**
      * @return returns the text between the cursor and selectionEnd
      */
@@ -127,7 +108,7 @@ public class ModernTextBox {
         int j = Math.max(this.cursorPosition, this.selectionEnd);
         return this.text.substring(i, j);
     }
-
+    
     /**
      * replaces selected text, or inserts text at the position on the cursor
      *
@@ -140,11 +121,11 @@ public class ModernTextBox {
         int j = Math.max(this.cursorPosition, this.selectionEnd);
         int k = this.maxStringLength - this.text.length() - (i - j);
         int l;
-
+        
         if (this.text.length() > 0) {
             s = s + this.text.substring(0, i);
         }
-
+        
         if (k < s1.length()) {
             s = s + s1.substring(0, k);
             l = k;
@@ -152,15 +133,15 @@ public class ModernTextBox {
             s = s + s1;
             l = s1.length();
         }
-
+        
         if (this.text.length() > 0 && j < this.text.length()) {
             s = s + this.text.substring(j);
         }
-
+        
         this.text = s;
         this.moveCursorBy(i - this.selectionEnd + l);
     }
-
+    
     /**
      * Deletes the specified number of words starting at the cursor position. Negative numbers will delete words left of
      * the cursor.
@@ -176,7 +157,7 @@ public class ModernTextBox {
             }
         }
     }
-
+    
     /**
      * delete the selected text, otherwise deletes characters from either side of the cursor. params: delete num
      */
@@ -188,54 +169,54 @@ public class ModernTextBox {
                 boolean flag = num < 0;
                 int i = flag ? this.cursorPosition + num : this.cursorPosition;
                 int j = flag ? this.cursorPosition : this.cursorPosition + num;
-
+                
                 String newText = "";
-
+                
                 if (i >= 0) {
                     newText = this.text.substring(0, i);
                 }
-
+                
                 if (j < this.text.length()) {
                     newText = newText + this.text.substring(j);
                 }
-
+                
                 this.text = newText;
-
+                
                 if (flag) {
                     moveCursorBy(num);
                 }
             }
         }
     }
-
+    
     public int getId() {
         return this.id;
     }
-
+    
     /**
      * see @getNthNextWordFromPos() params: N, position
      */
     public int getNthWordFromCursor(int position) {
         return this.getNthWordFromPos(position, this.getCursorPosition());
     }
-
+    
     /**
      * gets the position of the nth word. N may be negative, then it looks backwards. params: N, position
      */
     public int getNthWordFromPos(int number, int position) {
         return this.getNthWordFromPos(number, position, true);
     }
-
+    
     public int getNthWordFromPos(int number, int position, boolean something) {
         int i = position;
         boolean flag = number < 0;
         int j = Math.abs(number);
-
+        
         for (int k = 0; k < j; ++k) {
             if (!flag) {
                 int l = this.text.length();
                 i = this.text.indexOf(32, i);
-
+                
                 if (i == -1) {
                     i = l;
                 } else {
@@ -244,26 +225,26 @@ public class ModernTextBox {
                     }
                 }
             } else {
-                while (something && i > 0 && this.text.charAt(i -1) == 32) {
+                while (something && i > 0 && this.text.charAt(i - 1) == 32) {
                     --i;
                 }
-
-                while (i > 0 && this.text.charAt(i -1) != 32) {
+                
+                while (i > 0 && this.text.charAt(i - 1) != 32) {
                     --i;
                 }
             }
         }
-
+        
         return i;
     }
-
+    
     /**
      * Moves the text cursor by a specified number of characters and clears the selection
      */
     public void moveCursorBy(int moveBy) {
         this.setCursorPosition(this.selectionEnd + moveBy);
     }
-
+    
     /**
      * sets the position of the cursor to the provided index
      */
@@ -273,29 +254,29 @@ public class ModernTextBox {
         this.cursorPosition = clamp(this.cursorPosition, i);
         this.setSelectionPos(this.cursorPosition);
     }
-
+    
     /**
      * sets the cursors position to the beginning
      */
     public void setCursorPositionZero() {
         this.setCursorPosition(0);
     }
-
+    
     /**
      * sets the cursors position to after the text
      */
     public void setCursorPositionEnd() {
         this.setCursorPosition(this.text.length());
     }
-
+    
     /**
      * Call this method from your GuiScreen to process the keys into the textbox
      */
     public void textboxKeyTyped(char c, int keyCode) {
-        if (!this.isFocused || this.alertRunning) {
+        if (!this.isFocused) {
             return;
         }
-
+        
         if (ModernGui.isKeyComboCtrlA(keyCode)) {
             this.setCursorPositionEnd();
             this.setSelectionPos(0);
@@ -303,12 +284,12 @@ public class ModernTextBox {
             ModernGui.setClipboardString(getSelectedText());
         } else if (ModernGui.isKeyComboCtrlV(keyCode)) {
             if (this.isEnabled) {
-                this.writeText(format(ModernGui.getClipboardString()));
+                this.writeText(ModernGui.getClipboardString());
             }
-
+            
         } else if (ModernGui.isKeyComboCtrlX(keyCode)) {
             ModernGui.setClipboardString(getSelectedText());
-
+            
             if (this.isEnabled) {
                 this.writeText("");
             }
@@ -317,13 +298,12 @@ public class ModernTextBox {
                 case 14:
                     if (ModernGui.isCtrlKeyDown()) {
                         if (this.isEnabled) {
-                            deleteWords( -1);
+                            deleteWords(-1);
                         }
+                    } else if (this.isEnabled) {
+                        deleteFromCursor(-1);
                     }
-                    else if (this.isEnabled) {
-                        deleteFromCursor( -1);
-                    }
-
+                    
                     return;
                 case 199:
                     if (ModernGui.isShiftKeyDown()) {
@@ -335,16 +315,16 @@ public class ModernTextBox {
                 case 203:
                     if (ModernGui.isShiftKeyDown()) {
                         if (ModernGui.isCtrlKeyDown()) {
-                            setSelectionPos(this.getNthWordFromPos( -1, this.getSelectionEnd()));
+                            setSelectionPos(this.getNthWordFromPos(-1, this.getSelectionEnd()));
                         } else {
-                            setSelectionPos(this.getSelectionEnd() -1);
+                            setSelectionPos(this.getSelectionEnd() - 1);
                         }
                     } else if (ModernGui.isCtrlKeyDown()) {
-                        setCursorPosition(this.getNthWordFromCursor( -1));
+                        setCursorPosition(this.getNthWordFromCursor(-1));
                     } else {
                         moveCursorBy(-1);
                     }
-
+                    
                     return;
                 case 205:
                     if (ModernGui.isShiftKeyDown()) {
@@ -377,211 +357,185 @@ public class ModernTextBox {
                     return;
                 default:
                     if (ChatAllowedCharacters.isAllowedCharacter(c)) {
-                        if (onlyAllowNumbers) {
-                            if (Character.isDigit(c)) {
-                                if (this.isEnabled) {
-                                    this.writeText(Character.toString(c));
-                                }
-                            } else if (!this.alertRunning) {
-                                alert("Only numbers can be used!", 1250);
-                            }
-                        } else {
-                            if (this.isEnabled) {
-                                this.writeText(Character.toString(c));
-                            }
+                        if (this.isEnabled) {
+                            this.writeText(Character.toString(c));
                         }
                     }
             }
         }
     }
-
+    
     /**
      * Args: x, y, buttonClicked
      */
     public void mouseClicked(int x, int y, int buttonClicked) {
-        boolean flag = x >= this.xPosition && x < this.xPosition + this.width && y >= this.yPosition && y < this.yPosition + this.height;
-
-        if (this.canLoseFocus && this.isEnabled && !this.alertRunning) {
+        boolean flag = x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
+        
+        if (this.isEnabled) {
             this.setFocused(flag);
         }
-
+        
         if (this.isFocused && flag && buttonClicked == 0) {
-            int i = x - this.xPosition;
-
-            if (this.enableBackgroundDrawing) {
-                i -= 4;
-            }
-
-            String s = this.fontRendererInstance.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
-            this.setCursorPosition(this.fontRendererInstance.trimStringToWidth(s, i).length() + this.lineScrollOffset);
+            int i = x - this.x;
+            
+            i -= 4;
+            
+            FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+            
+            String s = fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
+            this.setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + this.lineScrollOffset);
         }
     }
-
+    
     /**
      * Draws the textbox
      */
     public void drawTextBox() {
-        if (this.getVisible()) {
-            if (this.getEnableBackgroundDrawing()) {
-                if (this.isEnabled) {
-                    ModernGui.drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, new Color(0, 148, 255, 75).getRGB());
-                } else {
-                    ModernGui.drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height,  new Color(0, 125, 215, 75).getRGB());
-                }
-            }
-
-            int textColor = this.isEnabled ? this.enabledColor : this.disabledColor;
-            int j = this.cursorPosition - this.lineScrollOffset;
-            int k = this.selectionEnd - this.lineScrollOffset;
-            String trimmedString = this.fontRendererInstance.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
-            boolean flag = j >= 0 && j <= trimmedString.length();
-            boolean flag1 = this.isFocused && this.cursorCounter / 6 % 2 == 0 && flag;
-            int l = this.enableBackgroundDrawing ? this.xPosition + 4 : this.xPosition;
-            int i1 = this.enableBackgroundDrawing ? this.yPosition + (this.height - 8) / 2 : this.yPosition;
-            int j1 = l;
-
-            if (k > trimmedString.length()) {
-                k = trimmedString.length();
-            }
-
-            if (!this.alertMessage.isEmpty()) {
-                this.fontRendererInstance.drawString(this.alertMessage, ((this.xPosition + (float) this.width / 2) - (float) this.fontRendererInstance.getStringWidth(this.alertMessage) / 2), this.yPosition + (float) this.height / 2 - 4, enabledColor, false);
-                return;
-            }
-
-            if (trimmedString.isEmpty() && !this.isFocused && this.isEnabled) {
-                this.fontRendererInstance.drawString(this.noTextMessage, ((this.xPosition + (float) this.width / 2) - (float) this.fontRendererInstance.getStringWidth(this.noTextMessage) / 2), this.yPosition + (float) this.height / 2 - 4, textColor, false);
-                return;
-            }
-
-            if (trimmedString.length() > 0) {
-                String s1 = flag ? trimmedString.substring(0, j) : trimmedString;
-
-                j1 = this.fontRendererInstance.drawString(s1, (float) l, (float) i1, textColor, false);
-            }
-
-            boolean drawFlashingLine = this.cursorPosition < this.text.length() || this.text.length() >= getMaxStringLength();
-
-            int k1 = j1;
-
-            if (!flag) {
-                k1 = j > 0 ? l + this.width: l;
-            } else if (drawFlashingLine) {
-                k1 = j1 -1; --j1;
-            }
-
-            if (trimmedString.length() > 0 && flag && j < trimmedString.length()) {
-                this.fontRendererInstance.drawString(trimmedString.substring(j), (float) j1, (float) i1, textColor, false);
-            }
-
-            if (flag1) {
-                if (drawFlashingLine) {
-                    ModernGui.drawRect(k1, i1 -1, k1 + 1, i1 + 1 + this.fontRendererInstance.FONT_HEIGHT, -3092272);
-                } else {
-                    this.fontRendererInstance.drawString("_", (float) k1, (float) i1, textColor, false);
-                }
-            }
-
-            if (k != j) {
-                int widthOfStr = l + this.fontRendererInstance.getStringWidth(trimmedString.substring(0, k));
-
-                drawCursorVertical(k1, i1 -1, widthOfStr - 1, i1 + 1 + this.fontRendererInstance.FONT_HEIGHT);
+        Color backgroundColor;
+        
+        if (this.isEnabled) {
+            backgroundColor = new Color(0, 148, 255, 75);
+        } else {
+            backgroundColor = new Color(0, 125, 215, 75);
+        }
+        
+        ModernGui.drawRect(this.x, this.y, this.x + this.width, this.y + this.height, backgroundColor.getRGB());
+        
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+        
+        int textColor = this.isEnabled ? this.enabledColor : this.disabledColor;
+        int j = this.cursorPosition - this.lineScrollOffset;
+        int lengthOfSelection = this.selectionEnd - this.lineScrollOffset;
+        String trimmedString = fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
+        boolean flag = j >= 0 && j <= trimmedString.length();
+        boolean flag1 = this.isFocused && this.cursorCounter / 6 % 2 == 0 && flag;
+        int l = this.x + 4;
+        int i1 = this.y + (this.height - 8) / 2;
+        int j1 = l;
+        
+        if (lengthOfSelection > trimmedString.length()) {
+            lengthOfSelection = trimmedString.length();
+        }
+        
+        if (trimmedString.isEmpty() && !this.isFocused && this.isEnabled) {
+            fontRenderer.drawString(this.noTextMessage, ((this.x + (float) this.width / 2) - (float) fontRenderer.getStringWidth(this.noTextMessage) / 2), this.y + (float) this.height / 2 - 4, textColor, false);
+            return;
+        }
+        
+        if (trimmedString.length() > 0) {
+            String s1 = flag ? trimmedString.substring(0, j) : trimmedString;
+            
+            j1 = fontRenderer.drawString(s1, (float) l, (float) i1, textColor, false);
+        }
+        
+        boolean drawFlashingLine = this.cursorPosition < this.text.length() || this.text.length() >= getMaxStringLength();
+        
+        int k1 = j1;
+        
+        if (!flag) {
+            k1 = j > 0 ? l + this.width : l;
+        } else if (drawFlashingLine) {
+            k1 = j1 - 1;
+            --j1;
+        }
+        
+        if (trimmedString.length() > 0 && flag && j < trimmedString.length()) {
+            fontRenderer.drawString(trimmedString.substring(j), (float) j1, (float) i1, textColor, false);
+        }
+        
+        if (flag1) {
+            if (drawFlashingLine) {
+                ModernGui.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + fontRenderer.FONT_HEIGHT, -3092272);
+            } else {
+                fontRenderer.drawString("_", (float) k1, (float) i1, textColor, false);
             }
         }
+        
+        if (lengthOfSelection != j) {
+            int widthOfStr = l + fontRenderer.getStringWidth(trimmedString.substring(0, lengthOfSelection));
+            
+            drawCursorVertical(k1, i1 - 1, widthOfStr - 1, i1 + 1 + fontRenderer.FONT_HEIGHT);
+        }
     }
-
+    
     /**
      * draws the vertical line cursor in the textbox
      */
     private void drawCursorVertical(int startX, int endY, int endX, int startY) {
         if (startX < endX) {
             int tempX = startX;
-
+            
             startX = endX;
             endX = tempX;
         }
-
+        
         if (endY < startY) {
             int tempY = endY;
-
+            
             endY = startY;
             startY = tempY;
         }
-
-        if (endX > this.xPosition + this.width) {
-            endX = this.xPosition + this.width;
+        
+        if (endX > this.x + this.width) {
+            endX = this.x + this.width;
         }
-
-        if (startX > this.xPosition + this.width) {
-            startX = this.xPosition + this.width;
+        
+        if (startX > this.x + this.width) {
+            startX = this.x + this.width;
         }
-
+        
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-
+        
         GlStateManager.color(0.0F, 0.0F, 255.0F, 255.0F);
         GlStateManager.disableTexture2D();
         GlStateManager.enableColorLogic();
         GlStateManager.colorLogicOp(5387);
-
+        
         worldrenderer.begin(7, DefaultVertexFormats.POSITION);
         worldrenderer.pos(startX, startY, 0.0D).endVertex();
         worldrenderer.pos(endX, startY, 0.0D).endVertex();
         worldrenderer.pos(endX, endY, 0.0D).endVertex();
         worldrenderer.pos(startX, endY, 0.0D).endVertex();
-
+        
         tessellator.draw();
         GlStateManager.disableColorLogic();
         GlStateManager.enableTexture2D();
     }
-
+    
     public void setMaxStringLength(int length) {
         this.maxStringLength = length;
-
+        
         if (this.text.length() > length) {
             this.text = this.text.substring(0, length);
         }
     }
-
+    
     /**
      * returns the maximum number of character that can be contained in this textbox
      */
     public int getMaxStringLength() {
         return this.maxStringLength;
     }
-
+    
     /**
      * returns the current position of the cursor
      */
     public int getCursorPosition() {
         return this.cursorPosition;
     }
-
-    /**
-     * get enable drawing background and outline
-     */
-    public boolean getEnableBackgroundDrawing() {
-        return this.enableBackgroundDrawing;
-    }
-
-    /**
-     * enable drawing background and outline
-     */
-    public void setEnableBackgroundDrawing(boolean enableBackgroundDrawing) {
-        this.enableBackgroundDrawing = enableBackgroundDrawing;
-    }
-
+    
     /**
      * Sets the text colour for this textbox (disabled text will not use this colour)
      */
     public void setTextColor(int color) {
         this.enabledColor = color;
     }
-
+    
     public void setDisabledTextColour(int color) {
         this.disabledColor = color;
     }
-
+    
     /**
      * Sets focus to this gui element
      */
@@ -591,137 +545,78 @@ public class ModernTextBox {
         }
         this.isFocused = isFocused;
     }
-
+    
     /**
      * Getter for the focused field
      */
     public boolean isFocused() {
         return this.isFocused;
     }
-
+    
     public void setEnabled(boolean enabled) {
         this.isEnabled = enabled;
     }
-
+    
     public boolean isEnabled() {
         return this.isEnabled;
     }
-
+    
     /**
      * the side of the selection that is not the cursor, may be the same as the cursor
      */
     public int getSelectionEnd() {
         return this.selectionEnd;
     }
-
+    
     /**
      * returns the width of the textbox depending on if background drawing is enabled
      */
     public int getWidth() {
-        return this.getEnableBackgroundDrawing() ? this.width - 8 : this.width;
+        return this.width - 8;
     }
-
+    
     /**
      * Sets the position of the selection anchor (i.e. position the selection was started at)
      */
     public void setSelectionPos(int pos) {
         int i = this.text.length();
-
+        
         if (pos > i) {
             pos = i;
         }
         if (pos < 0) {
             pos = 0;
         }
-
+        
         this.selectionEnd = pos;
-
-        if (this.fontRendererInstance != null) {
+        
+        FontRenderer renderer = Minecraft.getMinecraft().fontRendererObj;
+        
+        if (renderer != null) {
+            
             if (this.lineScrollOffset > i) {
                 this.lineScrollOffset = i;
             }
-
+            
             int j = this.getWidth();
-            String s = this.fontRendererInstance.trimStringToWidth(this.text.substring(this.lineScrollOffset), j);
+            String s = renderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), j);
             int k = s.length() + this.lineScrollOffset;
-
+            
             if (pos == this.lineScrollOffset) {
-                this.lineScrollOffset -= this.fontRendererInstance.trimStringToWidth(this.text, j, true).length();
+                this.lineScrollOffset -= renderer.trimStringToWidth(this.text, j, true).length();
             }
-
+            
             if (pos > k) {
                 this.lineScrollOffset += pos - k;
             } else if (pos <= this.lineScrollOffset) {
                 this.lineScrollOffset -= this.lineScrollOffset - pos;
             }
-
+            
             this.lineScrollOffset = clamp(this.lineScrollOffset, i);
         }
     }
-
-    /**
-     * if true the textbox can lose focus by clicking elsewhere on the screen
-     */
-    public void setCanLoseFocus(boolean canLoseFocus) {
-        this.canLoseFocus = canLoseFocus;
-    }
-
-    /**
-     * returns true if this textbox is visible
-     */
-    public boolean getVisible() {
-        return this.visible;
-    }
-
-    /**
-     * Sets whether or not this textbox is visible
-     */
-    public void setVisible(boolean isVisible) {
-        this.visible = isVisible;
-    }
-
-    public boolean isAlertRunning() {
-        return this.alertRunning;
-    }
-
-    public void alert(String message, int time) {
-        if (message.isEmpty()) return;
-
-        this.alertRunning = true;
-        this.alertMessage = message;
-
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                alertMessage = "";
-                alertRunning = false;
-            }
-        }, time);
-    }
-
-    public void setOnlyAllowNumbers(boolean onlyAllowNumbers) {
-        this.onlyAllowNumbers = onlyAllowNumbers;
-    }
-
-    public boolean onlyAllowNumbers() {
-        return this.onlyAllowNumbers;
-    }
-
+    
     private int clamp(int input, int max) {
         return input > max ? max : Math.max(input, 0);
-    }
-
-    private String format(String input) {
-        if (this.onlyAllowNumbers) {
-            StringBuilder builder = new StringBuilder();
-            for (char c : input.toCharArray()) {
-                if (Character.isDigit(c)) {
-                    builder.append(c);
-                }
-            }
-            return builder.toString();
-        } else {
-            return input;
-        }
     }
 }

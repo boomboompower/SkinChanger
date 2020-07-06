@@ -28,28 +28,28 @@ import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernHeader;
  * @since 3.0.0
  */
 public interface ModernUIElement {
-
+    
     /**
      * Returns the x position of this element
      *
      * @return the x position of the element.
      */
     public int getX();
-
+    
     /**
      * Returns the y location of this element (not translated)
      *
      * @return the y position of the element.
      */
     public int getY();
-
+    
     /**
      * Returns the width of this element.
      *
      * @return the width of the element
      */
     public int getWidth();
-
+    
     /**
      * Calls the render function for the element.
      *
@@ -57,24 +57,24 @@ public interface ModernUIElement {
      * @param mouseY the current y position of the mouse.
      */
     public void render(int mouseX, int mouseY, float yTranslation);
-
+    
     /**
      * Renders the element from a header position. By default this will just call the {@link
      * #render(int, int, float)} method, however some {@link ModernUIElement}'s will react differently
      * to this change.
      *
-     * @param xPos the x position of the element
-     * @param yPos the y position of the element
-     * @param yTranslation the translation in the y axis
-     * @param mouseX the raw x location of the mouse
-     * @param mouseY the raw y location of the mouse
+     * @param xPos               the x position of the element
+     * @param yPos               the y position of the element
+     * @param yTranslation       the translation in the y axis
+     * @param mouseX             the raw x location of the mouse
+     * @param mouseY             the raw y location of the mouse
      * @param recommendedYOffset the recommended offset this {@link ModernUIElement} should follow (how
-     *     far down it should be shifted).
+     *                           far down it should be shifted).
      */
     public default void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
         render(mouseX, mouseY, yTranslation);
     }
-
+    
     /**
      * Should this element be drawn? If this is false the header will not call the {@link
      * #render(int, int, float)} method.
@@ -82,7 +82,7 @@ public interface ModernUIElement {
      * @return true if {@link #render(int, int, float)} should be called for the element.
      */
     public boolean isEnabled();
-
+    
     /**
      * Tells this element to register itself as part of this header. Some elements will react
      * differently to this change
@@ -90,7 +90,7 @@ public interface ModernUIElement {
      * @param parent the header which the element should be set under.
      */
     public void setAsPartOfHeader(ModernHeader parent);
-
+    
     /**
      * Stops this element being translatable
      *
@@ -99,7 +99,7 @@ public interface ModernUIElement {
     public default ModernUIElement disableTranslatable() {
         return this;
     }
-
+    
     /**
      * Should this element be translated (up/down)
      *
@@ -108,7 +108,7 @@ public interface ModernUIElement {
     public default boolean isTranslatable() {
         return true;
     }
-
+    
     /**
      * Should this element be rendered relative to its header (if its part of one)?
      *

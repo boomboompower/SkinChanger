@@ -27,21 +27,26 @@ import net.minecraft.util.ResourceLocation;
 
 /**
  * The NetworkPlayerInfo of the {@link FakePlayer}
- *
+ * <p>
  * Provides additional methods not included in the normal NetworkPlayerInfo class. This saves us from using reflection instead.
  */
 public class FakePlayerInfo extends NetworkPlayerInfo {
     
     private final GameProfile profile;
     
-    /** The ResourceLocation for the skin */
+    /**
+     * The ResourceLocation for the skin
+     */
     private ResourceLocation locationSkin;
     
-    /** The ResourceLocation for the cape */
+    /**
+     * The ResourceLocation for the cape
+     */
     private ResourceLocation locationCape;
     
-    /** The type of skin model
-     *
+    /**
+     * The type of skin model
+     * <p>
      * Steve = "default"
      * Alex  = "slim"
      */
@@ -89,7 +94,7 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
         if (skinType == null || skinType.trim().isEmpty()) {
             skinType = "default";
         }
-
+        
         this.skinType = skinType;
     }
     

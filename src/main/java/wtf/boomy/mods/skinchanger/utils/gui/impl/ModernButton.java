@@ -46,8 +46,8 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     private int width;
     private int height;
 
-    private final int xPosition;
-    private final int yPosition;
+    private final int x;
+    private final int y;
 
     private boolean enabled;
     private boolean visible;
@@ -83,8 +83,8 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         this.enabled = true;
         this.visible = true;
         this.id = buttonId;
-        this.xPosition = x;
-        this.yPosition = y;
+        this.x = x;
+        this.y = y;
         this.width = widthIn;
         this.height = heightIn;
         this.displayString = buttonText;
@@ -92,12 +92,12 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
     @Override
     public int getX() {
-        return this.xPosition;
+        return this.x;
     }
 
     @Override
     public int getY() {
-        return this.yPosition;
+        return this.y;
     }
 
     @Override
@@ -107,8 +107,8 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            int xPosition = this.xPosition;
-            int yPosition = this.yPosition;
+            int xPosition = this.x;
+            int yPosition = this.y;
 
             this.hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
             int i = this.getHoverState(this.hovered);
@@ -164,8 +164,8 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
             return false;
         }
 
-        int xPosition = this.xPosition;
-        int yPosition = this.yPosition;
+        int xPosition = this.x;
+        int yPosition = this.y;
 
         if (this.partOfHeader) {
             yPosition = this.recommendedYPosition;

@@ -22,24 +22,24 @@ package wtf.boomy.mods.skinchanger.options;
  *
  * @param <T> the type of data to receive
  *
- * @since 3.0.0
  * @author boomboompower
+ * @since 3.0.0
  */
 public interface SimpleCallback<T> {
-
+    
     /**
      * Runs the callback and provides the associated data
      *
      * @param data the data to receive once the callback is run
      */
     public abstract void run(T data);
-
+    
     /**
      * Called when this callback is cancelled
      */
     public default void onCancel() {
     }
-
+    
     /**
      * Called when an error occurs while running this callback
      *
@@ -47,5 +47,5 @@ public interface SimpleCallback<T> {
      */
     public default void onError(String message) {
     }
-
+    
 }

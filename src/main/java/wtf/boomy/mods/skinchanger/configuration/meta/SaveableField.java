@@ -27,14 +27,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface SaveableField {
-
+    
     /**
      * The custom name to save this value to.
      *
      * @return the custom name of this value
      */
     String customName() default "";
-
+    
     /**
      * When {@link ConfigurationHandler#load()} is called, should this field be updated?
      *

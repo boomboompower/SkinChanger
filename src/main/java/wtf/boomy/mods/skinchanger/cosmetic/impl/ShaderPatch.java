@@ -29,50 +29,50 @@ import net.minecraft.util.ResourceLocation;
 
 /**
  * Applies a Shader to Minecraft using Minecraft's inbuilt shader program.
- *
+ * <p>
  * This is part of the cosmetic system.
  *
  * <b>Note:</b> This class should be registered <i>after</i> postInit so the EntityRenderer can be loaded into the game
  *
- * @version 3.0.0
  * @author boomboompower
+ * @version 3.0.0
  */
 public class ShaderPatch {
-
+    
     private static final MethodHandle shaderMethod =
-        ReflectionUtils.findMethod(EntityRenderer.class,
-            new String[] {
-                "loadShader", // searge
-                "func_175069_a" // notch
-        }, ResourceLocation.class);
-
+            ReflectionUtils.findMethod(EntityRenderer.class,
+                    new String[] {
+                            "loadShader", // searge
+                            "func_175069_a" // notch
+                    }, ResourceLocation.class);
+    
     // Stores Minecraft's EntityRenderer class
     private final EntityRenderer entityRenderer = Minecraft.getMinecraft().entityRenderer;
-
+    
     // Stores the shader we want to load.
     private final ResourceLocation shader;
-
+    
     /**
      * General constructor, containing shader ResourceLocation
-     *
+     * <p>
      * There are many in-built ones which include:
-     *   - new ResourceLocation("shaders/post/bits.json")
-     *   - new ResourceLocation("shaders/post/notch.json")
-     *   - new ResourceLocation("shaders/post/spider.json")
-     *   - new ResourceLocation("shaders/post/wobble.json")
-     *
+     * - new ResourceLocation("shaders/post/bits.json")
+     * - new ResourceLocation("shaders/post/notch.json")
+     * - new ResourceLocation("shaders/post/spider.json")
+     * - new ResourceLocation("shaders/post/wobble.json")
+     * <p>
      * If you are using a custom texture (not from Minecraft) then use:
-     *   - new ResourceLocation("modid", "shaders/post/myshader.json")
+     * - new ResourceLocation("modid", "shaders/post/myshader.json")
      *
      * @param location the location of the shader. Cannot be null.
      */
     public ShaderPatch(ResourceLocation location) {
         Prerequisites.notNull(this.entityRenderer, "ShaderPatch should be called after postInit()");
         Prerequisites.notNull(location, "A shader cannot be null.");
-
+        
         this.shader = location;
     }
-
+    
     /**
      * Applies the shader to the EntityRenderer class. If the user does
      */
@@ -80,15 +80,15 @@ public class ShaderPatch {
         if (!canBeUsed()) {
             return;
         }
-
+        
         Prerequisites.notNull(this.entityRenderer, "ShaderPatch should be called after postInit()");
         Prerequisites.notNull(this.shader, "A shader cannot be null.");
-
+        
         try {
             // Reflection, first value is the instance, second value is the argument
             shaderMethod.invoke(this.entityRenderer, this.shader);
         } catch (OutOfMemoryError e) {
-
+            
             // We are already screwed
             OpenGlHelper.shadersSupported = false;
         } catch (Throwable throwable) {
@@ -96,17 +96,17 @@ public class ShaderPatch {
             throwable.printStackTrace();
         }
     }
-
+    
     /**
      * Tells the EntityRenderer class to stop using its shader. Throws an error if someone tried to register
      * this class before Minecraft created its EntityRenderer instance.
      */
     public void killShader() {
         Prerequisites.notNull(this.entityRenderer, "ShaderPatch should be called after postInit()");
-
+        
         this.entityRenderer.stopUseShader();
     }
-
+    
     /**
      * Is this cosmetic supported? Note: this is "can" be used, not "should" be used.
      *

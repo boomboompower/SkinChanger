@@ -38,60 +38,60 @@ import java.io.IOException;
  * @since 3.0
  */
 public class LocalFileData extends SimpleTexture {
-
+    
     // The BufferedImage variant of this texture
     private BufferedImage bufferedImage;
     // True if this texture has been pushed to the GL stack.
     private boolean textureUploaded;
-
+    
     // The buffer for this texture
     private final IImageBuffer imageBuffer;
     // The location of this texture
     private final File fileLocation;
-
+    
     /**
      * Loads a texture from a local file to a ResourceLocation
      *
      * @param textureLocation an overridable texture, just use DefaultPlayerSkin.getDefaultSkin() if you don't know what this is
-     * @param fileToLoad the file to load the texture from
+     * @param fileToLoad      the file to load the texture from
      */
     public LocalFileData(ResourceLocation textureLocation, File fileToLoad) {
         this(textureLocation, fileToLoad, null);
     }
-
+    
     /**
      * Loads a texture from a local file to a ResourceLocation
      *
      * @param textureLocation an overridable texture, just use DefaultPlayerSkin.getDefaultSkin() if you don't know what this is
-     * @param fileToLoad the file to load the texture from
-     * @param imageBuffer the buffer which the texture will be parsed through. See {@link CapeBuffer} or {@link SkinBuffer}
+     * @param fileToLoad      the file to load the texture from
+     * @param imageBuffer     the buffer which the texture will be parsed through. See {@link CapeBuffer} or {@link SkinBuffer}
      */
     public LocalFileData(ResourceLocation textureLocation, File fileToLoad, IImageBuffer imageBuffer) {
         super(textureLocation);
-
+        
         Prerequisites.notNull(textureLocation);
         Prerequisites.notNull(fileToLoad);
-
+        
         this.fileLocation = fileToLoad;
         this.imageBuffer = imageBuffer;
     }
-
+    
     @Override
     public void loadTexture(IResourceManager resourceManager) throws IOException {
         if (this.bufferedImage == null && this.textureLocation != null) {
             super.loadTexture(resourceManager);
         }
-
+        
         if (this.fileLocation != null && this.fileLocation.isFile()) {
             try {
                 // Load the image from the file.
                 this.bufferedImage = ImageIO.read(this.fileLocation);
-
+                
                 // A buffer is not required.
                 if (this.imageBuffer != null) {
                     // Since a buffer exists, parse the image through the buffer
                     this.bufferedImage = this.imageBuffer.parseUserSkin(this.bufferedImage);
-
+                    
                     // Buffer may have been set to null in the above call.
                     // If it is still not null throw it a callback.
                     if (this.imageBuffer != null) {
@@ -101,25 +101,25 @@ public class LocalFileData extends SimpleTexture {
                 }
             } catch (IOException ex) {
                 System.err.println("Unable to read file.");
-
+                
                 ex.printStackTrace();
             }
         } else {
             System.err.println("File did not exist.");
         }
     }
-
+    
     @Override
     public int getGlTextureId() {
         // Assigns a Gl ID to the texture if one does not already exist.
         checkTextureUploaded();
-
+        
         return super.getGlTextureId();
     }
-
+    
     /**
      * Checks to see if this texture has been pushed to GL yet.
-     *
+     * <p>
      * If not it is pushed and the texture ID is assigned
      */
     private void checkTextureUploaded() {
@@ -128,10 +128,10 @@ public class LocalFileData extends SimpleTexture {
                 if (this.textureLocation != null) {
                     deleteGlTexture();
                 }
-
+                
                 // Minecraft Util to push an image to GL
                 TextureUtil.uploadTextureImage(super.getGlTextureId(), this.bufferedImage);
-
+                
                 this.textureUploaded = true;
             }
         }
