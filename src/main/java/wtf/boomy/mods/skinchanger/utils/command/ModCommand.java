@@ -19,7 +19,9 @@ package wtf.boomy.mods.skinchanger.utils.command;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
@@ -85,7 +87,7 @@ public abstract class ModCommand extends CommandBase {
         return aliases;
     }
     
-    @Override
+    // Leave out @Override incase running on newer MC versions where a different method will be used.
     public final void processCommand(ICommandSender sender, final String[] args) {
         try {
             if (shouldMultithreadCommand(args)) {
@@ -116,6 +118,12 @@ public abstract class ModCommand extends CommandBase {
             ex.printStackTrace();
         }
     }
+    
+    // Used in newer versions of the game.
+    public void func_184881_a(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+        processCommand(sender, args);
+    }
+    
     
     /**
      * A safer way to execute a command. Errors which occur here will not cause the game to crash.

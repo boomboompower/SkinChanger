@@ -44,9 +44,9 @@ import java.util.stream.Collectors;
  */
 public class ClassTransformer implements IClassTransformer {
     
-    public static boolean patchSkinMethod = true;
-    public static boolean patchCapeMethod = true;
-    public static boolean patchSkinTypeMethod = true;
+    public static boolean shouldPatchSkinGetter = true;
+    public static boolean shouldPatchCapeGetter = true;
+    public static boolean shouldPatchSkinType = true;
     
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     public ClassTransformer() {
@@ -55,7 +55,7 @@ public class ClassTransformer implements IClassTransformer {
         threadFactory.runAsync(() -> {
             try {
                 String defaultText = "PatchSkins: yes" + System.lineSeparator() + "PatchCapes: yes" + System.lineSeparator() + "PatchSkinType: yes";
-                File file = new File(new File("config", "skinchanger"), "asm.text");
+                File file = new File(new File("config", "skinchanger"), "asm.txt");
                 
                 if (!file.getParentFile().exists()) {
                     writeToFile(file, defaultText);
@@ -83,22 +83,22 @@ public class ClassTransformer implements IClassTransformer {
                             continue;
                         }
                         
-                        String[] components = s.split(": ", 1);
+                        String[] components = s.split(": ", 2);
                         String id = components[0];
                         String value = components[1];
                         
                         boolean toPatch = value.equalsIgnoreCase("true") || value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("1");
                         
                         if (id.equalsIgnoreCase("PatchSkins")) {
-                            patchSkinMethod = toPatch;
+                            shouldPatchSkinGetter = toPatch;
                         }
                         
                         if (id.equalsIgnoreCase("PatchCapes")) {
-                            patchCapeMethod = toPatch;
+                            shouldPatchCapeGetter = toPatch;
                         }
                         
                         if (id.equalsIgnoreCase("PatchSkinType")) {
-                            patchSkinTypeMethod = toPatch;
+                            shouldPatchSkinType = toPatch;
                         }
                     }
                 } catch (Exception ex) {
@@ -119,7 +119,7 @@ public class ClassTransformer implements IClassTransformer {
     
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
-        if (!patchSkinMethod && !patchCapeMethod && !patchSkinTypeMethod) {
+        if (!shouldPatchSkinGetter && !shouldPatchCapeGetter && !shouldPatchSkinType) {
             return bytes;
         }
         
@@ -144,7 +144,7 @@ public class ClassTransformer implements IClassTransformer {
     private void transformNetworkPlayerInfo(boolean isDevEnv, ClassNode clazz, MethodNode method) {
         String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(clazz.name, method.name, method.desc);
         
-        if (patchSkinMethod && methodName.equals("getLocationSkin")) {
+        if (shouldPatchSkinGetter && methodName.equals("getLocationSkin")) {
             System.out.println("Patching getLocationSkin (" + method.name + ")");
             
             method.instructions.insert(createForName(isDevEnv, "isUsingSkin", "getSkin"));
@@ -152,7 +152,7 @@ public class ClassTransformer implements IClassTransformer {
             System.out.println("Finished patching getLocationSkin (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setSkinPatchApplied(true);
-        } else if (patchCapeMethod && methodName.equals("getLocationCape")) {
+        } else if (shouldPatchCapeGetter && methodName.equals("getLocationCape")) {
             System.out.println("Patching getLocationCape (" + method.name + ")");
             
             method.instructions.insert(createForName(isDevEnv, "isUsingCape", "getCape"));
@@ -160,7 +160,7 @@ public class ClassTransformer implements IClassTransformer {
             System.out.println("Finished patching getLocationCape (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setCapePatchApplied(true);
-        } else if (patchSkinTypeMethod && methodName.equalsIgnoreCase("getSkinType")) {
+        } else if (shouldPatchSkinType && methodName.equalsIgnoreCase("getSkinType")) {
             System.out.println("Patching getSkinType (" + method.name + ")");
             
             method.instructions.insert(createForSkinType(isDevEnv));

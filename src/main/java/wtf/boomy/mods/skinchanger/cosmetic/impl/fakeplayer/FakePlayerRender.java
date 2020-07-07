@@ -114,8 +114,10 @@ public class FakePlayerRender {
         entity.distanceWalkedModified = 0;
         
         // Simulate player movement
-        entity.limbSwingAmount += (0.6F - entity.limbSwingAmount) * 0.4F;
-        entity.limbSwing += (entity.limbSwingAmount) / 6;
+        if (this.cosmeticFactory.getMod().getConfigurationHandler().isUsingAnimatedPlayer()) {
+            entity.limbSwingAmount += (0.6F - entity.limbSwingAmount) * 0.4F;
+            entity.limbSwing += (entity.limbSwingAmount) / 6;
+        }
         
         entity.prevPosX = 0;
         entity.posX = 0;
@@ -126,11 +128,15 @@ public class FakePlayerRender {
         entity.prevPosZ = entity.posZ;
         
         RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
-        
-        float capeSwing = MathHelper.cos(entity.limbSwing / 2 * 0.662F) * 1.1F * entity.limbSwingAmount / 2;
-        
-        entity.posZ = lerp(0, capeSwing, 0.5F);
-        entity.posZ += 0.5;
+    
+        if (this.cosmeticFactory.getMod().getConfigurationHandler().isUsingAnimatedCape()) {
+            float capeSwing = MathHelper.cos(entity.limbSwing / 2 * 0.662F) * 1.1F * entity.limbSwingAmount / 2;
+    
+            entity.posZ = lerp(0, capeSwing, 0.5F);
+            entity.posZ += 0.5;
+        } else {
+            entity.posZ = 0;
+        }
         
         GlStateManager.disableLighting();
         

@@ -21,6 +21,7 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
+import wtf.boomy.mods.skinchanger.SkinChangerMod;
 
 public class SkinChangerStorage {
     
@@ -52,7 +53,7 @@ public class SkinChangerStorage {
             return false;
         }
         
-        return this.minecraft.thePlayer.getGameProfile() == profile && this.playerSkin != null;
+        return SkinChangerMod.getInstance().getConfigurationHandler().isEveryoneMe() || (this.minecraft.thePlayer.getGameProfile() == profile && this.playerSkin != null);
     }
     
     public boolean isUsingCape(GameProfile profile) {
@@ -100,11 +101,11 @@ public class SkinChangerStorage {
             return null;
         }
         
-        if (this.minecraft.thePlayer == null || this.minecraft.thePlayer.getGameProfile() == null || this.minecraft.thePlayer.getGameProfile() == profile) {
+        if (this.minecraft.thePlayer == null || this.minecraft.thePlayer.getGameProfile() == null) {
             return null;
         }
         
-        return this.skinType;
+        return (SkinChangerMod.getInstance().getConfigurationHandler().isEveryoneMe() || profile == this.minecraft.thePlayer.getGameProfile()) ? this.skinType : null;
     }
     
     public boolean isSkinPatchApplied() {

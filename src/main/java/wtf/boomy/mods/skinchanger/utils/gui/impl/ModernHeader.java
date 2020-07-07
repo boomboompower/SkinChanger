@@ -221,18 +221,15 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
             float yOffset = (12 * this.scaleSize) + this.offsetBetweenChildren / 2;
             
             for (ModernUIElement child : this.children) {
-                if (child.isEnabled()) {
-                    
-                    // Renders relative to this headers position.
-                    if (child.renderRelativeToHeader()) {
-                        GlStateManager.pushMatrix();
-                        
-                        child.renderFromHeader((int) xPos, (int) yPos, yTranslation, mouseX, mouseY, (int) yOffset);
-                        
-                        GlStateManager.popMatrix();
-                    } else {
-                        child.render(mouseX, mouseY, yTranslation);
-                    }
+                // Renders relative to this headers position.
+                if (child.renderRelativeToHeader()) {
+                    GlStateManager.pushMatrix();
+        
+                    child.renderFromHeader((int) xPos, (int) yPos, yTranslation, mouseX, mouseY, (int) yOffset);
+        
+                    GlStateManager.popMatrix();
+                } else {
+                    child.render(mouseX, mouseY, yTranslation);
                 }
                 
                 if (child instanceof StartEndUIElement) {
@@ -384,6 +381,25 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
                         interactive.onLeftClick(mouseX, mouseY, yTranslation);
                     }
                 }
+            }
+        }
+    }
+    
+    /**
+     * Sets all the children to this enabled state o.o
+     *
+     * @param enabled true if the elements should be enabled.
+     */
+    public void setEnabled(boolean enabled) {
+        for (ModernUIElement element : this.children) {
+            if (element instanceof ModernButton) {
+                ((ModernButton) element).setEnabled(enabled);
+            } else if (element instanceof ModernTextBox) {
+                ((ModernTextBox) element).setEnabled(enabled);
+            } else if (element instanceof ModernSlider) {
+                ((ModernSlider) element).setEnabled(enabled);
+            } else if (element instanceof ModernCheckbox) {
+                ((ModernCheckbox) element).setEnabled(enabled);
             }
         }
     }

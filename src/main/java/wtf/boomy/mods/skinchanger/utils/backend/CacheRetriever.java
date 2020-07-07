@@ -48,6 +48,8 @@ import java.util.UUID;
  */
 public class CacheRetriever {
     
+    private static final ResourceLocation undefinedTexture = new ResourceLocation("skinchanger", "light.png");
+    
     // Upgrade insecure requests. This will enforce on all urls except optifine
     private static final boolean FORCE_HTTPS = true;
     
@@ -120,7 +122,7 @@ public class CacheRetriever {
             url = "https://" + url.substring("http://".length());
         }
         
-        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, DefaultPlayerSkin.getDefaultSkinLegacy(), buffer);
+        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, cacheType == CacheType.CAPE ? new ResourceLocation("skinchanger", "light.png") : DefaultPlayerSkin.getDefaultSkinLegacy(), buffer);
         
         Minecraft.getMinecraft().addScheduledTask(() -> {
             Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
@@ -292,7 +294,7 @@ public class CacheRetriever {
         File dataFile = new File(cacheDirectory, cacheDirectory.getName() + ".png");
         File cacheFile = new File(cacheDirectory, cacheDirectory.getName() + ".lock");
         
-        return dataFile.exists() && cacheFile.exists();
+        return dataFile.exists() && dataFile.length() > 2 && cacheFile.exists();
     }
     
     /**

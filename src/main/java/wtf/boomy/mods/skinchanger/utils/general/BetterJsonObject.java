@@ -45,7 +45,7 @@ public class BetterJsonObject {
     /**
      * Our pretty printer
      */
-    private final Gson prettyPrinter = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson prettyPrinter = new GsonBuilder().setPrettyPrinting().create();
     
     /**
      * The data holder for our json
@@ -394,7 +394,7 @@ public class BetterJsonObject {
      * @return pretty printed data
      */
     public String toPrettyString() {
-        return this.prettyPrinter.toJson(this.data);
+        return prettyPrinter.toJson(this.data);
     }
     
     /**
@@ -403,6 +403,6 @@ public class BetterJsonObject {
      * @return the pretty print Gson
      */
     public Gson getGsonData() {
-        return this.prettyPrinter;
+        return prettyPrinter;
     }
 }

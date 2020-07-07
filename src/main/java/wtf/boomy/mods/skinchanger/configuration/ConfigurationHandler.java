@@ -18,15 +18,21 @@
 package wtf.boomy.mods.skinchanger.configuration;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
+import wtf.boomy.mods.skinchanger.api.SkinAPIType;
 import wtf.boomy.mods.skinchanger.configuration.meta.ConfigurationData;
 import wtf.boomy.mods.skinchanger.configuration.meta.SaveableClassData;
 import wtf.boomy.mods.skinchanger.configuration.meta.SaveableField;
 import wtf.boomy.mods.skinchanger.utils.general.BetterJsonObject;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -34,9 +40,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@SaveableClassData(saveName = "config")
 public class ConfigurationHandler {
     
     @SaveableField
@@ -44,6 +52,12 @@ public class ConfigurationHandler {
     
     @SaveableField
     private boolean usingAnimatedCape = true;
+    
+    @SaveableField
+    private SkinAPIType skinAPIType = SkinAPIType.ASHCON;
+    
+    // A bloody hack
+    private boolean everyoneMe = false;
     
     private final SkinChangerMod mod;
     private final File configFile;
@@ -60,6 +74,13 @@ public class ConfigurationHandler {
         extractCapesDirectory();
     }
     
+    public ConfigurationHandler(SkinChangerMod mod, File configDirectory) {
+        this.mod = mod;
+        
+        this.configFile = new File(configDirectory, "config.json");
+        this.capesDirectory = new File(configDirectory, "capes");
+    }
+    
     public void save() {
         if (this.saveableValues.isEmpty()) {
             return;
@@ -67,42 +88,139 @@ public class ConfigurationHandler {
         
         BetterJsonObject saveObject = new BetterJsonObject();
         
-        for (Map.Entry<Class<?>, ConfigurationData[]> o : this.saveableValues.entrySet()) {
-            Class<?> clazz = o.getKey();
+        for (Map.Entry<Class<?>, ConfigurationData[]> entry : this.saveableValues.entrySet()) {
+            Class<?> clazz = entry.getKey();
             
-            // Where all our values will be saved to.
-            BetterJsonObject classSpecific = new BetterJsonObject();
+            BetterJsonObject object = new BetterJsonObject();
             
-            // The list of fields in the class containing data.
-            ConfigurationData[] dataList = o.getValue();
-            
-            // Loop through each data value.
-            for (ConfigurationData data : dataList) {
-                // Retrieves the value from the field.
+            for (ConfigurationData data : entry.getValue()) {
                 Object value = data.getValue();
                 
-                // Converts the field value into JSON.
-                JsonElement serializedData = saveObject.getGsonData().toJsonTree(value);
+                String serialized = saveObject.getGsonData().toJson(value);
                 
-                // Add the JSON to our JSON config.
-                saveObject.getData().add(data.getSaveName(), serializedData);
+                if (value.getClass().isEnum()) {
+                    serialized = serialized.replace("\"", "");
+                }
+                
+                object.addProperty(data.getSaveName(), serialized);
             }
             
-            String clazzSaveName = o.getKey().getName();
+            String classSaveName = clazz.getSimpleName();
             
             if (clazz.isAnnotationPresent(SaveableClassData.class)) {
-                clazzSaveName = clazz.getAnnotation(SaveableClassData.class).saveName();
+                String altName = clazz.getAnnotation(SaveableClassData.class).saveName();
+                
+                if (altName.trim().length() > 0) {
+                    classSaveName = altName;
+                }
             }
             
-            // Adds that classes config module to the config file.
-            saveObject.add(clazzSaveName, saveObject);
+            saveObject.add(classSaveName, object);
         }
         
         saveObject.writeToFile(this.configFile);
     }
     
     public void load() {
+        if (this.saveableValues.isEmpty()) {
+            return;
+        }
     
+        if (!this.configFile.exists()) {
+            return;
+        }
+        
+        try {
+            FileReader fileReader = new FileReader(this.configFile);
+            BufferedReader reader = new BufferedReader(fileReader);
+            
+            List<String> lines = reader.lines().collect(Collectors.toList());
+            
+            if (lines.isEmpty()) {
+                return;
+            }
+            
+            String json = String.join("\n", lines);
+            
+            if (json.trim().isEmpty()) {
+                return;
+            }
+    
+            JsonElement parsedJson = JsonParser.parseString(json);
+            
+            if (!parsedJson.isJsonObject()) {
+                System.err.println("Unable to load settings, config file corrupt.");
+                
+                return;
+            }
+            
+            BetterJsonObject config = new BetterJsonObject(parsedJson.getAsJsonObject());
+            
+            for (Map.Entry<Class<?>, ConfigurationData[]> entry : this.saveableValues.entrySet()) {
+                Class<?> clazz = entry.getKey();
+                
+                String classSaveName = clazz.getSimpleName();
+    
+                if (clazz.isAnnotationPresent(SaveableClassData.class)) {
+                    String altName = clazz.getAnnotation(SaveableClassData.class).saveName();
+        
+                    if (altName.trim().length() > 0) {
+                        classSaveName = altName;
+                    }
+                }
+                
+                if (!config.has(classSaveName)) {
+                    continue;
+                }
+                
+                JsonElement metaElement = config.get(classSaveName);
+                
+                if (!metaElement.isJsonObject()) {
+                    System.err.println("Corrupt config segment " + classSaveName);
+                    
+                    continue;
+                }
+                
+                JsonObject meta = metaElement.getAsJsonObject();
+                
+                for (ConfigurationData data : entry.getValue()) {
+                    if (!meta.has(data.getSaveName())) {
+                        continue;
+                    }
+                    
+                    try {
+                        // Gets the data for this value
+                        JsonElement element = meta.get(data.getSaveName());
+                        
+                        if (data.getField().getType().isEnum()) {
+                            boolean found = false;
+                            
+                            for (Object o : data.getField().getType().getEnumConstants()) {
+                                if (o.toString().equalsIgnoreCase(element.getAsString())) {
+                                    data.setValue(o);
+                                    
+                                    found = true;
+                                    
+                                    break;
+                                }
+                            }
+                            
+                            if (!found) {
+                                System.err.println("Unable to find appropriate value for " + data.getField().getType());
+                            }
+                        } else {
+                            Object deserialize = config.getGsonData().fromJson(element, data.getField().getType());
+    
+                            data.setValue(deserialize);
+                        }
+                    } catch (JsonSyntaxException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        } catch (IOException | JsonSyntaxException ex) {
+            ex.printStackTrace();
+        }
     }
     
     public void addAsSaveable(Object clazz) {
@@ -279,11 +397,27 @@ public class ConfigurationHandler {
         this.usingAnimatedCape = usingAnimatedCape;
     }
     
+    public void setSkinAPIType(SkinAPIType skinAPIType) {
+        this.skinAPIType = skinAPIType;
+    }
+    
+    public void setEveryoneMe(boolean everyoneMe) {
+        this.everyoneMe = everyoneMe;
+    }
+    
     public boolean isUsingAnimatedPlayer() {
         return usingAnimatedPlayer;
     }
     
     public boolean isUsingAnimatedCape() {
         return this.usingAnimatedCape;
+    }
+    
+    public boolean isEveryoneMe() {
+        return this.everyoneMe;
+    }
+    
+    public SkinAPIType getSkinAPIType() {
+        return this.skinAPIType;
     }
 }

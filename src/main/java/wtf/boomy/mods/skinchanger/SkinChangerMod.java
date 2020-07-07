@@ -58,7 +58,6 @@ public class SkinChangerMod {
     private ConfigurationHandler configurationHandler;
     private CosmeticFactory cosmeticFactory;
     private CacheRetriever cacheRetriever;
-    private SkinAPI skinAPI;
     
     private File modConfigDirectory;
     
@@ -81,6 +80,8 @@ public class SkinChangerMod {
         
         this.cacheRetriever = new CacheRetriever(this);
         this.configurationHandler = new ConfigurationHandler(this);
+        
+        this.configurationHandler.addAsSaveable(this.configurationHandler);
     }
     
     @Mod.EventHandler
@@ -94,7 +95,6 @@ public class SkinChangerMod {
         this.configurationHandler.load();
         
         this.cosmeticFactory = new CosmeticFactory(this);
-        this.skinAPI = new AshconHooker();
         
         // Hook Resource Reloads
 //        ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(r -> {
@@ -141,15 +141,6 @@ public class SkinChangerMod {
      */
     public CacheRetriever getCacheRetriever() {
         return cacheRetriever;
-    }
-    
-    /**
-     * An instance of the Skin API specifically designed just for retrieving skin profiles from a username/uuid.
-     *
-     * @return a Skin API wrapper, see {@link SkinAPI}.
-     */
-    public SkinAPI getSkinAPI() {
-        return skinAPI;
     }
     
     /**

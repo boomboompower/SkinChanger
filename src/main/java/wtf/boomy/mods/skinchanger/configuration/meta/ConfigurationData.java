@@ -129,6 +129,29 @@ public class ConfigurationData {
     }
     
     /**
+     * Sets the value of this field, if an error occurs an exception will be silently thrown
+     *
+     * @param value the value to set the field to
+     */
+    public void setValue(Object value) {
+        boolean accessible = this.field.isAccessible();
+        
+        try {
+            if (!accessible) {
+                this.field.setAccessible(true);
+            }
+            
+            this.field.set(this.parent, value);
+            
+            if (accessible != this.field.isAccessible()) {
+                this.field.setAccessible(accessible);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
      * Initializes the field with a parent object (this is the class instance containing the field).
      * <br />
      * This method will be ignored if the field has already been initialized.

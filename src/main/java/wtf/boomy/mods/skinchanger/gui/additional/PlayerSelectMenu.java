@@ -21,7 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.api.SkinAPI;
+import wtf.boomy.mods.skinchanger.api.SkinAPIType;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
@@ -39,7 +39,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     
     private static boolean loading;
     
-    private final SkinAPI skinAPI;
+    private final SkinAPIType skinAPI;
     private final CacheRetriever cacheRetriever;
     private final ThreadFactory threadFactory;
     
@@ -56,7 +56,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         this.skinChangerMenu = menu;
         this.selectionType = selectionType;
         
-        this.skinAPI = SkinChangerMod.getInstance().getSkinAPI();
+        this.skinAPI = SkinChangerMod.getInstance().getConfigurationHandler().getSkinAPIType();
         this.cacheRetriever = SkinChangerMod.getInstance().getCacheRetriever();
         this.threadFactory = new ThreadFactory(selectionType.name());
     }
@@ -94,6 +94,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         if (this.selectionType.isTypeOfSkin()) {
             ModernButton type = new ModernButton(505, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Type: " + ChatColor.AQUA + PlayerSkinType.getTypeFromString(this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType()).getDisplayName());
     
+            type.setEnabled(this.mod.getStorage().isSkinTypePatchApplied());
+            
             yLocation += loadButton.getHeight() + 4;
     
             registerElement(type);
@@ -187,8 +189,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                         return;
                     }
                     
-                    String playerId = this.skinAPI.getIdFromUsername(enteredText);
-                    String userName = this.skinAPI.getRealNameFromName(enteredText);
+                    String playerId = this.skinAPI.getAPI().getIdFromUsername(enteredText);
+                    String userName = this.skinAPI.getAPI().getRealNameFromName(enteredText);
                     
                     if (userName == null) {
                         userName = enteredText;
@@ -197,9 +199,9 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     String finalUserName = userName;
                     
                     Minecraft.getMinecraft().addScheduledTask(() -> {
-                        ResourceLocation resourceLocation = this.mod.getSkinAPI().getSkinFromId(playerId);
+                        ResourceLocation resourceLocation = this.skinAPI.getAPI().getSkinFromId(playerId);
                         
-                        boolean hasSlimSkin = this.mod.getSkinAPI().hasSlimSkin(finalUserName);
+                        boolean hasSlimSkin = this.skinAPI.getAPI().hasSlimSkin(finalUserName);
                         
                         this.mod.getCosmeticFactory().getFakePlayerRender().setSkinType(hasSlimSkin ? "slim" : "default");
                         this.mod.getCosmeticFactory().getFakePlayerRender().setSkinLocation(resourceLocation);
@@ -253,8 +255,6 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                     this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(c_URL_Resource);
                     
                     break;
-                default:
-                    return;
             }
         }
     }
@@ -339,7 +339,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
             
             if (isTypeOfUUID()) {
                 // Tiny performance increase
-                this.storedUUID = SkinChangerMod.getInstance().getSkinAPI().getUUIDFromStrippedString(input);
+                this.storedUUID = SkinChangerMod.getInstance().getConfigurationHandler().getSkinAPIType().getAPI().getUUIDFromStrippedString(input);
                 
                 return this.storedUUID != null;
             }

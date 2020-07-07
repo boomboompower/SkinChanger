@@ -280,6 +280,8 @@ public class SkinChangerMenu extends ModernGui {
         skinSettings.addChild(new ModernButton(15, 5, 20, widthOfButtons, 20, "Load from File"));
         skinSettings.addChild(new ModernButton(16, 5, 20, widthOfButtons, 20, "Reset Skin"));
         
+        skinSettings.setEnabled(this.mod.getStorage().isSkinPatchApplied());
+        
         // ----------------------------------
         
         int capeSettingY = this.height / 2;
@@ -297,6 +299,8 @@ public class SkinChangerMenu extends ModernGui {
         capeSettings.addChild(new ModernButton(19, 5, 20, widthOfButtons, 20, "Load from URL"));
         capeSettings.addChild(new ModernButton(20, 5, 20, widthOfButtons, 20, "Load from File"));
         capeSettings.addChild(new ModernButton(21, 5, 20, widthOfButtons, 20, "Reset Cape"));
+    
+        capeSettings.setEnabled(this.mod.getStorage().isCapePatchApplied());
         
         // ----------------------------------
         
