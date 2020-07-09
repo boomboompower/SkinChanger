@@ -100,7 +100,7 @@ jar {
 
     manifest.attributes(
             'Main-Class' : 'wtf.boomy.mods.skinchanger.installer.InstallerCore',
-            'FMLCorePlugin": "wtf.boomy.mods.skinchanger.core.FMLLoadingPlugin',
+            'FMLCorePlugin': 'wtf.boomy.mods.skinchanger.core.FMLLoadingPlugin',
             'FMLCorePluginContainsFMLMod' : true,
             'ForceLoadAsMod' : true
     )
