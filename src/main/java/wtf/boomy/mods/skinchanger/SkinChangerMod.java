@@ -28,8 +28,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-import wtf.boomy.mods.skinchanger.api.SkinAPI;
-import wtf.boomy.mods.skinchanger.api.impl.AshconHooker;
 import wtf.boomy.mods.skinchanger.commands.SkinCommand;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;

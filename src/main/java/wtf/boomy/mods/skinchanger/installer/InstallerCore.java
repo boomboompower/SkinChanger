@@ -133,7 +133,14 @@ public class InstallerCore {
                 // Had no permission to delete the file.
             }
             
-            JOptionPane.showMessageDialog(null, MOD_NAME + " (v" + MOD_VERSION + ") has been installed at: \n " + installLocation.getAbsolutePath() + "\n\nFrom: \n" + currentPath.getAbsolutePath() + "\n\nYou may delete this file now!", "Installation Successful", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "" +
+                    MOD_NAME + " (v" + MOD_VERSION + ") has been installed at: \n" +
+                    " " + installLocation.getAbsolutePath() + "\n" +
+                    "\n" +
+                    "From: \n" +
+                    " " + currentPath.getAbsolutePath() + "\n" +
+                    "\n" +
+                    "You may delete this file now!", "Installation Successful", JOptionPane.INFORMATION_MESSAGE);
         }
     }
     
@@ -142,9 +149,9 @@ public class InstallerCore {
                 "You are running the " + MOD_NAME + " installer for Minecraft v" + BUILT_FOR,
                 "",
                 "The installer will do the following: ",
-                " • Detect the default Minecraft install location for your system",
-                " • Remove other versions of " + MOD_NAME + " if possible",
-                " • Place a file called \"" + getModFileName() + ".jar\" in your mods directory",
+                " \u2022 Detect the default Minecraft install location for your system",
+                " \u2022 Remove other versions of " + MOD_NAME + " if possible",
+                " \u2022 Place a file called \"" + getModFileName() + ".jar\" in your mods directory",
                 "",
                 "If the installer fails, you will need to place the mod in your mods folder manually",
                 "Do you wish to continue?"

@@ -146,7 +146,7 @@ public class ConfigurationHandler {
                 return;
             }
     
-            JsonElement parsedJson = JsonParser.parseString(json);
+            JsonElement parsedJson = new JsonParser().parse(json);
             
             if (!parsedJson.isJsonObject()) {
                 System.err.println("Unable to load settings, config file corrupt.");

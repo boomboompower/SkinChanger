@@ -73,7 +73,7 @@ public class BetterJsonObject {
         }
         
         try {
-            this.data = JsonParser.parseString(jsonIn).getAsJsonObject();
+            this.data = new JsonParser().parse(jsonIn).getAsJsonObject();
         } catch (JsonSyntaxException | JsonIOException ex) {
             ex.printStackTrace();
         }

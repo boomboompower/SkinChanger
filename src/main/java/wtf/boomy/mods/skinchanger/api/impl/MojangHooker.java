@@ -212,7 +212,7 @@ public class MojangHooker extends SkinAPI {
                 // We need to decode the Base64 value property
                 byte[] decoded = Base64.getDecoder().decode(property.get("value").getAsString());
                 
-                JsonObject decodedObj = JsonParser.parseString(new String(decoded, StandardCharsets.UTF_8)).getAsJsonObject();
+                JsonObject decodedObj = new JsonParser().parse(new String(decoded, StandardCharsets.UTF_8)).getAsJsonObject();
                 
                 // We have a match!
                 if (decodedObj.has("textures") && decodedObj.has("profileId") && decodedObj.get("profileId").getAsString().equals(texturesIn.get("id").getAsString())) {

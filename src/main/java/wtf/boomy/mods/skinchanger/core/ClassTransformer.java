@@ -144,7 +144,7 @@ public class ClassTransformer implements IClassTransformer {
     private void transformNetworkPlayerInfo(boolean isDevEnv, ClassNode clazz, MethodNode method) {
         String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(clazz.name, method.name, method.desc);
         
-        if (shouldPatchSkinGetter && methodName.equals("getLocationSkin")) {
+        if (shouldPatchSkinGetter && methodName.equals((isDevEnv ? "getLocationSkin" : "func_178837_g"))) {
             System.out.println("Patching getLocationSkin (" + method.name + ")");
             
             method.instructions.insert(createForName(isDevEnv, "isUsingSkin", "getSkin"));
@@ -152,7 +152,7 @@ public class ClassTransformer implements IClassTransformer {
             System.out.println("Finished patching getLocationSkin (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setSkinPatchApplied(true);
-        } else if (shouldPatchCapeGetter && methodName.equals("getLocationCape")) {
+        } else if (shouldPatchCapeGetter && methodName.equals((isDevEnv ? "getLocationCape" : "func_178861_h"))) {
             System.out.println("Patching getLocationCape (" + method.name + ")");
             
             method.instructions.insert(createForName(isDevEnv, "isUsingCape", "getCape"));
@@ -160,7 +160,7 @@ public class ClassTransformer implements IClassTransformer {
             System.out.println("Finished patching getLocationCape (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setCapePatchApplied(true);
-        } else if (shouldPatchSkinType && methodName.equalsIgnoreCase("getSkinType")) {
+        } else if (shouldPatchSkinType && methodName.equals((isDevEnv ? "getSkinType" : "func_178851_f"))) {
             System.out.println("Patching getSkinType (" + method.name + ")");
             
             method.instructions.insert(createForSkinType(isDevEnv));
