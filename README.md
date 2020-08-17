@@ -3,6 +3,7 @@ A Minecraft mod which allows players to change their cape and skin directly from
 
 ##### Build Status
 [![Java CI with Forge](https://github.com/boomboompower/SkinChanger/workflows/Java%20CI%20with%20Forge/badge.svg)](https://github.com/boomboompower/SkinChanger/actions)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fboomboompower%2FSkinChanger.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fboomboompower%2FSkinChanger?ref=badge_shield)
 
 ### Why?
 The SkinChanger mod created when many mods offered capes in their clients/mods as a perk for donating. Minecraft's EULA did not (and still doesn't) allow for mods/clients to profit from exclusive goods they've created in the game. Since mods with payable capes kept popping up, I decided to create SkinChanger; a free alternative to those mods. The mod initially created with only skins in mind, however soon it also grew to support cape modification due to popular demand. 
@@ -89,3 +90,7 @@ If you would like to redistribute SkinChanger via a modpack, client or by any ot
 
 * I do not endorse modified distributions which lock these features behind a paywall. 
 * Skins and Capes should not be monetizable components of the Minecraft client which is why I created this as a free mod.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fboomboompower%2FSkinChanger.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fboomboompower%2FSkinChanger?ref=badge_large)
