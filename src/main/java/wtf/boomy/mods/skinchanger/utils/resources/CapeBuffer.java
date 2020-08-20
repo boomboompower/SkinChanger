@@ -19,6 +19,7 @@ package wtf.boomy.mods.skinchanger.utils.resources;
 
 import net.minecraft.client.renderer.IImageBuffer;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
@@ -27,8 +28,24 @@ import java.awt.image.BufferedImage;
  */
 public class CapeBuffer implements IImageBuffer {
     
+    private static BufferedImage whiteSquare;
+    
     @Override
     public BufferedImage parseUserSkin(BufferedImage img) {
+        // If the image is null, provide them with a 32*32 white square.
+        if (img == null) {
+            if (whiteSquare == null) {
+                whiteSquare = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+    
+                Graphics graphics = whiteSquare.getGraphics();
+                graphics.setColor(Color.WHITE);
+                graphics.fillRect(0, 0, whiteSquare.getWidth(), whiteSquare.getHeight());
+                graphics.dispose();
+            }
+    
+            return whiteSquare;
+        }
+        
         int imageWidth = 64;
         int imageHeight = 32;
         int srcWidth = img.getWidth();

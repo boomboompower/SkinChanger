@@ -25,6 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -40,6 +41,7 @@ import wtf.boomy.mods.skinchanger.utils.gui.lock.UILock;
 import java.awt.Color;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ModernGui, a better-looking GuiScreen which has more optimizations and features than the normal GuiScreen
@@ -145,7 +147,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
         
         try {
-            postRender();
+            postRender(partialTicks);
         } catch (Exception ex) {
             drawString(this.fontRendererObj, "An error occurred during postRender();", 5, 5, Color.RED.getRGB());
             
@@ -159,51 +161,51 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         
         if (keyCode == 1) {
             close();
-        } else {
-            for (ModernTextBox text : textList) {
-                text.textboxKeyTyped(typedChar, keyCode);
-            }
+            
+            return;
+        }
+    
+        for (ModernTextBox text : textList) {
+            text.onKeyTyped(typedChar, keyCode);
         }
     }
     
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        for (ModernUIElement draw : this.modernList) {
-            if (draw instanceof InteractiveUIElement) {
-                InteractiveUIElement element = (InteractiveUIElement) draw;
-                
-                if (!element.isEnabled()) {
-                    continue;
-                }
-                
-                // Patch for buttons :)
-                if (!(draw instanceof ModernButton) && !element.isInside(mouseX, mouseY, this.yTranslation)) {
-                    continue;
-                } else if (draw instanceof ModernButton && !((ModernButton) draw).isHovered()) {
-                    continue;
-                }
-                
-                switch (mouseButton) {
-                    case 0:
-                        element.onLeftClick(mouseX, mouseY, this.yTranslation);
-                        
-                        this.selectedElements.add(element);
-                        
-                        if (element instanceof ModernButton) {
-                            buttonPressed((ModernButton) element);
-                        }
-                        break;
-                    case 1:
-                        element.onRightClick(mouseX, mouseY, this.yTranslation);
-                        break;
-                    case 2:
-                        element.onMiddleClick(mouseX, mouseY, this.yTranslation);
-                        break;
-                    default:
-                        System.err.println("Unimplemented click (ID: " + mouseButton + "). Are you running the environment correctly?");
-                }
-            }
-        }
+        this.modernList.stream()
+                .filter(element -> element instanceof InteractiveUIElement)
+                .filter(ModernUIElement::isEnabled)
+                .filter(element -> ((InteractiveUIElement) element).isInside(mouseX, mouseY, this.yTranslation))
+                .collect(Collectors.toList())
+                .forEach(dummy -> {
+                    InteractiveUIElement element = (InteractiveUIElement) dummy;
+    
+                    if (!(element instanceof ModernButton) && !element.isInside(mouseX, mouseY, this.yTranslation)) {
+                        return;
+                    } else if (element instanceof ModernButton && !((ModernButton) element).isHovered()) {
+                        return;
+                    }
+                    
+                    switch (mouseButton) {
+                        case 0:
+                            element.onLeftClick(mouseX, mouseY, this.yTranslation);
+        
+                            this.selectedElements.add(element);
+        
+                            if (element instanceof ModernButton) {
+                                buttonPressed((ModernButton) element);
+                            }
+                            break;
+                        case 1:
+                            element.onRightClick(mouseX, mouseY, this.yTranslation);
+                            break;
+                        case 2:
+                            element.onMiddleClick(mouseX, mouseY, this.yTranslation);
+                            break;
+                        default:
+                            System.err.println("Unimplemented click (ID: " + mouseButton + "). Are you running the environment correctly?");
+                    }
+        });
         
         try {
             for (ModernTextBox text : this.textList) {
@@ -307,13 +309,11 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             // Null components will be treated as an empty string
             if (line == null) {
                 line = "";
+            } else if (!line.isEmpty()) {
+                line = ChatColor.translateAlternateColorCodes('&', line);
             }
-            
-            if (centered) {
-                drawCenteredString(this.fontRendererObj, ChatColor.translateAlternateColorCodes('&', line), startingX, startingY, Color.WHITE.getRGB());
-            } else {
-                drawString(this.fontRendererObj, ChatColor.translateAlternateColorCodes('&', line), startingX, startingY, Color.WHITE.getRGB());
-            }
+    
+            drawConditionalCenter(line, startingX, startingY, Color.WHITE.getRGB(), centered);
             
             startingY += separation;
         }
@@ -325,7 +325,14 @@ public abstract class ModernGui extends UILock implements UISkeleton {
      * If using a version before 1.8.8 use
      * FMLCommonHandler.instance().bus().register(this)
      */
+    @SuppressWarnings({"deprecation", "ConstantConditions"})
     public final void display() {
+        if (MinecraftForge.MC_VERSION.startsWith("1.7")) {
+            FMLCommonHandler.instance().bus().register(this);
+            
+            return;
+        }
+    
         MinecraftForge.EVENT_BUS.register(this);
     }
     
@@ -347,10 +354,18 @@ public abstract class ModernGui extends UILock implements UISkeleton {
      *
      * @param event the client event
      */
+    @SuppressWarnings({"ConstantConditions", "deprecation"})
     @SubscribeEvent
     public final void onTick(TickEvent.ClientTickEvent event) {
-        MinecraftForge.EVENT_BUS.unregister(this);
         Minecraft.getMinecraft().displayGuiScreen(this);
+        
+        if (MinecraftForge.MC_VERSION.startsWith("1.7")) {
+            FMLCommonHandler.instance().bus().unregister(this);
+        
+            return;
+        }
+        
+        MinecraftForge.EVENT_BUS.unregister(this);
     }
     
     /**
@@ -453,6 +468,14 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             StackTraceElement element = ex.getStackTrace()[i];
             
             drawString(this.fontRendererObj, element.toString(), 10, 16 + (i * 12), Color.RED.getRGB());
+        }
+    }
+    
+    private void drawConditionalCenter(String text, int x, int y, int color, boolean centered) {
+        if (centered) {
+            drawCenteredString(this.fontRendererObj, text, x, y, color);
+        } else {
+            drawString(this.fontRendererObj, text, x, y, color);
         }
     }
 }

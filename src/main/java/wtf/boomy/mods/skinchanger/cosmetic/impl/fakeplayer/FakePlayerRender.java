@@ -27,6 +27,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
+import wtf.boomy.mods.skinchanger.utils.general.PlayerSkinType;
 
 /**
  * Cosmetic class for the Fake Player renderer
@@ -58,7 +59,7 @@ public class FakePlayerRender {
      * @param scale    the scale of the entity
      * @param rotation the rotation of the entity
      */
-    public void renderFakePlayer(int posX, int posY, int scale, float rotation) {
+    public void renderFakePlayer(int posX, int posY, int scale, float partialTicks, float rotation) {
         FakePlayer entity = fakePlayer;
         
         // Stops entity clipping behind the screen
@@ -90,7 +91,6 @@ public class FakePlayerRender {
         RenderHelper.enableStandardItemLighting();
         
         GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(0.0F, 1.0F, 0.0F, 0.0F);
         
         entity.renderYawOffset = 0.0F;
         entity.rotationYaw = 0.0F;
@@ -204,8 +204,8 @@ public class FakePlayerRender {
      *
      * @return the skin type of the FakePlayer
      */
-    public String getSkinType() {
-        return fakePlayer.getPlayerInfo().getSkinType();
+    public PlayerSkinType getSkinType() {
+        return fakePlayer.getPlayerInfo().getRawSkinType();
     }
     
     /**
@@ -215,6 +215,16 @@ public class FakePlayerRender {
      * @param in the skin type which should be set
      */
     public void setSkinType(String in) {
+        fakePlayer.getPlayerInfo().setSkinType(in);
+    }
+    
+    /**
+     * Sets the skin type of the FakePlayer to a predefined
+     * skin type
+     *
+     * @param in a type of {@link PlayerSkinType}
+     */
+    public void setRawSkinType(PlayerSkinType in) {
         fakePlayer.getPlayerInfo().setSkinType(in);
     }
     

@@ -174,18 +174,18 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
             return;
         }
         
-        int endingBoxY = this.y + this.heightOfSub + 10;
-        
-        if (this.drawUnderline) {
-            endingBoxY += 5;
-        }
-        
-        if (this.children.isEmpty()) {
-            endingBoxY -= 8;
-        }
-        
-        // The background box of the component
-        // ModernGui.drawRect(this.x - 2, this.y - 2, this.x + this.widthOfSub + this.furthestSubX, endingBoxY, new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB());
+//        int endingBoxY = this.y + this.heightOfSub + 10;
+//
+//        if (this.drawUnderline) {
+//            endingBoxY += 5;
+//        }
+//
+//        if (this.children.isEmpty()) {
+//            endingBoxY -= 8;
+//        }
+//
+//        // The background box of the component
+//        ModernGui.drawRect(this.x - 2, this.y - 2, this.x + this.widthOfSub + this.furthestSubX, endingBoxY, new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB());
         
         // Push the stack, making our own GL sandbox.
         GlStateManager.pushMatrix();
@@ -193,7 +193,7 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         // Reset the colors.
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         
-        //GlStateManager.scale(-Minecraft.getMinecraft().gameSettings.guiScale,  -Minecraft.getMinecraft().gameSettings.guiScale, 0F);
+        // GlStateManager.scale(-Minecraft.getMinecraft().gameSettings.guiScale,  -Minecraft.getMinecraft().gameSettings.guiScale, 0F);
         
         // Scales it up
         GlStateManager.scale(this.scaleSize, this.scaleSize, 0F);
@@ -216,22 +216,26 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         
         // Pop the changes to the gl stack.
         GlStateManager.popMatrix();
-        
+    
+        drawChildren(xPos, yPos, yTranslation, mouseX, mouseY);
+    }
+    
+    protected void drawChildren(float xPos, float yPos, float yTranslation, int mouseX, int mouseY) {
         if (this.children.size() > 0) {
             float yOffset = (12 * this.scaleSize) + this.offsetBetweenChildren / 2;
-            
+        
             for (ModernUIElement child : this.children) {
                 // Renders relative to this headers position.
                 if (child.renderRelativeToHeader()) {
                     GlStateManager.pushMatrix();
-        
+                
                     child.renderFromHeader((int) xPos, (int) yPos, yTranslation, mouseX, mouseY, (int) yOffset);
-        
+                
                     GlStateManager.popMatrix();
                 } else {
                     child.render(mouseX, mouseY, yTranslation);
                 }
-                
+            
                 if (child instanceof StartEndUIElement) {
                     yOffset += ((StartEndUIElement) child).getHeight() + 4;
                 } else {

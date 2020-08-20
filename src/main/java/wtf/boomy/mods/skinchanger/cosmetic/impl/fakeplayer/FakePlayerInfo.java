@@ -24,6 +24,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
+import wtf.boomy.mods.skinchanger.utils.general.PlayerSkinType;
 
 /**
  * The NetworkPlayerInfo of the {@link FakePlayer}
@@ -50,7 +51,7 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
      * Steve = "default"
      * Alex  = "slim"
      */
-    private String skinType;
+    private PlayerSkinType skinType;
     
     public FakePlayerInfo(FakePlayer player) {
         super(player.getFakeGameProfile());
@@ -87,7 +88,23 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
     
     @Override
     public String getSkinType() {
-        return this.skinType == null ? this.skinType = "default" : this.skinType;
+        return (this.skinType == null ? (this.skinType = PlayerSkinType.STEVE) : this.skinType).getSecretName();
+    }
+    
+    public PlayerSkinType getRawSkinType() {
+        if (this.skinType == null) {
+            this.skinType = PlayerSkinType.STEVE;
+        }
+        
+        return this.skinType;
+    }
+    
+    public void setSkinType(PlayerSkinType skinType) {
+        if (skinType == null) {
+            skinType = PlayerSkinType.STEVE;
+        }
+    
+        this.skinType = skinType;
     }
     
     public void setSkinType(String skinType) {
@@ -95,14 +112,14 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
             skinType = "default";
         }
         
-        this.skinType = skinType;
+        this.skinType = PlayerSkinType.getTypeFromString(skinType);
     }
     
     @Override
     public void loadPlayerTextures() {
         this.locationSkin = DefaultPlayerSkin.getDefaultSkinLegacy();
         this.locationCape = null;
-        this.skinType = "default";
+        this.skinType = PlayerSkinType.STEVE;
     }
     
     @Override

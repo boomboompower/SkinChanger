@@ -151,6 +151,14 @@ public class SkinChangerMenu extends ModernGui {
     public void preRender(int mouseX, int mouseY) {
         drawDefaultBackground();
         
+        int scale = (int) ((1.5 * this.width) / 10);
+    
+        GlStateManager.pushMatrix();
+        
+        this.fakePlayer.renderFakePlayer(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, 0, rotation);
+        
+        GlStateManager.popMatrix();
+        
         GlStateManager.pushMatrix();
     }
     
@@ -190,14 +198,14 @@ public class SkinChangerMenu extends ModernGui {
     }
     
     @Override
-    public void postRender() {
+    public void postRender(float partialTicks) {
         GlStateManager.popMatrix();
         
         GlStateManager.pushMatrix();
         
         int scale = (int) ((1.5 * this.width) / 10);
         
-        this.fakePlayer.renderFakePlayer(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, rotation);
+//        this.fakePlayer.renderFakePlayer(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, partialTicks, rotation);
         
         GlStateManager.popMatrix();
     }
@@ -223,6 +231,8 @@ public class SkinChangerMenu extends ModernGui {
                 }
                 
                 sendChatMessage(ChatColor.GREEN + "Your skin & cape have been applied!");
+                
+                close();
                 
                 return;
             case 101:
@@ -324,36 +334,21 @@ public class SkinChangerMenu extends ModernGui {
      * @param button the button which has been pressed
      */
     protected void onButtonPressedExtra(ModernButton button) {
-        switch (button.getId()) {
-            // Skin from a username
-            case 12:
+        int id = button.getId();
+        
+        for (PlayerSelectMenu.StringSelectionType selectionType : PlayerSelectMenu.StringSelectionType.values()) {
+            if (selectionType.getButtonID() == id) {
                 if (this.selectionMenu == null) {
-                    this.selectionMenu = new PlayerSelectMenu(this, PlayerSelectMenu.StringSelectionType.P_USERNAME);
+                    this.selectionMenu = new PlayerSelectMenu(this, selectionType);
                 }
                 
-                this.selectionMenu.displayExtra(this, PlayerSelectMenu.StringSelectionType.P_USERNAME);
+                this.selectionMenu.displayExtra(this, selectionType);
                 
-                break;
-            
-            // Skin from a UUID
-            case 13:
-                if (this.selectionMenu == null) {
-                    this.selectionMenu = new PlayerSelectMenu(this, PlayerSelectMenu.StringSelectionType.P_UUID);
-                }
-                
-                this.selectionMenu.displayExtra(this, PlayerSelectMenu.StringSelectionType.P_UUID);
-                
-                break;
-            
-            // Skin from a URL
-            case 14:
-                if (this.selectionMenu == null) {
-                    this.selectionMenu = new PlayerSelectMenu(this, PlayerSelectMenu.StringSelectionType.P_URL);
-                }
-                
-                this.selectionMenu.displayExtra(this, PlayerSelectMenu.StringSelectionType.P_URL);
-                
-                break;
+                return;
+            }
+        }
+        
+        switch (id) {
             
             // Skin from a file
             case 15:
@@ -364,36 +359,6 @@ public class SkinChangerMenu extends ModernGui {
             // Reset Skin
             case 16:
                 this.fakePlayer.setSkinLocation(this.originalSkin);
-                
-                break;
-            
-            // Cape from a player name
-            case 17:
-                if (this.selectionMenu == null) {
-                    this.selectionMenu = new PlayerSelectMenu(this, PlayerSelectMenu.StringSelectionType.C_USERNAME);
-                }
-                
-                this.selectionMenu.displayExtra(this, PlayerSelectMenu.StringSelectionType.C_USERNAME);
-                
-                break;
-            
-            // Cape from a UUID
-            case 18:
-                if (this.selectionMenu == null) {
-                    this.selectionMenu = new PlayerSelectMenu(this, PlayerSelectMenu.StringSelectionType.C_UUID);
-                }
-                
-                this.selectionMenu.displayExtra(this, PlayerSelectMenu.StringSelectionType.C_UUID);
-                
-                break;
-            
-            // Cape from a URL
-            case 19:
-                if (this.selectionMenu == null) {
-                    this.selectionMenu = new PlayerSelectMenu(this, PlayerSelectMenu.StringSelectionType.C_URL);
-                }
-                
-                this.selectionMenu.displayExtra(this, PlayerSelectMenu.StringSelectionType.C_URL);
                 
                 break;
             

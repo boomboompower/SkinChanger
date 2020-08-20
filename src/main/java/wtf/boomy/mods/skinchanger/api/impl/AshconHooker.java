@@ -23,10 +23,12 @@ import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.api.SkinAPI;
+import wtf.boomy.mods.skinchanger.utils.game.Callback;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 import wtf.boomy.mods.skinchanger.utils.general.BetterJsonObject;
 import wtf.boomy.mods.skinchanger.utils.general.LowerCaseHashMap;
 
+import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -61,12 +63,31 @@ public class AshconHooker extends SkinAPI {
     }
     
     @Override
+    public String getNameFromID(String uuid) {
+        if (uuid == null) {
+            return "Steve";
+        }
+    
+        BetterJsonObject data = getData(uuid);
+    
+        if (data.has("success") && !(data.get("success").getAsBoolean())) {
+            return "Steve";
+        }
+    
+        return data.has("username") ? data.get("username").getAsString() : "Steve";
+    }
+    
+    @Override
     public String getRealNameFromName(String userName) {
         if (userName == null) {
             return "";
         }
         
         BetterJsonObject data = getData(userName);
+        
+        if (data == null) {
+            data = doAPIRequest(userName);
+        }
         
         if (data.has("success") && !(data.get("success").getAsBoolean())) {
             return userName;
@@ -76,9 +97,11 @@ public class AshconHooker extends SkinAPI {
     }
     
     @Override
-    public ResourceLocation getSkinFromId(String playerId) {
+    public void getSkinFromId(String playerId, Callback<ResourceLocation> callback) {
         if (playerId == null || playerId.isEmpty()) {
-            return DefaultPlayerSkin.getDefaultSkinLegacy();
+            callback.run(DefaultPlayerSkin.getDefaultSkinLegacy());
+            
+            return;
         }
     
         if (this.skins.containsKey(playerId)) {
@@ -86,7 +109,9 @@ public class AshconHooker extends SkinAPI {
         
             // Test if the resource is still loaded
             if (Minecraft.getMinecraft().getTextureManager().getTexture(loc) != null) {
-                return loc;
+                callback.run(loc);
+                
+                return;
             } else {
                 this.skins.remove(playerId);
             }
@@ -95,20 +120,27 @@ public class AshconHooker extends SkinAPI {
         BetterJsonObject data = getData(playerId);
     
         if (data.has("success") && !(data.get("success").getAsBoolean())) {
-            return DefaultPlayerSkin.getDefaultSkinLegacy();
+            callback.run(DefaultPlayerSkin.getDefaultSkinLegacy());
+            
+            return;
         }
         
         if (!data.has("textures") || !data.get("textures").isJsonObject() || !data.get("textures").getAsJsonObject().has("skin")) {
-            return DefaultPlayerSkin.getDefaultSkinLegacy();
+            callback.run(DefaultPlayerSkin.getDefaultSkinLegacy());
+    
+            return;
         }
         
-        String url = data.get("textures").getAsJsonObject().get("skin").getAsJsonObject().get("url").getAsString();
+        // Represents the base64 encodes PNG file for the player skin
+        String base64data = data.getChild("textures").getChild("skin").optString("data");
     
-        ResourceLocation playerSkin = SkinChangerMod.getInstance().getCacheRetriever().loadIntoGame(playerId, url, CacheRetriever.CacheType.SKIN);
-    
-        this.skins.put(playerId, playerSkin);
-    
-        return playerSkin;
+        File memes = SkinChangerMod.getInstance().getCacheRetriever().createCachedBase64(playerId, base64data);
+        
+        SkinChangerMod.getInstance().getCacheRetriever().loadFileDirectly(memes, CacheRetriever.CacheType.SKIN, o -> {
+            this.skins.put(playerId, o);
+            
+            callback.run(o);
+        });
     }
     
     @Override
@@ -131,9 +163,9 @@ public class AshconHooker extends SkinAPI {
             data = this.storedData.get(nameOrUUID);
         }
         
-//        java.awt.datatransfer.Clipboard clipboard = java.awt.Toolkit.getDefaultToolkit().getSystemClipboard();
-//
-//        clipboard.setContents(new java.awt.datatransfer.StringSelection(new String(Base64.getDecoder().decode(data.getData().getAsJsonObject("textures").getAsJsonObject("skin").get("data").getAsString()))), null);
+        if (data == null) {
+            data = doAPIRequest(nameOrUUID);
+        }
         
         return data;
     }

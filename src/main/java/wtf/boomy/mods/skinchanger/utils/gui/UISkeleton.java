@@ -70,7 +70,7 @@ public interface UISkeleton {
      * <br />
      * This method will not cause a crash on an error
      */
-    public default void postRender() {
+    public default void postRender(float partialTicks) {
     }
     
     /**

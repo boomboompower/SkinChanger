@@ -21,6 +21,7 @@ import java.awt.Color;
 
 import net.minecraft.client.gui.FontRenderer;
 
+import org.lwjgl.input.Keyboard;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 
 import net.minecraft.client.Minecraft;
@@ -272,7 +273,7 @@ public class ModernTextBox {
     /**
      * Call this method from your GuiScreen to process the keys into the textbox
      */
-    public void textboxKeyTyped(char c, int keyCode) {
+    public void onKeyTyped(char c, int keyCode) {
         if (!this.isFocused) {
             return;
         }
@@ -540,7 +541,13 @@ public class ModernTextBox {
      * Sets focus to this gui element
      */
     public void setFocused(boolean isFocused) {
+        if (!isFocused) {
+            Keyboard.enableRepeatEvents(false);
+        }
+        
         if (isFocused && !this.isFocused) {
+            Keyboard.enableRepeatEvents(true);
+            
             this.cursorCounter = 0;
         }
         this.isFocused = isFocused;

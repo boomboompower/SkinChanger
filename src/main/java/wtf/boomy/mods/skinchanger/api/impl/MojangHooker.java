@@ -29,6 +29,7 @@ import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.api.SkinAPI;
+import wtf.boomy.mods.skinchanger.utils.game.Callback;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 import wtf.boomy.mods.skinchanger.utils.general.BetterJsonObject;
 import wtf.boomy.mods.skinchanger.utils.general.LowerCaseHashMap;
@@ -105,6 +106,17 @@ public class MojangHooker extends SkinAPI {
         idCaches.put(nameIn, new String[] {"", ""});
         
         return "";
+    }
+    
+    @Override
+    public String getNameFromID(String uuid) {
+        for (String[] s : idCaches.values()) {
+            if (s[0].equals(uuid)) {
+                return s[1];
+            }
+        }
+        
+        return "Steve";
     }
     
     /**
@@ -291,17 +303,17 @@ public class MojangHooker extends SkinAPI {
      *
      * @param id the id of the user (see {@link #getIdFromUsername(String)})
      *
-     * @return the {@link ResourceLocation} of the given id
+     * @param callback the {@link ResourceLocation} of the given id
      */
-    public ResourceLocation getSkinFromId(String id) {
+    public void getSkinFromId(String id, Callback<ResourceLocation> callback) {
         try {
-            return getSkinFromIdUnsafe(id);
+            getSkinFromIdUnsafe(id, callback);
         } catch (IllegalArgumentException ex) {
             if (ex.getMessage() != null) {
                 System.err.println(ex.getMessage());
             }
             
-            return DefaultPlayerSkin.getDefaultSkinLegacy();
+            callback.run(DefaultPlayerSkin.getDefaultSkinLegacy());
         }
     }
     
@@ -310,16 +322,18 @@ public class MojangHooker extends SkinAPI {
      *
      * @param id the id of the profile, to be used in decryption
      *
-     * @return the {@link ResourceLocation} of the given id
+     * @param callback the {@link ResourceLocation} of the given id
      */
-    private ResourceLocation getSkinFromIdUnsafe(String id) {
+    private void getSkinFromIdUnsafe(String id, Callback<ResourceLocation> callback) {
         if (id != null && !id.isEmpty()) {
             if (skins.containsKey(id)) {
                 ResourceLocation loc = skins.get(id);
                 
                 // Test if the resource is still loaded
                 if (Minecraft.getMinecraft().getTextureManager().getTexture(loc) != null) {
-                    return loc;
+                    callback.run(loc);
+                    
+                    return;
                 } else {
                     skins.remove(id);
                 }
@@ -331,15 +345,19 @@ public class MojangHooker extends SkinAPI {
             if (!realTextures.has("SKIN")) {
                 skins.put(id, DefaultPlayerSkin.getDefaultSkinLegacy());
                 
-                return DefaultPlayerSkin.getDefaultSkinLegacy();
+                callback.run(DefaultPlayerSkin.getDefaultSkinLegacy());
+                
+                return;
             }
             
             JsonObject skinData = realTextures.get("SKIN").getAsJsonObject();
             
             if (!skinData.has("url")) {
                 skins.put(id, DefaultPlayerSkin.getDefaultSkinLegacy());
-                
-                return DefaultPlayerSkin.getDefaultSkinLegacy();
+    
+                callback.run(DefaultPlayerSkin.getDefaultSkinLegacy());
+    
+                return;
             }
             
             String url = skinData.get("url").getAsString();
@@ -350,13 +368,13 @@ public class MojangHooker extends SkinAPI {
                 throw new IllegalArgumentException("Invalid payload, the domain issued was not trusted.");
             }
             
-            ResourceLocation playerSkin = SkinChangerMod.getInstance().getCacheRetriever().loadIntoGame(id, url, CacheRetriever.CacheType.SKIN);
-            
-            skins.put(id, playerSkin);
-            
-            return playerSkin;
+            SkinChangerMod.getInstance().getCacheRetriever().loadIntoGame(id, url, CacheRetriever.CacheType.SKIN, skin -> {
+                skins.put(id, skin);
+                
+                callback.run(skin);
+            });
         } else {
-            return DefaultPlayerSkin.getDefaultSkinLegacy();
+            callback.run(DefaultPlayerSkin.getDefaultSkinLegacy());
         }
     }
     

@@ -19,11 +19,14 @@ package wtf.boomy.mods.skinchanger.utils.backend;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
-import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
+import wtf.boomy.mods.skinchanger.utils.game.Callback;
 import wtf.boomy.mods.skinchanger.utils.resources.CapeBuffer;
 import wtf.boomy.mods.skinchanger.utils.resources.LocalFileData;
 import wtf.boomy.mods.skinchanger.utils.resources.SkinBuffer;
@@ -31,9 +34,14 @@ import wtf.boomy.mods.skinchanger.utils.resources.SkinBuffer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -72,65 +80,69 @@ public class CacheRetriever {
     }
     
     /**
-     * Loads a file/url into the game.
-     *
-     * @param name the name for the file
-     * @param url  the url of the file
-     *
-     * @return a resource location with the loaded url.
-     */
-    public ResourceLocation loadIntoGame(String name, String url) {
-        return loadIntoGame(name, url, CacheType.OTHER);
-    }
-    
-    /**
      * Loads a url into the game and caches it into the game.
      *
      * @param name      the name for the file (to be cached)
      * @param url       the url for the file (to be retrieved)
      * @param cacheType the cache type, influences if
-     *
-     * @return the resource which has been loaded into the game
+     * @param callback  the real callback, will be called once the resource is properly loaded into the game
      */
     // String.format("https://minotar.net/skin/%s", name)
-    public ResourceLocation loadIntoGame(String name, String url, CacheType cacheType) {
-        if (cacheType == null) {
-            cacheType = CacheType.OTHER;
+    public void loadIntoGame(String name, String url, CacheType cacheType, Callback<ResourceLocation> callback) {
+        if (cacheType == null || cacheType == CacheType.OTHER) {
+            throw new IllegalArgumentException("Can no longer use none.");
         }
-        
-        File cacheDirectory = getCacheDirForName(name);
-        
-        // Other cache types can be ignored.
-        File cachedFile = cacheType != CacheType.OTHER ? getCacheFileIfIExists(name, ".png") : null;
+    
+        File fileCache = new File(this.cacheDirectory, name);
+//        File expiryFile = new File(fileCache + ".expire", name);
+        File dataFile = new File(fileCache, name);
         
         ResourceLocation location = new ResourceLocation("skins/" + getCacheName(name));
         
         final IImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
         
-        if (cachedFile != null) {
-            Minecraft.getMinecraft().addScheduledTask(() -> {
-                Minecraft.getMinecraft().renderEngine.loadTexture(location, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), cachedFile, buffer));
-            });
+        if (dataFile.exists() && dataFile.isFile()) {
+            loadFileDirectly(dataFile, cacheType, callback);
             
-            return location;
+            return;
         }
-        
-        File dataFile = new File(cacheDirectory, cacheDirectory.getName() + ".png");
         
         // Force HTTPS on resources.
         if (FORCE_HTTPS && (url.startsWith("http://") && !url.contains("optifine"))) {
             url = "https://" + url.substring("http://".length());
         }
         
-        ThreadDownloadImageData imageData = new ThreadDownloadImageData(dataFile, url, cacheType == CacheType.CAPE ? new ResourceLocation("skinchanger", "light.png") : DefaultPlayerSkin.getDefaultSkinLegacy(), buffer);
+        if (!fileCache.exists()) {
+            if (!fileCache.mkdirs()) {
+                System.out.println("Unable to make cache dir");
+                
+                return;
+            }
+        }
+        
+        try {
+            download(new URL(url), dataFile);
+    
+            loadFileDirectly(dataFile, cacheType, callback);
+        } catch (IOException | NullPointerException ex) {
+            fileCache.delete();
+            
+            ex.printStackTrace();
+        }
+    }
+    
+    public void loadFileDirectly(File file, CacheType cacheType, Callback<ResourceLocation> callback) {
+        final IImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
+        
+        ResourceLocation location = new ResourceLocation("skins/" + getCacheName(file.getName()));
         
         Minecraft.getMinecraft().addScheduledTask(() -> {
-            Minecraft.getMinecraft().renderEngine.loadTexture(location, imageData);
+            Minecraft.getMinecraft().renderEngine.loadTexture(location, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), file, buffer));
+        
+            if (callback != null) {
+                callback.run(location);
+            }
         });
-        
-        generateCacheFiles(name);
-        
-        return location;
     }
     
     /**
@@ -138,7 +150,7 @@ public class CacheRetriever {
      *
      * @param name the name of the file
      */
-    public void generateCacheFiles(String name) {
+    public File generateCacheFiles(String name) {
         File cacheDirectory = getCacheDirForName(name);
         
         if (isCacheExpired(name)) {
@@ -149,7 +161,7 @@ public class CacheRetriever {
         if (!cacheDirectory.exists()) {
             if (!cacheDirectory.mkdir()) {
                 System.err.println("Failed to create a cache directory.");
-                return;
+                return null;
             }
         }
         
@@ -184,6 +196,8 @@ public class CacheRetriever {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        return dataFile;
     }
     
     /**
@@ -378,6 +392,48 @@ public class CacheRetriever {
         }
         
         return existed;
+    }
+    
+    private void download(URL source, File destination) {
+        try {
+            URLConnection connection = source.openConnection();
+            connection.setRequestProperty("User-Agent", "SkinChanger/" + SkinChangerMod.VERSION);
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(30000);
+            InputStream input = connection.getInputStream();
+            try {
+                FileOutputStream output = FileUtils.openOutputStream(destination);
+                
+                try {
+                    IOUtils.copy(input, output);
+                    
+                    output.close();
+                } finally {
+                    IOUtils.closeQuietly(output);
+                }
+            } finally {
+                IOUtils.closeQuietly(input);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public File createCachedBase64(String name, String base64data) {
+        try {
+            // Represents the decoded base64 content
+            byte[] rawData = Base64.getDecoder().decode(base64data);
+            
+            File cacheFile = generateCacheFiles(name);
+    
+            FileUtils.writeByteArrayToFile(cacheFile, rawData);
+            
+            return cacheFile;
+        } catch (IllegalArgumentException | IOException ex) {
+            ex.printStackTrace();
+            
+            return null;
+        }
     }
     
     public SkinChangerMod getMod() {

@@ -266,6 +266,28 @@ public class BetterJsonObject {
         return this.data.get(key);
     }
     
+    public JsonObject getJsonObject(String key) {
+        JsonElement element = get(key);
+        
+        if (element == null) {
+            return null;
+        } else if (!(element instanceof JsonObject)) {
+            throw new IllegalStateException("The value of the key was meant to be a JsonObject but was " + this.data.get(key).getClass().getSimpleName());
+        }
+        
+        return element.getAsJsonObject();
+    }
+    
+    public BetterJsonObject getChild(String key) {
+        JsonObject element = getJsonObject(key);
+        
+        if (element == null) {
+            return null;
+        }
+        
+        return new BetterJsonObject(element);
+    }
+    
     /**
      * Returns the data the information is being loaded from
      *

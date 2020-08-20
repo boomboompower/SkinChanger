@@ -55,7 +55,7 @@ public class ModOptionsMenu extends SkinChangerMenu {
         // Call first
         setAsSubMenu(this.skinChangerMenu);
         
-        this.currentSkinType = PlayerSkinType.getTypeFromString(this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType());
+        this.currentSkinType = this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType();
         
         int yVal = 10;
         

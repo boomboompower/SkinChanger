@@ -18,10 +18,11 @@
 package wtf.boomy.mods.skinchanger.gui.additional;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.api.SkinAPIType;
+import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
@@ -39,17 +40,19 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     
     private static boolean loading;
     
-    private final SkinAPIType skinAPI;
     private final CacheRetriever cacheRetriever;
+    private final FakePlayerRender fakePlayerRender;
     private final ThreadFactory threadFactory;
     
+    private SkinAPIType skinAPI;
     private SkinChangerMenu skinChangerMenu;
     private StringSelectionType selectionType;
     
-    private int errorMessageTimer = 0;
+    private float errorMessageTimer = 0;
     private String lastErrorMessage = null;
     private String errorMessage = "";
     
+    private ModernButton skinTypeButton;
     private ModernTextBox textBox;
     
     public PlayerSelectMenu(SkinChangerMenu menu, StringSelectionType selectionType) {
@@ -57,13 +60,16 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         this.selectionType = selectionType;
         
         this.skinAPI = SkinChangerMod.getInstance().getConfigurationHandler().getSkinAPIType();
+        this.fakePlayerRender = SkinChangerMod.getInstance().getCosmeticFactory().getFakePlayerRender();
         this.cacheRetriever = SkinChangerMod.getInstance().getCacheRetriever();
-        this.threadFactory = new ThreadFactory(selectionType.name());
+        this.threadFactory = new ThreadFactory("SelectionMenu");
     }
     
     @Override
     protected void onGuiInitExtra() {
         setAsSubMenu(this.skinChangerMenu);
+    
+        this.skinAPI = SkinChangerMod.getInstance().getConfigurationHandler().getSkinAPIType();
         
         float boxWidth = 150;
         float boxHeight = 20;
@@ -92,13 +98,15 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         yLocation += loadButton.getHeight() + 20;
         
         if (this.selectionType.isTypeOfSkin()) {
-            ModernButton type = new ModernButton(505, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Type: " + ChatColor.AQUA + PlayerSkinType.getTypeFromString(this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType()).getDisplayName());
+            ModernButton type = new ModernButton(505, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Type: " + ChatColor.AQUA + this.fakePlayerRender.getSkinType().getDisplayName());
     
             type.setEnabled(this.mod.getStorage().isSkinTypePatchApplied());
             
             yLocation += loadButton.getHeight() + 4;
     
             registerElement(type);
+            
+            this.skinTypeButton = type;
         }
     
         ModernButton confirm = new ModernButton(101, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Confirm");
@@ -117,26 +125,28 @@ public class PlayerSelectMenu extends SkinChangerMenu {
             this.lastErrorMessage = errorMessage;
         }
         
-        int floatingPosition = cap(this.errorMessageTimer);
+        int floatingPosition = (int) cap(this.errorMessageTimer);
         
         drawCenteredString(this.fontRendererObj, this.selectionType.getDisplaySentence(), this.width / 4, this.height / 2 - 40, Color.WHITE.getRGB());
         
         drawCenteredString(this.fontRendererObj, this.errorMessage, this.width / 2, this.height - floatingPosition, Color.WHITE.getRGB());
         
-        this.errorMessageTimer++;
+        this.errorMessageTimer += partialTicks;
     }
     
     @Override
     protected void onButtonPressedExtra(ModernButton button) {
         // Already doing an operation. Just do nothing
-        if (loading) {
-            return;
-        }
+//        if (loading) {
+//            System.out.println("Operation suppressed");
+//
+//            return;
+//        }
     
         if (button.getId() == 505) {
-            PlayerSkinType nextType = PlayerSkinType.getTypeFromString(this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType()).getNextSkin();
+            PlayerSkinType nextType = this.fakePlayerRender.getSkinType().getNextSkin();
         
-            this.mod.getCosmeticFactory().getFakePlayerRender().setSkinType(nextType.getSecretName());
+            this.fakePlayerRender.setRawSkinType(nextType);
         
             button.setText("Type: " + ChatColor.AQUA + nextType.getDisplayName());
             
@@ -152,8 +162,10 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                 loading = false;
             });
             
-            //return;
+            return;
         }
+        
+        System.out.println("TEE");
         
         // Should never happen.
         if (this.textBox == null) {
@@ -181,81 +193,65 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         }
         
         if (button.getId() == 500) {
-            switch (this.selectionType) {
-                case P_USERNAME:
-                    if (!InternetConnection.hasInternetConnection()) {
-                        this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
-                        
-                        return;
+            handleSelectionPress(enteredText);
+        }
+    }
+    
+    private void handleSelectionPress(String enteredText) {
+        if (!InternetConnection.hasInternetConnection()) {
+            this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
+        
+            return;
+        }
+        
+        String cacheName = this.selectionType.name().charAt(0) + enteredText;
+        
+        if (this.selectionType.isTypeOfUrl()) {
+            cacheName = DigestUtils.md5Hex(cacheName.getBytes());
+        } else if (this.selectionType.isTypeOfUUID() && enteredText.contains("-")) {
+            enteredText = enteredText.replace("-", "");
+        }
+        
+        switch (this.selectionType) {
+            case P_USERNAME:
+                String realUsername = this.skinAPI.getAPI().getRealNameFromName(enteredText);
+                
+                this.skinAPI.getAPI().getSkinFromId(this.skinAPI.getAPI().getIdFromUsername(realUsername), resourceLocation -> {
+                    boolean hasSlimSkin = this.skinAPI.getAPI().hasSlimSkin(realUsername);
+    
+                    this.fakePlayerRender.setSkinType(hasSlimSkin ? "slim" : "default");
+                    this.fakePlayerRender.setSkinLocation(resourceLocation);
+                    
+                    if (this.skinTypeButton != null) {
+                        this.skinTypeButton.setText("Type: " + ChatColor.AQUA + this.fakePlayerRender.getSkinType().getDisplayName());
                     }
-                    
-                    String playerId = this.skinAPI.getAPI().getIdFromUsername(enteredText);
-                    String userName = this.skinAPI.getAPI().getRealNameFromName(enteredText);
-                    
-                    if (userName == null) {
-                        userName = enteredText;
-                    }
-                    
-                    String finalUserName = userName;
-                    
-                    Minecraft.getMinecraft().addScheduledTask(() -> {
-                        ResourceLocation resourceLocation = this.skinAPI.getAPI().getSkinFromId(playerId);
-                        
-                        boolean hasSlimSkin = this.skinAPI.getAPI().hasSlimSkin(finalUserName);
-                        
-                        this.mod.getCosmeticFactory().getFakePlayerRender().setSkinType(hasSlimSkin ? "slim" : "default");
-                        this.mod.getCosmeticFactory().getFakePlayerRender().setSkinLocation(resourceLocation);
-                    });
-                    
-                    break;
-                case C_USERNAME:
-                    String cacheName = "c" + enteredText;
-                    
-                    // If the file exists in the cache we don't need internet.
-                    if (!InternetConnection.hasInternetConnection()) {
-                        this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
-                        
-                        return;
-                    }
-                    
-                    String url = "http://s.optifine.net/capes/" + enteredText + ".png";
-                    
-                    ResourceLocation cape = this.cacheRetriever.loadIntoGame(cacheName, url, CacheRetriever.CacheType.CAPE);
-                    
-                    this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(cape);
-                    
-                    break;
-                case P_URL:
-                    String cache = "u" + enteredText;
-                    
-                    // If the file exists in the cache we don't need internet.
-                    if (!InternetConnection.hasInternetConnection()) {
-                        this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
-                        
-                        return;
-                    }
-                    
-                    // Skin URL Resource
-                    ResourceLocation p_URL_Resource = this.cacheRetriever.loadIntoGame(cache, enteredText, CacheRetriever.CacheType.SKIN);
-                    
-                    this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(p_URL_Resource);
-                case C_URL:
-                    String cacheC = "1" + enteredText;
-                    
-                    // If the file exists in the cache we don't need internet.
-                    if (!InternetConnection.hasInternetConnection()) {
-                        this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
-                        
-                        return;
-                    }
-                    
-                    // Cape URL Resource
-                    ResourceLocation c_URL_Resource = this.cacheRetriever.loadIntoGame(cacheC, enteredText, CacheRetriever.CacheType.CAPE);
-                    
-                    this.mod.getCosmeticFactory().getFakePlayerRender().setCapeLocation(c_URL_Resource);
-                    
-                    break;
-            }
+                });
+                
+                break;
+            case C_USERNAME:
+                String url = "http://s.optifine.net/capes/" + enteredText + ".png";
+            
+                this.cacheRetriever.loadIntoGame(cacheName, url, this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
+            
+                break;
+            case P_URL:
+                // Skin URL Resource
+                this.cacheRetriever.loadIntoGame(cacheName, enteredText, this.selectionType.getCacheType(), this.fakePlayerRender::setSkinLocation);
+                
+                break;
+            case C_URL:
+                // Cape URL Resource
+                this.cacheRetriever.loadIntoGame(cacheName, enteredText, this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
+            
+                break;
+            case P_UUID:
+                // Skin UUID Resource
+                this.skinAPI.getAPI().getSkinFromId(enteredText, this.fakePlayerRender::setSkinLocation);
+                
+                break;
+            case C_UUID:
+                // Cape UUID Resource
+                this.cacheRetriever.loadIntoGame(enteredText, "http://s.optifine.net/capes/" + this.skinAPI.getAPI().getNameFromID(enteredText) + ".png", this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
         }
     }
     
@@ -270,7 +266,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
      *
      * @return a number between 0 and 30.
      */
-    private int cap(int in) {
+    private float cap(float in) {
         if (in < 0) {
             return 0;
         }
@@ -294,28 +290,42 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     }
     
     /**
-     * Tells this class which varient of itself it should use
+     * Tells this class which variant of itself it should use
      */
     public enum StringSelectionType {
-        P_USERNAME("Enter the username of the player."),
-        C_USERNAME("Enter the username of the player."),
+        P_USERNAME("Enter the username of the player.", 12, CacheRetriever.CacheType.SKIN),
+        C_USERNAME("Enter the username of the player.", 17, CacheRetriever.CacheType.CAPE),
         
-        P_URL("Enter the URL of the skin. (https://....)"),
-        C_URL("Enter the URL of the cape. (https://....)"),
+        P_URL("Enter the URL of the skin. (https://....)", 14, CacheRetriever.CacheType.SKIN),
+        C_URL("Enter the URL of the cape. (https://....)", 19, CacheRetriever.CacheType.CAPE),
         
-        P_UUID("Enter the UUID of the player. (ABCD-EFGH-...)"),
-        C_UUID("Enter the UUID of the player. (ABCD-EFGH-...)");
-        
+        P_UUID("Enter the UUID of the player. (ABCD-EFGH-...)", 13, CacheRetriever.CacheType.SKIN),
+        C_UUID("Enter the UUID of the player. (ABCD-EFGH-...)", 18, CacheRetriever.CacheType.CAPE);
+    
+        private final CacheRetriever.CacheType cacheType;
         private final String displaySentence;
+        private final int buttonID;
+        
         
         // If a UUID has been generated we should store
         // it so we don't have to parse it twice
         private UUID storedUUID;
         
-        StringSelectionType(String displaySentence) {
+        StringSelectionType(String displaySentence, int buttonID, CacheRetriever.CacheType cacheType) {
             this.displaySentence = displaySentence;
+            
+            this.buttonID = buttonID;
+            this.cacheType = cacheType;
         }
-        
+    
+        public int getButtonID() {
+            return this.buttonID;
+        }
+    
+        public CacheRetriever.CacheType getCacheType() {
+            return this.cacheType;
+        }
+    
         /**
          * Checks the entered string to see if it complies with this Selection's rules.
          *

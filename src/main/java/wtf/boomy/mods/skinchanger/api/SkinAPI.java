@@ -20,6 +20,7 @@ package wtf.boomy.mods.skinchanger.api;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.IOUtils;
+import wtf.boomy.mods.skinchanger.utils.game.Callback;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -51,6 +52,14 @@ public abstract class SkinAPI {
     public abstract String getIdFromUsername(String userName);
     
     /**
+     * Retrieves the username of a player from a UUID
+     *
+     * @param uuid the uuid of the player
+     * @return the uuid, may be null.
+     */
+    public abstract String getNameFromID(String uuid);
+    
+    /**
      * Gets the real username of a user from the Mojang API, e.g "NoTcH" will return "notch"
      *
      * @param userName the username of the user
@@ -63,10 +72,9 @@ public abstract class SkinAPI {
      * Returns a ResourceLocation from a uuid, this will return the Steve model if any issues occur
      *
      * @param playerId the id of the user (see {@link #getIdFromUsername(String)})
-     *
-     * @return the {@link ResourceLocation} of the given player
+     * @param callback the {@link ResourceLocation} of the given player
      */
-    public abstract ResourceLocation getSkinFromId(String playerId);
+    public abstract void getSkinFromId(String playerId, Callback<ResourceLocation> callback);
     
     /**
      * Is the textures provided a slim skin?
