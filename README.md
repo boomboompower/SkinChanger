@@ -2,6 +2,10 @@
 A Minecraft mod which allows players to change their cape and skin directly from an in-game menu. Skins can be retrieved from files, urls and directly from player names and UUIDs.
 
 ##### Badges
+[![Latest Release](https://img.shields.io/github/v/release/boomboompower/SkinChanger?label=Latest%20Release&style=flat-square)](https://github.com/boomboompower/SkinChanger/releases)
+[![Latest Beta](https://img.shields.io/github/v/release/boomboompower/SkinChanger?include_prereleases&label=Latest%20Beta&sort=semver)](https://github.com/boomboompower/SkinChanger/releases)
+
+
 [![Size](https://img.shields.io/github/languages/code-size/boomboompower/SkinChanger?style=flat-square)](https://github.com/boomboompower/SkinChanger)
 [![Downloads](https://img.shields.io/github/downloads/boomboompower/SkinChanger/total.svg?style=flat-square)](https://github.com/boomboompower/SkinChanger/releases)
 [![CI](https://github.com/boomboompower/SkinChanger/workflows/Java%20CI%20with%20Forge/badge.svg?style=flat-square)](https://github.com/boomboompower/SkinChanger/actions)
