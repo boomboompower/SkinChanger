@@ -20,14 +20,15 @@ package wtf.boomy.mods.skinchanger;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.network.NetworkPlayerInfo;
-
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+import wtf.boomy.apagoge.ApagogeHandler;
 import wtf.boomy.mods.skinchanger.commands.SkinCommand;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
@@ -36,6 +37,7 @@ import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
 
 import java.io.File;
+import java.net.URISyntaxException;
 
 /**
  * The Official SkinChanger mod
@@ -43,11 +45,11 @@ import java.io.File;
  * @author boombompower
  * @version 3.0.0
  */
-@Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "[1.8.8,1.8.9]", clientSideOnly = true)
+@Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "@MC_VERSION@", clientSideOnly = true, certificateFingerprint = "@FINGERPRINT@")
 public class SkinChangerMod {
     
     public static final String MOD_ID = "skinchanger";
-    public static final String VERSION = "3.0.1";
+    public static final String VERSION = "@VERSION@";
     
     // Forge will instantiate this
     @Mod.Instance
@@ -60,11 +62,13 @@ public class SkinChangerMod {
     private File modConfigDirectory;
     
     private final SkinChangerStorage skinChangerStorage;
+    private final ApagogeHandler apagogeHandler;
     
     // When forge creates a new instance of this class we need
     // to also build the storage component of the mod.
-    public SkinChangerMod() {
-        this.skinChangerStorage = new SkinChangerStorage();
+    public SkinChangerMod() throws URISyntaxException {
+        this.skinChangerStorage = new SkinChangerStorage(this);
+        this.apagogeHandler = new ApagogeHandler(new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI()), "SkinChanger", SkinChangerMod.VERSION);
     }
     
     @Mod.EventHandler
@@ -84,7 +88,23 @@ public class SkinChangerMod {
     
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        //MinecraftForge.EVENT_BUS.register(new MainEvents(this));
+        // Just a few classes, make sure they have the correct signature.
+        this.apagogeHandler.addValidatorClasses(SkinChangerMod.class,
+                SkinChangerStorage.class,
+                SkinCommand.class,
+                CacheRetriever.class,
+                ConfigurationHandler.class,
+                CosmeticFactory.class
+        );
+        
+        this.apagogeHandler.addCompletionListener((handler, success) -> {
+            if (!success) {
+                System.err.println("Apagoge failed.");
+            } else {
+                System.err.println("Apagoge succeeded");
+            }
+        });
+        
         ClientCommandHandler.instance.registerCommand(new SkinCommand(this));
     }
     
@@ -94,13 +114,16 @@ public class SkinChangerMod {
         
         this.cosmeticFactory = new CosmeticFactory(this);
         
-        // Hook Resource Reloads
-//        ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(r -> {
-//            System.out.println("Resources reloaded");
-//        });
-        
-        // This forces our patches to be done NOW!
+        // This forces our patches to be done as the game loads
         new NetworkPlayerInfo((GameProfile) null);
+    }
+    
+    @Mod.EventHandler
+    public void onSignatureViolation(FMLFingerprintViolationEvent event) {
+        System.err.println("Signature violation detected. Killing updater.");
+        
+        // Deletes updater & all data under it
+        this.apagogeHandler.requestKill();
     }
     
     /**
@@ -118,7 +141,7 @@ public class SkinChangerMod {
      * @return the config handler used by the mod.
      */
     public ConfigurationHandler getConfigurationHandler() {
-        return configurationHandler;
+        return this.configurationHandler;
     }
     
     /**
@@ -127,18 +150,18 @@ public class SkinChangerMod {
      * @return the cosmetic factory.
      */
     public CosmeticFactory getCosmeticFactory() {
-        return cosmeticFactory;
+        return this.cosmeticFactory;
     }
     
     /**
      * Returns the object containing all the smart caching objects.
-     *
+     * <p>
      * Automatically saves and stores files retrieved from websites or Mojang's database to increase load times.
      *
      * @return the caching platform used by the mod.
      */
     public CacheRetriever getCacheRetriever() {
-        return cacheRetriever;
+        return this.cacheRetriever;
     }
     
     /**
@@ -147,7 +170,17 @@ public class SkinChangerMod {
      * @return defaults to the forge/skinchanger directory.
      */
     public File getModConfigDirectory() {
-        return modConfigDirectory;
+        return this.modConfigDirectory;
+    }
+    
+    /**
+     * Returns the mod updater instance, this may be null if the mod is running
+     * in a beta environment (if the file hash cannot be checked)
+     *
+     * @return the mod updater instance or null if the build is not official.
+     */
+    public ApagogeHandler getApagogeHandler() {
+        return this.apagogeHandler;
     }
     
     /**

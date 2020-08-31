@@ -25,6 +25,7 @@ import javax.swing.UIManager;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
@@ -39,10 +40,10 @@ public class InstallerCore {
     
     private static final String MOD_NAME = "SkinChanger";
     
-    private static final String BUILT_FOR = "1.8.9"; // TODO Update this across versions.
-    private static final String MOD_VERSION = "3.0.0"; // TODO Update this on releases
+    private static final String BUILT_FOR = "@MC_VERSION@";
+    private static final String MOD_VERSION = "@VERSION@";
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException {
         // Cannot run in headless mode since there are no built in display options.
         if (!GraphicsEnvironment.isHeadless()) {
             try {
@@ -89,9 +90,11 @@ public class InstallerCore {
                 return;
             }
             
-            File currentPath = new File(InstallerCore.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            // Use toURI to avoid problems with special characters in the path.
+            File currentPath = new File(InstallerCore.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             
             if (!currentPath.exists() || currentPath.isDirectory()) {
+                
                 onInstallationFailed("You are running the installer in a development environment.");
                 
                 return;

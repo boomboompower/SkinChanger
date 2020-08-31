@@ -19,6 +19,7 @@ package wtf.boomy.mods.skinchanger.cosmetic.impl;
 
 import java.lang.invoke.MethodHandle;
 
+import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
 import wtf.boomy.mods.skinchanger.utils.backend.ReflectionUtils;
 import wtf.boomy.mods.skinchanger.utils.general.Prerequisites;
 
@@ -52,6 +53,9 @@ public class ShaderPatch {
     // Stores the shader we want to load.
     private final ResourceLocation shader;
     
+    // Stores the cosmetic instance
+    private final CosmeticFactory factory;
+    
     /**
      * General constructor, containing shader ResourceLocation
      * <p>
@@ -64,13 +68,15 @@ public class ShaderPatch {
      * If you are using a custom texture (not from Minecraft) then use:
      * - new ResourceLocation("modid", "shaders/post/myshader.json")
      *
+     * @param cosmeticFactory the cosmetic factory
      * @param location the location of the shader. Cannot be null.
      */
-    public ShaderPatch(ResourceLocation location) {
+    public ShaderPatch(CosmeticFactory cosmeticFactory, ResourceLocation location) {
         Prerequisites.notNull(this.entityRenderer, "ShaderPatch should be called after postInit()");
         Prerequisites.notNull(location, "A shader cannot be null.");
         
         this.shader = location;
+        this.factory = cosmeticFactory;
     }
     
     /**
@@ -78,6 +84,10 @@ public class ShaderPatch {
      */
     public void applyShader() {
         if (!canBeUsed()) {
+            return;
+        }
+        
+        if (!this.factory.getMod().getConfigurationHandler().shouldBlurUI()) {
             return;
         }
         

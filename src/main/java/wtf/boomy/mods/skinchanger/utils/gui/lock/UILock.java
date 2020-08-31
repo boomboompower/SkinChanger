@@ -65,6 +65,22 @@ public class UILock extends GuiScreen {
         fontRendererIn.drawString(text, (float) x, (float) y, color, false);
     }
     
+    public final void drawString(FontRenderer fontRendererIn, String text, float x, float y, int color) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+    
+        fontRendererIn.drawString(text, x, y, color, false);
+    }
+    
+    public final void drawRTLString(FontRenderer renderer, String text, int x, int y, int color) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        
+        renderer.drawString(text, (float) x - renderer.getStringWidth(text), (float) y, color, false);
+    }
+    
     @Override
     public final boolean doesGuiPauseGame() {
         return false;

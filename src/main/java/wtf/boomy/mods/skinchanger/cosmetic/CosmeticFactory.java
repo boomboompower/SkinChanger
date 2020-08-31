@@ -48,7 +48,7 @@ public class CosmeticFactory {
         this.mod = mod;
         
         // Blur shader magic
-        this.blurShader = new ShaderPatch(new ResourceLocation("skinchanger", "shaders/post/customblur.json"));
+        this.blurShader = new ShaderPatch(this, new ResourceLocation("skinchanger", "shaders/post/customblur.json"));
     }
     
     /**

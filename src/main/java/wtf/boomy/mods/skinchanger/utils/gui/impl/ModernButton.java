@@ -110,7 +110,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
             int xPosition = this.x;
             int yPosition = this.y;
 
-            this.hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
+            this.hovered = isInside(mouseX, mouseY, yTranslation);
             int i = this.getHoverState(this.hovered);
 
             int textColor = 14737632;
@@ -171,10 +171,11 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
             yPosition = this.recommendedYPosition;
             xPosition += this.parentHeader.getX();
         }
-
+        
         yPosition += yTranslation;
-
-        return mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + this.width && mouseY < yPosition + this.height;
+        
+        return mouseX >= xPosition && mouseX < xPosition + this.width &&
+                mouseY >= yPosition && mouseY < yPosition + this.height;
     }
 
     @Override

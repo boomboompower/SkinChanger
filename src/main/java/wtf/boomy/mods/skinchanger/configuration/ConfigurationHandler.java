@@ -35,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.AnnotationFormatError;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,13 +48,16 @@ import java.util.zip.ZipInputStream;
 @SaveableClassData(saveName = "config")
 public class ConfigurationHandler {
     
-    @SaveableField
+    @SaveableField(customName = "animatedRenderer")
     private boolean usingAnimatedPlayer = true;
     
-    @SaveableField
+    @SaveableField(customName = "animatedCapeRenderer")
     private boolean usingAnimatedCape = true;
     
-    @SaveableField
+    @SaveableField(customName = "willBlurUI")
+    private boolean shouldBlurUI = true;
+    
+    @SaveableField(customName = "apiType")
     private SkinAPIType skinAPIType = SkinAPIType.ASHCON;
     
     // A bloody hack
@@ -246,27 +250,31 @@ public class ConfigurationHandler {
         boolean hasSaveableField = false;
         
         for (Field f : clazzFields) {
-            // Check if the field is actually saveable
-            if (!f.isAnnotationPresent(SaveableField.class)) {
-                continue;
+            try {
+                // Check if the field is actually saveable
+                if (!f.isAnnotationPresent(SaveableField.class)) {
+                    continue;
+                }
+    
+                hasSaveableField = true;
+    
+                SaveableField saveable = f.getAnnotation(SaveableField.class);
+    
+                String nameToSave = f.getName();
+    
+                if (!saveable.customName().isEmpty()) {
+                    nameToSave = saveable.customName();
+                }
+    
+                // Create an instance of this field.
+                ConfigurationData data = new ConfigurationData(f, nameToSave, saveable.shouldOverwriteOnLoad());
+    
+                data.initialize(clazz);
+    
+                storedData.add(data);
+            } catch (AnnotationFormatError ex) {
+                System.err.println("An error occurred whilst reading field " + f.getName() + " in " + clazz.getClass().getSimpleName());
             }
-            
-            hasSaveableField = true;
-            
-            SaveableField saveable = f.getAnnotation(SaveableField.class);
-            
-            String nameToSave = f.getName();
-            
-            if (!saveable.customName().isEmpty()) {
-                nameToSave = saveable.customName();
-            }
-            
-            // Create an instance of this field.
-            ConfigurationData data = new ConfigurationData(f, nameToSave, saveable.shouldOverwriteOnLoad());
-            
-            data.initialize(clazz);
-            
-            storedData.add(data);
         }
         
         this.saveableValues.put(clazz.getClass(), storedData.toArray(new ConfigurationData[0]));
@@ -401,16 +409,24 @@ public class ConfigurationHandler {
         this.skinAPIType = skinAPIType;
     }
     
+    public void setShouldBlurUI(boolean shouldBlurUI) {
+        this.shouldBlurUI = shouldBlurUI;
+    }
+    
     public void setEveryoneMe(boolean everyoneMe) {
         this.everyoneMe = everyoneMe;
     }
     
     public boolean isUsingAnimatedPlayer() {
-        return usingAnimatedPlayer;
+        return this.usingAnimatedPlayer;
     }
     
     public boolean isUsingAnimatedCape() {
         return this.usingAnimatedCape;
+    }
+    
+    public boolean shouldBlurUI() {
+        return this.shouldBlurUI;
     }
     
     public boolean isEveryoneMe() {

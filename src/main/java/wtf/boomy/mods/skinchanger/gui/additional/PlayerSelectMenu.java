@@ -52,6 +52,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     private String lastErrorMessage = null;
     private String errorMessage = "";
     
+    private ModernButton loadButton;
     private ModernButton skinTypeButton;
     private ModernTextBox textBox;
     
@@ -93,25 +94,25 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         
         yLocation += boxHeight + 4;
         
-        ModernButton loadButton = new ModernButton(500, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Load");
+        this.loadButton = new ModernButton(500, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Load");
         
-        yLocation += loadButton.getHeight() + 20;
+        yLocation += this.loadButton.getHeight() + 20;
         
         if (this.selectionType.isTypeOfSkin()) {
             ModernButton type = new ModernButton(505, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Type: " + ChatColor.AQUA + this.fakePlayerRender.getSkinType().getDisplayName());
     
             type.setEnabled(this.mod.getStorage().isSkinTypePatchApplied());
             
-            yLocation += loadButton.getHeight() + 4;
+            yLocation += this.loadButton.getHeight() + 4;
     
             registerElement(type);
             
             this.skinTypeButton = type;
         }
     
-        ModernButton confirm = new ModernButton(101, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Confirm");
+        ModernButton confirm = new ModernButton(506, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Confirm");
     
-        registerElement(loadButton);
+        registerElement(this.loadButton);
         registerElement(confirm);
     }
     
@@ -120,6 +121,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         super.onRender(mouseX, mouseY, partialTicks);
         
         if (!Objects.equals(this.lastErrorMessage, this.errorMessage)) {
+            System.out.println(this.errorMessage);
+            
             this.errorMessageTimer = 0;
             
             this.lastErrorMessage = errorMessage;
@@ -143,7 +146,11 @@ public class PlayerSelectMenu extends SkinChangerMenu {
 //            return;
 //        }
     
-        if (button.getId() == 505) {
+        if (button.getId() == 55 || button.getId() == 506) {
+            this.skinChangerMenu.display();
+            
+//            onButtonPressedExtra(this.loadButton);
+        } else if (button.getId() == 505) {
             PlayerSkinType nextType = this.fakePlayerRender.getSkinType().getNextSkin();
         
             this.fakePlayerRender.setRawSkinType(nextType);
@@ -164,8 +171,6 @@ public class PlayerSelectMenu extends SkinChangerMenu {
             
             return;
         }
-        
-        System.out.println("TEE");
         
         // Should never happen.
         if (this.textBox == null) {

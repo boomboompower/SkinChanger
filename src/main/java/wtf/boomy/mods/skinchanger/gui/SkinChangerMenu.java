@@ -32,7 +32,6 @@ import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernHeader;
-import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernScroller;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernSlider;
 
 import java.awt.Color;
@@ -62,7 +61,8 @@ public class SkinChangerMenu extends ModernGui {
     
     private ModernButton m_optionsButton;
     private ModernButton m_revertButton;
-    private ModernButton m_applyButton;
+    private ModernButton m_applyBackButton;
+    private ModernButton m_applyCloseButton;
     
     private SkinChangerMenu instance;
     private SkinChangerStorage storage;
@@ -101,19 +101,26 @@ public class SkinChangerMenu extends ModernGui {
         leftPosBox += 20;
         rightPosBox -= 20;
         
-        float baseButtonWidth = ((rightPosBox - leftPosBox) / 2) - 2;
+        float baseButtonWidth = ((rightPosBox - leftPosBox) / 3) - 1;
+        float boxMiddlePoint = ((leftPosBox + rightPosBox) / 2);
         
-        float buttonLeftXPos = ((leftPosBox + rightPosBox) / 2) - baseButtonWidth;
-        float buttonRightXPos = rightPosBox - baseButtonWidth;
+        float buttonLeftXPos = boxMiddlePoint - (baseButtonWidth * 1.5F);
+        float middleButtonXPos = boxMiddlePoint - (baseButtonWidth / 2);
+        float buttonRightXPos = boxMiddlePoint + (baseButtonWidth / 2);
         
         ModernButton revertButton = new ModernButton(50, (int) buttonLeftXPos - 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Revert");
-        ModernButton confirmButton = new ModernButton(51, (int) buttonRightXPos, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Confirm");
+        ModernButton confirmBackButton = new ModernButton(51, (int) middleButtonXPos, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Preview");
+        ModernButton applyButton = new ModernButton(52, (int) buttonRightXPos + 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Apply");
+    
+        confirmBackButton.setEnabled(false);
         
         registerElement(revertButton);
-        registerElement(confirmButton);
+        registerElement(confirmBackButton);
+        registerElement(applyButton);
         
         this.m_revertButton = revertButton;
-        this.m_applyButton = confirmButton;
+        this.m_applyBackButton = confirmBackButton;
+        this.m_applyCloseButton = applyButton;
         
         bottomPosBox -= 25;
         
@@ -131,18 +138,14 @@ public class SkinChangerMenu extends ModernGui {
         };
         
         registerElement(slider.disableTranslatable());
+    
+        ModernButton modPauseButton = new ModernButton(101, (int) leftPosBox - 20, 20, 25, 25, this.mod.getConfigurationHandler().isUsingAnimatedPlayer() ? "\u2713" : "\u2717");
+        ModernButton modSettingsButton = new ModernButton(102, this.width - 20 - 25, 20, 25, 25, "\u2699");
         
-        ModernButton modSettingsButton = new ModernButton(101, this.width - 20 - 25, 20, 25, 25, "\u2699");
-        
+        registerElement(modPauseButton);
         registerElement(modSettingsButton);
         
         this.m_optionsButton = modSettingsButton;
-        
-        ModernScroller modernScroller = new ModernScroller(this.width - 15, 10, 10, this.height - 25).disableTranslatable();
-        
-        modernScroller.insertScrollCallback((val) -> this.yTranslation = -(val * this.height / 2));
-        
-        registerElement(modernScroller);
         
         onGuiInitExtra();
     }
@@ -151,11 +154,13 @@ public class SkinChangerMenu extends ModernGui {
     public void preRender(int mouseX, int mouseY) {
         drawDefaultBackground();
         
+        int halfWidth = this.width / 2 + 20;
+        
         int scale = (int) ((1.5 * this.width) / 10);
     
         GlStateManager.pushMatrix();
         
-        this.fakePlayer.renderFakePlayer(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, 0, rotation);
+        this.fakePlayer.renderFakePlayer((halfWidth + (this.width - 20)) / 2, this.height - 10 - scale, scale, 0, rotation);
         
         GlStateManager.popMatrix();
         
@@ -200,14 +205,6 @@ public class SkinChangerMenu extends ModernGui {
     @Override
     public void postRender(float partialTicks) {
         GlStateManager.popMatrix();
-        
-        GlStateManager.pushMatrix();
-        
-        int scale = (int) ((1.5 * this.width) / 10);
-        
-//        this.fakePlayer.renderFakePlayer(((this.width / 2 + 20) + (this.width - 20)) / 2, this.height - 10 - scale, scale, partialTicks, rotation);
-        
-        GlStateManager.popMatrix();
     }
     
     @Override
@@ -218,6 +215,10 @@ public class SkinChangerMenu extends ModernGui {
                 
                 return;
             case 51:
+                this.instance.display();
+                
+                return;
+            case 52:
                 if (this.storage.isSkinPatchApplied()) {
                     this.storage.setPlayerSkin(this.fakePlayer.getSkinLocation());
                 } else {
@@ -236,6 +237,12 @@ public class SkinChangerMenu extends ModernGui {
                 
                 return;
             case 101:
+                this.mod.getConfigurationHandler().setUsingAnimatedPlayer(!this.mod.getConfigurationHandler().isUsingAnimatedPlayer());
+                
+                button.setText(this.mod.getConfigurationHandler().isUsingAnimatedPlayer() ? "\u2713" : "\u2717");
+                
+                return;
+            case 102:
                 if (this.m_optionsButton != null && this.m_optionsButton.getText().equalsIgnoreCase("\u2190")) {
                     this.instance.display();
                     
@@ -312,20 +319,8 @@ public class SkinChangerMenu extends ModernGui {
     
         capeSettings.setEnabled(this.mod.getStorage().isCapePatchApplied());
         
-        // ----------------------------------
-        
-        ModernHeader recentSkins = new ModernHeader(this, minXLeft, capeSettingY, "Recent Skins", 1.5F, true, Color.WHITE);
-        
-        // ----------------------------------
-        
-        ModernHeader recentCapes = new ModernHeader(this, capeSettings.getX(), capeSettingY, "Recent Capes", 1.5F, true, Color.WHITE);
-        
-        // ----------------------------------
-        
         registerElement(skinSettings);
         registerElement(capeSettings);
-        registerElement(recentSkins);
-        registerElement(recentCapes);
     }
     
     /**
@@ -385,8 +380,8 @@ public class SkinChangerMenu extends ModernGui {
      * @param menu the REAL SkinChangerMenu instance (Main UI instance)
      */
     protected final void setAsSubMenu(SkinChangerMenu menu) {
-        if (this.m_applyButton != null) {
-            this.m_applyButton.setEnabled(false);
+        if (this.m_applyBackButton != null) {
+            this.m_applyBackButton.setEnabled(true);
         }
         
         if (this.m_revertButton != null) {

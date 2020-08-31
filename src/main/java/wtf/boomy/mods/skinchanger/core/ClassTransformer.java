@@ -20,6 +20,9 @@ package wtf.boomy.mods.skinchanger.core;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -43,6 +46,11 @@ import java.util.stream.Collectors;
  * @author boomboompower
  */
 public class ClassTransformer implements IClassTransformer {
+    
+    private static final Logger logger = LogManager.getLogger("SkinChanger - CoreMod");
+    
+    private static final String skinChangerClass = wtf.boomy.mods.skinchanger.SkinChangerMod.class.getName().replace(".", "/");
+    private static final String storageClass = wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage.class.getName().replace(".", "/");
     
     public static boolean shouldPatchSkinGetter = true;
     public static boolean shouldPatchCapeGetter = true;
@@ -145,61 +153,61 @@ public class ClassTransformer implements IClassTransformer {
         String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(clazz.name, method.name, method.desc);
         
         if (shouldPatchSkinGetter && methodName.equals((isDevEnv ? "getLocationSkin" : "func_178837_g"))) {
-            System.out.println("Patching getLocationSkin (" + method.name + ")");
+            logger.info("Patching getLocationSkin (" + method.name + ")");
             
-            method.instructions.insert(createForName(isDevEnv, "isUsingSkin", "getSkin"));
+            method.instructions.insert(createForResource(isDevEnv, "getPlayerSkin"));
             
-            System.out.println("Finished patching getLocationSkin (" + method.name + ")");
+            logger.info("Finished patching getLocationSkin (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setSkinPatchApplied(true);
         } else if (shouldPatchCapeGetter && methodName.equals((isDevEnv ? "getLocationCape" : "func_178861_h"))) {
-            System.out.println("Patching getLocationCape (" + method.name + ")");
+            logger.info("Patching getLocationCape (" + method.name + ")");
             
-            method.instructions.insert(createForName(isDevEnv, "isUsingCape", "getCape"));
+            method.instructions.insert(createForResource(isDevEnv, "getPlayerCape"));
             
-            System.out.println("Finished patching getLocationCape (" + method.name + ")");
+            logger.info("Finished patching getLocationCape (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setCapePatchApplied(true);
         } else if (shouldPatchSkinType && methodName.equals((isDevEnv ? "getSkinType" : "func_178851_f"))) {
-            System.out.println("Patching getSkinType (" + method.name + ")");
+            logger.info("Patching getSkinType (" + method.name + ")");
             
             method.instructions.insert(createForSkinType(isDevEnv));
             
-            System.out.println("Finished patching getSkinType (" + method.name + ")");
+            logger.info("Finished patching getSkinType (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setSkinTypePatchApplied(true);
         }
     }
     
-    private InsnList createForName(boolean devEnv, String isUsingX, String getX) {
-        String gameProfileField = devEnv ? "gameProfile" : "field_178867_a";
-        
-        // Constructs a list of bytecode asm instructions to and adds them to the start of the method
-        return constructList(
-                // We load the gameProfile from the class
-                // and send it to SkinStorage#isUsingSkin
-                getModInstance(),
-                getStorage(),
-                
-                // We load it into the stack
-                new VarInsnNode(Opcodes.ALOAD, 0),
-                
-                // We call the isUsingX statement in the SkinStorage class, parsing in the GameProfile from the NetworkPlayerInfo file
-                new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/network/NetworkPlayerInfo", gameProfileField, "Lcom/mojang/authlib/GameProfile;"),
-                invokeVirtual("wtf/boomy/mods/skinchanger/cosmetic/impl/SkinChangerStorage", isUsingX, "(Lcom/mojang/authlib/GameProfile;)Z"),
-                
-                // Using the knowledge above, we continue if the isUsingX method returns true
-                whenTrue(
-                        // We invoke the getX method from the SkinStorage class
-                        getModInstance(),
-                        getStorage(),
-                        invokeVirtual("wtf/boomy/mods/skinchanger/cosmetic/impl/SkinChangerStorage", getX, "()Lnet/minecraft/util/ResourceLocation;"),
-                        
-                        // Finally, we return the X value they wanted, the method has been successfully injected into.
-                        new InsnNode(Opcodes.ARETURN)
-                )
-        );
-    }
+//    private InsnList createForName(boolean devEnv, String isUsingX, String getX) {
+//        String gameProfileField = devEnv ? "gameProfile" : "field_178867_a";
+//
+//        // Constructs a list of bytecode asm instructions to and adds them to the start of the method
+//        return constructList(
+//                // We load the gameProfile from the class
+//                // and send it to SkinStorage#isUsingSkin
+//                getModInstance(),
+//                getStorage(),
+//
+//                // We load it into the stack
+//                new VarInsnNode(Opcodes.ALOAD, 0),
+//
+//                // We call the isUsingX statement in the SkinStorage class, parsing in the GameProfile from the NetworkPlayerInfo file
+//                new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/network/NetworkPlayerInfo", gameProfileField, "Lcom/mojang/authlib/GameProfile;"),
+//                invokeVirtual(storageClass, isUsingX, "(Lcom/mojang/authlib/GameProfile;)Z"),
+//
+//                // Using the knowledge above, we continue if the isUsingX method returns true
+//                whenTrue(
+//                        // We invoke the getX method from the SkinStorage class
+//                        getModInstance(),
+//                        getStorage(),
+//                        invokeVirtual(storageClass, getX, "()Lnet/minecraft/util/ResourceLocation;"),
+//
+//                        // Finally, we return the X value they wanted, the method has been successfully injected into.
+//                        new InsnNode(Opcodes.ARETURN)
+//                )
+//        );
+//    }
     
     private InsnList createForSkinType(boolean devEnv) {
         String gameProfileField = devEnv ? "gameProfile" : "field_178867_a";
@@ -212,7 +220,28 @@ public class ClassTransformer implements IClassTransformer {
                 getStorage(), // INVOKEVIRTUAL
                 new VarInsnNode(Opcodes.ALOAD, 0),
                 new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/network/NetworkPlayerInfo", gameProfileField, "Lcom/mojang/authlib/GameProfile;"),
-                invokeVirtual("wtf/boomy/mods/skinchanger/cosmetic/impl/SkinChangerStorage", "getSkinType", "(Lcom/mojang/authlib/GameProfile;)Ljava/lang/String;"),
+                invokeVirtual(storageClass, "getSkinType", "(Lcom/mojang/authlib/GameProfile;)Ljava/lang/String;"),
+                new VarInsnNode(Opcodes.ASTORE, 1),
+                new VarInsnNode(Opcodes.ALOAD, 1),
+                new JumpInsnNode(Opcodes.IFNULL, skip),
+                new VarInsnNode(Opcodes.ALOAD, 1),
+                new InsnNode(Opcodes.ARETURN),
+                skip
+        );
+    }
+    
+    private InsnList createForResource(boolean devEnv, String methodName) {
+        String gameProfileField = devEnv ? "gameProfile" : "field_178867_a";
+        
+        LabelNode skip = new LabelNode();
+        
+        // Constructs a list of bytecode asm instructions to and adds them to the start of the method
+        return constructList(
+                getModInstance(), // INVOKESTATIC
+                getStorage(), // INVOKEVIRTUAL
+                new VarInsnNode(Opcodes.ALOAD, 0),
+                new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/network/NetworkPlayerInfo", gameProfileField, "Lcom/mojang/authlib/GameProfile;"),
+                invokeVirtual(storageClass, methodName, "(Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/util/ResourceLocation;"),
                 new VarInsnNode(Opcodes.ASTORE, 1),
                 new VarInsnNode(Opcodes.ALOAD, 1),
                 new JumpInsnNode(Opcodes.IFNULL, skip),
@@ -223,11 +252,11 @@ public class ClassTransformer implements IClassTransformer {
     }
     
     private MethodInsnNode getModInstance() {
-        return new MethodInsnNode(Opcodes.INVOKESTATIC, "wtf/boomy/mods/skinchanger/SkinChangerMod", "getInstance", "()Lwtf/boomy/mods/skinchanger/SkinChangerMod;", false);
+        return new MethodInsnNode(Opcodes.INVOKESTATIC, skinChangerClass, "getInstance", "()L" + skinChangerClass + ";", false);
     }
     
     private MethodInsnNode getStorage() {
-        return invokeVirtual("wtf/boomy/mods/skinchanger/SkinChangerMod", "getStorage", "()Lwtf/boomy/mods/skinchanger/cosmetic/impl/SkinChangerStorage;");
+        return invokeVirtual(skinChangerClass, "getStorage", "()L" + storageClass + ";");
     }
     
     private MethodInsnNode invokeVirtual(String owner, String name, String desc) {

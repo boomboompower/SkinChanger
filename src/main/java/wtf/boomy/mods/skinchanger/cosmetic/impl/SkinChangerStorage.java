@@ -21,6 +21,7 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
+
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 
 public class SkinChangerStorage {
@@ -34,42 +35,12 @@ public class SkinChangerStorage {
     
     private String skinType;
     
-    private final Minecraft minecraft;
+    private Minecraft minecraft;
     
-    public SkinChangerStorage() {
-        this.minecraft = Minecraft.getMinecraft();
-    }
+    private final SkinChangerMod mod;
     
-    public boolean isUsingSkin(GameProfile profile) {
-        if (!this.isSkinPatchApplied) {
-            return false;
-        }
-        
-        if (profile == null || this.minecraft == null) {
-            return false;
-        }
-        
-        if (this.minecraft.thePlayer == null || this.minecraft.thePlayer.getGameProfile() == null) {
-            return false;
-        }
-        
-        return SkinChangerMod.getInstance().getConfigurationHandler().isEveryoneMe() || (this.minecraft.thePlayer.getGameProfile() == profile && this.playerSkin != null);
-    }
-    
-    public boolean isUsingCape(GameProfile profile) {
-        if (!this.isCapePatchApplied) {
-            return false;
-        }
-        
-        if (profile == null || this.minecraft == null) {
-            return false;
-        }
-        
-        if (this.minecraft.thePlayer == null || this.minecraft.thePlayer.getGameProfile() == null) {
-            return false;
-        }
-        
-        return this.minecraft.thePlayer.getGameProfile() == profile && this.playerCape != null;
+    public SkinChangerStorage(SkinChangerMod mod) {
+        this.mod = mod;
     }
     
     public void setPlayerSkin(ResourceLocation playerSkin) {
@@ -84,12 +55,28 @@ public class SkinChangerStorage {
         this.skinType = skinType;
     }
     
-    public ResourceLocation getSkin() {
-        return this.playerSkin;
+    public ResourceLocation getPlayerSkin(GameProfile profile) {
+        if (!this.isSkinPatchApplied) {
+            return null;
+        }
+    
+        if (profile == null || getMinecraft() == null) {
+            return null;
+        }
+    
+        return (this.mod.getConfigurationHandler().isEveryoneMe() || profile.getId() == getMinecraft().getSession().getProfile().getId()) ? this.playerSkin : null;
     }
     
-    public ResourceLocation getCape() {
-        return this.playerCape;
+    public ResourceLocation getPlayerCape(GameProfile profile) {
+        if (!this.isCapePatchApplied) {
+            return null;
+        }
+        
+        if (profile == null || getMinecraft() == null) {
+            return null;
+        }
+        
+        return (this.mod.getConfigurationHandler().isEveryoneMe() || profile.getId() == getMinecraft().getSession().getProfile().getId()) ? this.playerCape : null;
     }
     
     public String getSkinType(GameProfile profile) {
@@ -97,15 +84,11 @@ public class SkinChangerStorage {
             return null;
         }
         
-        if (profile == null || this.minecraft == null) {
+        if (profile == null || getMinecraft() == null) {
             return null;
         }
         
-        if (this.minecraft.thePlayer == null || this.minecraft.thePlayer.getGameProfile() == null) {
-            return null;
-        }
-        
-        return (SkinChangerMod.getInstance().getConfigurationHandler().isEveryoneMe() || profile == this.minecraft.thePlayer.getGameProfile()) ? this.skinType : null;
+        return (this.mod.getConfigurationHandler().isEveryoneMe() || profile.getId() == getMinecraft().getSession().getProfile().getId()) ? this.skinType : null;
     }
     
     public boolean isSkinPatchApplied() {
@@ -130,5 +113,13 @@ public class SkinChangerStorage {
     
     public void setSkinTypePatchApplied(boolean skinTypePatchApplied) {
         this.isSkinTypePatchApplied = skinTypePatchApplied;
+    }
+    
+    private Minecraft getMinecraft() {
+        if (this.minecraft == null) {
+            this.minecraft = Minecraft.getMinecraft();
+        }
+        
+        return this.minecraft;
     }
 }

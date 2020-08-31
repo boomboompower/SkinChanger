@@ -110,7 +110,7 @@ public abstract class SkinAPI {
             HttpURLConnection connection = (HttpURLConnection) new URL(url.replace(" ", "%20")).openConnection();
             connection.setRequestMethod("GET");
             connection.setUseCaches(false);
-            connection.addRequestProperty("User-Agent", "Mozilla/5.0 (compatible; SkinChanger; 3.0.1) Chrome/83.0.4103.116");
+            connection.addRequestProperty("User-Agent", "Mozilla/5.0 (compatible; SkinChanger; @VERSION@) Chrome/83.0.4103.116");
             connection.setReadTimeout(15000);
             connection.setConnectTimeout(15000);
             connection.setDoOutput(true);

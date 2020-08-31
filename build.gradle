@@ -15,6 +15,8 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import proguard.gradle.ProGuardTask
+
 buildscript {
     repositories {
         jcenter()
@@ -25,12 +27,14 @@ buildscript {
     }
     dependencies {
         classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
+        classpath 'net.sf.proguard:proguard-gradle:6.0.3'
+        classpath 'net.sf.proguard:proguard-base:6.0.3'
     }
 }
 
 apply plugin: "net.minecraftforge.gradle.forge"
 
-version = '3.0.0'
+version = '3.0.2'
 group = "wtf.boomy.skinchanger"
 archivesBaseName = "SkinChangerMod"
 
@@ -46,6 +50,10 @@ minecraft {
 
     // The mapping to use http://export.mcpbot.bspk.rs/stable/
     mappings = "stable_22"
+
+    replace '@VERSION@', this.version
+    replace '@MC_VERSION@', "1.8.9"
+    replace '@FINGERPRINT@', System.getenv('SHA1Signature') ?: ""
 }
 
 repositories {
@@ -58,6 +66,7 @@ repositories {
 
 // General mod dependencies
 dependencies {
+    provided 'com.github.boomboompower:ApagogeJava:master-SNAPSHOT'
 }
 
 
@@ -94,6 +103,7 @@ jar {
     from configurations.provided.asFileTree.files.collect {
         // Fixes an issue where Mixin's copies a duplicate file into the build jar...
         exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'com/google/*/**'
 
         zipTree(it)
     }
@@ -133,5 +143,13 @@ sourceSets {
 // configuration (this makes it inherit similar build properties)
 configurations {
     provided
+
     compile.extendsFrom(provided)
+}
+
+task proguard(type: ProGuardTask) {
+    configuration 'proguard/proguard.txt'
+
+    injars "build/libs/${jar.archiveName}"
+    outjars "build/libs/PRO-${jar.archiveName}"
 }

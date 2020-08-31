@@ -72,26 +72,33 @@ public class ModOptionsMenu extends SkinChangerMenu {
         yVal += mixinSkin.getHeight() + 3;
     
         ModernButton mixinCape = new ModernButton(0x72, minXLeft, yVal, widthOfButtons, 20, "Patch Capes: " + getYesOrNo(ClassTransformer.shouldPatchCapeGetter));
-        ModernButton apiType = new ModernButton(0x77, middle + 4, yVal, widthOfButtons, 20, "API: " + ChatColor.AQUA + this.skinChangerSettings.getSkinAPIType().getDisplayName());
+        ModernButton apiType = new ModernButton(0x73, middle + 4, yVal, widthOfButtons, 20, "API: " + ChatColor.AQUA + this.skinChangerSettings.getSkinAPIType().getDisplayName());
     
         yVal += mixinCape.getHeight() + 3;
     
-        ModernButton mixinSkinType = new ModernButton(0x74, minXLeft, yVal, widthOfButtons, 20, "Patch Slim Skins: " + getYesOrNo(ClassTransformer.shouldPatchSkinType));
-        ModernButton movingPlayerModel = new ModernButton(0x73, middle + 4, yVal, widthOfButtons, 20, "Animated Model: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedPlayer()));
+        ModernButton mixinSkinType = new ModernButton(0x74, minXLeft, yVal, widthOfButtons, 20, "Patch Skin Type: " + getYesOrNo(ClassTransformer.shouldPatchSkinType));
+        ModernButton movingPlayerModel = new ModernButton(0x75, middle + 4, yVal, widthOfButtons, 20, "Animated Model: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedPlayer()));
         
         yVal += mixinCape.getHeight() + 3;
     
-        ModernButton uselessButton = new ModernButton(0x76, minXLeft, yVal, widthOfButtons, 20, "Useless: " + getYesOrNo(true));
-        ModernButton movingCapeModel = new ModernButton(0x75, middle + 4, yVal, widthOfButtons, 20, "Animated Cape: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedCape()));
+        ModernButton uselessButton = new ModernButton(0x76, minXLeft, yVal, widthOfButtons, 20, "Blur UI's: " + getYesOrNo(this.skinChangerSettings.shouldBlurUI()));
+        ModernButton movingCapeModel = new ModernButton(0x77, middle + 4, yVal, widthOfButtons, 20, "Animated Cape: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedCape()));
+    
+        yVal += mixinCape.getHeight() + 3;
+    
+        ModernButton uselessButton2 = new ModernButton(0x78, minXLeft, yVal, widthOfButtons, 20, "All me: " + getYesOrNo(this.skinChangerSettings.isEveryoneMe()));
+        ModernButton uselessButton3 = new ModernButton(0x79, middle + 4, yVal, widthOfButtons, 20, "Useless: " + getYesOrNo(true));
     
         registerElement(mixinSkin);
         registerElement(skinType);
         registerElement(mixinCape);
-        registerElement(movingPlayerModel);
-        registerElement(mixinSkinType);
-        registerElement(movingCapeModel);
-        registerElement(uselessButton);
         registerElement(apiType);
+        registerElement(mixinSkinType);
+        registerElement(movingPlayerModel);
+        registerElement(uselessButton);
+        registerElement(movingCapeModel);
+        registerElement(uselessButton2);
+        registerElement(uselessButton3);
     }
     
     @Override
@@ -141,38 +148,53 @@ public class ModOptionsMenu extends SkinChangerMenu {
                 
                 break;
             case 0x73:
-                this.skinChangerSettings.setUsingAnimatedPlayer(!this.skinChangerSettings.isUsingAnimatedPlayer());
-                
-                button.setText("Animated Model: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedPlayer()));
-                
+                this.skinChangerSettings.setSkinAPIType(this.skinChangerSettings.getSkinAPIType().nextValue());
+        
+                button.setText("API: " + ChatColor.AQUA + this.skinChangerSettings.getSkinAPIType().getDisplayName());
+        
                 break;
             case 0x74:
                 ClassTransformer.shouldPatchSkinType = !ClassTransformer.shouldPatchSkinType;
-    
+        
                 button.setText("Patch Slim Skins: " + getYesOrNo(ClassTransformer.shouldPatchSkinType));
         
                 break;
             case 0x75:
-                this.skinChangerSettings.setUsingAnimatedCape(!this.skinChangerSettings.isUsingAnimatedCape());
-                
-                button.setText("Animated Cape: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedCape()));
-        
+                this.skinChangerSettings.setUsingAnimatedPlayer(!this.skinChangerSettings.isUsingAnimatedPlayer());
+    
+                button.setText("Animated Model: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedPlayer()));
+    
                 break;
             case 0x76:
-                System.err.println("Unimplemented o,o");
-                
+                this.skinChangerSettings.setShouldBlurUI(!this.skinChangerSettings.shouldBlurUI());
+    
+                button.setText("Blur UI's: " + getYesOrNo(this.skinChangerSettings.shouldBlurUI()));
+        
                 break;
             case 0x77:
-                this.skinChangerSettings.setSkinAPIType(this.skinChangerSettings.getSkinAPIType().nextValue());
-                
-                button.setText("API: " + ChatColor.AQUA + this.skinChangerSettings.getSkinAPIType().getDisplayName());
-                
+                this.skinChangerSettings.setUsingAnimatedCape(!this.skinChangerSettings.isUsingAnimatedCape());
+    
+                button.setText("Animated Cape: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedCape()));
+    
                 break;
+            case 0x78:
+                this.skinChangerSettings.setEveryoneMe(!this.skinChangerSettings.isEveryoneMe());
+                
+                button.setText("All me: " + getYesOrNo(this.skinChangerSettings.isEveryoneMe()));
+    
+                break;
+            case 0x79:
+                System.err.println("Unimplemented 3 o,o");
+        
+                break;
+            
         }
     }
     
     @Override
     public void onGuiClose() {
+        super.onGuiClose();
+        
         if (this.saveMixinConfig) {
             System.out.println("Saving ASM config.");
             

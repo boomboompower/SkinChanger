@@ -17,8 +17,10 @@
 
 package wtf.boomy.mods.skinchanger.commands;
 
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.command.ICommandSender;
 
+import net.minecraft.entity.player.EntityPlayer;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
@@ -56,29 +58,29 @@ public class SkinCommand extends ModCommand {
     
     @Override
     public void onCommand(ICommandSender sender, String[] args) {
-        if (!this.storage.isSkinPatchApplied() && !this.storage.isCapePatchApplied() && !this.storage.isSkinTypePatchApplied()) {
-            if (args.length > 0 && args[0].equalsIgnoreCase("noconfig")) {
-                File file = new File(this.mod.getModConfigDirectory(), "asm.txt");
-                
-                if (file.exists() && !file.delete()) {
-                    sendMessage(ChatColor.RED + "Unable " + ChatColor.GRAY + " to reset your SkinChanger ASM config. Please visit " + ChatColor.AQUA + "https://bot.boomy.wtf/support");
-                } else {
-                    sendMessage(ChatColor.GRAY + "ASM Config has been deleted. Please restart your game for the changes to go into effect.");
-                }
-                
-                return;
-            }
-            
-            sendMessage(ChatColor.RED + "No patches have been applied so the mod is disabled. ");
-            sendMessage("");
-            sendMessage(ChatColor.GRAY + "Try: ");
-            sendMessage(ChatColor.GRAY + "  1. Running " + ChatColor.AQUA + "/" + getCommandName() + " noconfig");
-            sendMessage(ChatColor.GRAY + "  2. Restarting your game.");
-            sendMessage("");
-            sendMessage(ChatColor.GRAY + "Please visit " + ChatColor.AQUA + "https://bot.boomy.wtf/support" + ChatColor.GRAY + " for more assistance.");
-            
-            return;
-        }
+//        if (!this.storage.isSkinPatchApplied() && !this.storage.isCapePatchApplied() && !this.storage.isSkinTypePatchApplied()) {
+//            if (args.length > 0 && args[0].equalsIgnoreCase("noconfig")) {
+//                File file = new File(this.mod.getModConfigDirectory(), "asm.txt");
+//
+//                if (file.exists() && !file.delete()) {
+//                    sendMessage(ChatColor.RED + "Unable " + ChatColor.GRAY + " to reset your SkinChanger ASM config. Please visit " + ChatColor.AQUA + "https://bot.boomy.wtf/support");
+//                } else {
+//                    sendMessage(ChatColor.GRAY + "ASM Config has been deleted. Please restart your game for the changes to go into effect.");
+//                }
+//
+//                return;
+//            }
+//
+//            sendMessage(ChatColor.RED + "No patches have been applied so the mod is disabled. ");
+//            sendMessage("");
+//            sendMessage(ChatColor.GRAY + "Try: ");
+//            sendMessage(ChatColor.GRAY + "  1. Running " + ChatColor.AQUA + "/" + getCommandName() + " noconfig");
+//            sendMessage(ChatColor.GRAY + "  2. Restarting your game.");
+//            sendMessage("");
+//            sendMessage(ChatColor.GRAY + "Please visit " + ChatColor.AQUA + "https://bot.boomy.wtf/support" + ChatColor.GRAY + " for more assistance.");
+//
+//            return;
+//        }
         
         // TODO remove this during production.
         if (args.length > 0) {
@@ -91,6 +93,12 @@ public class SkinCommand extends ModCommand {
                 this.mainMenu = new SkinChangerMenu();
                 
                 args = new String[0];
+            } else if (args[0].equalsIgnoreCase("debug")) {
+                sendMessage("Skin is: " + ((AbstractClientPlayer)sender).getLocationSkin().toString());
+                sendMessage("Cape is: " + ((AbstractClientPlayer)sender).getLocationCape().toString());
+                sendMessage("Type is: " + ((AbstractClientPlayer)sender).getSkinType());
+                
+                return;
             }
         }
         

@@ -153,6 +153,14 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             
             drawError(ex);
         }
+        
+        if (this.mod.getApagogeHandler().getBuildType() == -1) {
+            GlStateManager.pushMatrix();
+            
+            drawString(this.fontRendererObj, "Unofficial", 5, this.height - 10, Color.LIGHT_GRAY.getRGB());
+            
+            GlStateManager.popMatrix();
+        }
     }
     
     @Override

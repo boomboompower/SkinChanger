@@ -19,6 +19,7 @@ package wtf.boomy.mods.skinchanger.utils.general;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
@@ -266,6 +267,12 @@ public class BetterJsonObject {
         return this.data.get(key);
     }
     
+    /**
+     * Attempts to get a JsonObject from a key
+     *
+     * @param key the key of the object
+     * @return the JsonObject related to the key
+     */
     public JsonObject getJsonObject(String key) {
         JsonElement element = get(key);
         
@@ -278,6 +285,30 @@ public class BetterJsonObject {
         return element.getAsJsonObject();
     }
     
+    /**
+     * Attempts to get a JsonArray from a key
+     *
+     * @param key the key of the array
+     * @return the JsonArray related to the key
+     */
+    public JsonArray getJsonArray(String key) {
+        JsonElement element = get(key);
+        
+        if (element == null) {
+            return null;
+        } else if (!(element instanceof JsonArray)) {
+            throw new IllegalStateException("The value of the key was meant to be a JsonArray but was " + this.data.get(key).getClass().getSimpleName());
+        }
+        
+        return element.getAsJsonArray();
+    }
+    
+    /**
+     * Retrieved a BetterJsonObject child
+     *
+     * @param key the key
+     * @return the BetterJsonObject child
+     */
     public BetterJsonObject getChild(String key) {
         JsonObject element = getJsonObject(key);
         

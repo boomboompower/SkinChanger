@@ -39,6 +39,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Base64;
@@ -137,7 +138,7 @@ public class CacheRetriever {
         ResourceLocation location = new ResourceLocation("skins/" + getCacheName(file.getName()));
         
         Minecraft.getMinecraft().addScheduledTask(() -> {
-            Minecraft.getMinecraft().renderEngine.loadTexture(location, new LocalFileData(DefaultPlayerSkin.getDefaultSkinLegacy(), file, buffer));
+            Minecraft.getMinecraft().renderEngine.loadTexture(location, new LocalFileData(cacheType == CacheType.SKIN ? DefaultPlayerSkin.getDefaultSkinLegacy() : undefinedTexture, file, buffer));
         
             if (callback != null) {
                 callback.run(location);
@@ -396,10 +397,16 @@ public class CacheRetriever {
     
     private void download(URL source, File destination) {
         try {
-            URLConnection connection = source.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) source.openConnection();
             connection.setRequestProperty("User-Agent", "SkinChanger/" + SkinChangerMod.VERSION);
             connection.setConnectTimeout(30000);
             connection.setReadTimeout(30000);
+            
+            // Error
+            if (connection.getResponseCode() >= 400 && connection.getResponseCode() < 500) {
+                return;
+            }
+            
             InputStream input = connection.getInputStream();
             try {
                 FileOutputStream output = FileUtils.openOutputStream(destination);
