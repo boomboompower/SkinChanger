@@ -24,6 +24,8 @@ import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 
+import java.util.UUID;
+
 public class SkinChangerStorage {
     
     private boolean isSkinPatchApplied = false;
@@ -64,7 +66,7 @@ public class SkinChangerStorage {
             return null;
         }
     
-        return (this.mod.getConfigurationHandler().isEveryoneMe() || profile.getId() == getMinecraft().getSession().getProfile().getId()) ? this.playerSkin : null;
+        return isMe(profile) ? this.playerSkin : null;
     }
     
     public ResourceLocation getPlayerCape(GameProfile profile) {
@@ -76,7 +78,7 @@ public class SkinChangerStorage {
             return null;
         }
         
-        return (this.mod.getConfigurationHandler().isEveryoneMe() || profile.getId() == getMinecraft().getSession().getProfile().getId()) ? this.playerCape : null;
+        return isMe(profile) ? this.playerCape : null;
     }
     
     public String getSkinType(GameProfile profile) {
@@ -88,7 +90,7 @@ public class SkinChangerStorage {
             return null;
         }
         
-        return (this.mod.getConfigurationHandler().isEveryoneMe() || profile.getId() == getMinecraft().getSession().getProfile().getId()) ? this.skinType : null;
+        return isMe(profile) ? this.skinType : null;
     }
     
     public boolean isSkinPatchApplied() {
@@ -113,6 +115,17 @@ public class SkinChangerStorage {
     
     public void setSkinTypePatchApplied(boolean skinTypePatchApplied) {
         this.isSkinTypePatchApplied = skinTypePatchApplied;
+    }
+    
+    private boolean isMe(GameProfile profile) {
+        if (this.mod.getConfigurationHandler().isEveryoneMe()) {
+            return true;
+        }
+        
+        UUID profileId = profile.getId();
+        UUID mcId = getMinecraft().getSession().getProfile().getId();
+    
+        return profileId.equals(mcId);
     }
     
     private Minecraft getMinecraft() {
