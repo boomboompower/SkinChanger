@@ -32,6 +32,7 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }} 
         run: |
            echo ::set-env name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
+           
 
         # Required so gradlew can build the JAR file
       - name: Grant execute permission for gradlew
@@ -51,6 +52,11 @@ jobs:
         # Uses ForgeGradle to build the jar
       - name: Build with Gradle
         run: ./gradlew build
+      
+      - name: Calculate Hashes
+        run: |
+          export program_hash=$(sha256sum ./build/libs/SkinChangerMod.jar | cut -d ' ' -f 1)
+          export source_hash=$(sha256sum ./build/libs/SkinChangerMod-sources.jar | cut -d ' ' -f 1)
 
       # Upload the main mod to the releases tab
       - name: Create Release
@@ -64,7 +70,21 @@ jobs:
           tag_name: ${{ github.run_number }}
           release_name: Beta Release ${{ github.run_number }}
           body: |
-            ```${{ env.commitmsg }}```
+            ### SkinChanger Beta ${{ github.run_number }}
+            > Huh, nothing here?
+            
+            ```
+            ${{ env.commitmsg }}
+            ```
+            
+            **Next up**
+            > What's on the roadmap?
+            It seems quiet... Too quiet...
+            
+            **Hashes**
+            > Don't install untrusted files
+            SkinChangerMod: ${{ env.program_hash }}
+            SkinChangerMod-sources: ${{ env.source_hash }}
             
             Automagically generated with lots of ❤
           draft: false
