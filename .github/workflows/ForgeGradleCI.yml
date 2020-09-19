@@ -55,8 +55,8 @@ jobs:
       
       - name: Calculate Hashes
         run: |
-          export program_hash=$(sha256sum ./build/libs/SkinChangerMod.jar | cut -d ' ' -f 1)
-          export source_hash=$(sha256sum ./build/libs/SkinChangerMod-sources.jar | cut -d ' ' -f 1)
+          echo ::set-env name=program_hash::$(sha256sum ./build/libs/SkinChangerMod.jar | cut -d ' ' -f 1)
+          echo ::set-env name=source_hash::$(sha256sum ./build/libs/SkinChangerMod-sources.jar | cut -d ' ' -f 1)
 
       # Upload the main mod to the releases tab
       - name: Create Release
