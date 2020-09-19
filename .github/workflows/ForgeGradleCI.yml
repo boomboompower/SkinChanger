@@ -32,7 +32,7 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }} 
         run: |
            echo ::set-env name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
-           
+           echo "${{ github.run_number }}" > ./src/main/resources/GHCI.txt
 
         # Required so gradlew can build the JAR file
       - name: Grant execute permission for gradlew
