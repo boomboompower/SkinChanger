@@ -17,18 +17,19 @@
 
 package wtf.boomy.mods.skinchanger.utils.resources;
 
-import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.data.TextureMetadataSection;
 import net.minecraft.util.ResourceLocation;
-
 import wtf.boomy.mods.skinchanger.utils.general.Prerequisites;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Loads a local file into a ResourceLocation.
@@ -45,9 +46,13 @@ public class LocalFileData extends SimpleTexture {
     private boolean textureUploaded;
     
     // The buffer for this texture
-    private final IImageBuffer imageBuffer;
+    private final ImageBuffer imageBuffer;
+    
     // The location of this texture
     private final File fileLocation;
+    
+    // The resource data
+    private IResource resource;
     
     /**
      * Loads a texture from a local file to a ResourceLocation
@@ -66,7 +71,7 @@ public class LocalFileData extends SimpleTexture {
      * @param fileToLoad      the file to load the texture from
      * @param imageBuffer     the buffer which the texture will be parsed through. See {@link CapeBuffer} or {@link SkinBuffer}
      */
-    public LocalFileData(ResourceLocation textureLocation, File fileToLoad, IImageBuffer imageBuffer) {
+    public LocalFileData(ResourceLocation textureLocation, File fileToLoad, ImageBuffer imageBuffer) {
         super(textureLocation);
         
         Prerequisites.notNull(textureLocation);
@@ -79,26 +84,23 @@ public class LocalFileData extends SimpleTexture {
     @Override
     public void loadTexture(IResourceManager resourceManager) throws IOException {
         if (this.bufferedImage == null && this.textureLocation != null) {
-            super.loadTexture(resourceManager);
+            originalLoad(resourceManager);
         }
         
         if (this.fileLocation != null && this.fileLocation.isFile()) {
             try {
+                resourceManager.getResource(this.textureLocation);
+                
                 // Load the image from the file.
                 this.bufferedImage = ImageIO.read(this.fileLocation);
                 
                 // A buffer is not required.
                 if (this.imageBuffer != null) {
                     // Since a buffer exists, parse the image through the buffer
-                    this.bufferedImage = this.imageBuffer.parseUserSkin(this.bufferedImage);
-                    
-                    // Buffer may have been set to null in the above call.
-                    // If it is still not null throw it a callback.
-                    if (this.imageBuffer != null) {
-                        // Callback
-                        this.imageBuffer.skinAvailable();
-                    }
+                    this.bufferedImage = this.imageBuffer.parseIncomingBuffer(this.bufferedImage);
                 }
+    
+                checkTextureUploaded();
             } catch (IOException ex) {
                 System.err.println("Unable to read file.");
                 
@@ -117,6 +119,22 @@ public class LocalFileData extends SimpleTexture {
         return super.getGlTextureId();
     }
     
+    public IResource getResource() {
+        return this.resource;
+    }
+    
+    public File getFileLocation() {
+        return this.fileLocation;
+    }
+    
+    @Override
+    public String toString() {
+        return "LocalFileData{" +
+                "textureUploaded=" + this.textureUploaded +
+                ", fileLocation=" + this.fileLocation +
+                ", glTextureId=" + this.glTextureId + '}';
+    }
+    
     /**
      * Checks to see if this texture has been pushed to GL yet.
      * <p>
@@ -133,6 +151,40 @@ public class LocalFileData extends SimpleTexture {
                 TextureUtil.uploadTextureImage(super.getGlTextureId(), this.bufferedImage);
                 
                 this.textureUploaded = true;
+            }
+        }
+    }
+    
+    private void originalLoad(IResourceManager resourceManager) throws IOException {
+        this.deleteGlTexture();
+        InputStream inputstream = null;
+        
+        try {
+            this.resource = resourceManager.getResource(this.textureLocation);
+            inputstream = this.resource.getInputStream();
+            BufferedImage bufferedimage = TextureUtil.readBufferedImage(inputstream);
+            boolean hasBlur = false;
+            boolean isClamped = false;
+            
+            if (this.resource.hasMetadata()) {
+                try {
+                    TextureMetadataSection meta = this.resource.getMetadata("texture");
+                    
+                    if (meta != null) {
+                        hasBlur = meta.getTextureBlur();
+                        isClamped = meta.getTextureClamp();
+                    }
+                } catch (RuntimeException runtimeexception) {
+                    System.out.println("Failed reading metadata of: " + this.textureLocation);
+                    
+                    runtimeexception.printStackTrace();
+                }
+            }
+            
+            TextureUtil.uploadTextureImageAllocate(this.getGlTextureId(), bufferedimage, hasBlur, isClamped);
+        } finally {
+            if (inputstream != null) {
+                inputstream.close();
             }
         }
     }

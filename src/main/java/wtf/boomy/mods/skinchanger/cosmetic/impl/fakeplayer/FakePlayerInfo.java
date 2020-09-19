@@ -24,6 +24,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
+
 import wtf.boomy.mods.skinchanger.utils.general.PlayerSkinType;
 
 /**
@@ -84,6 +85,56 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
     
     public void setLocationCape(ResourceLocation locationCape) {
         this.locationCape = locationCape;
+        
+//        if (locationCape != null) {
+//            ITextureObject object = Minecraft.getMinecraft().renderEngine.getTexture(locationCape);
+//
+//            System.out.println(object);
+//
+//            if (object instanceof LocalFileData) {
+//                File resource = ((LocalFileData) object).getFileLocation();
+//                InputStream meme = null;
+//
+//                try {
+//                    meme = new FileInputStream(resource);
+//
+//                    ImageInputStream stream = ImageIO.createImageInputStream(meme);
+//                    Iterator<ImageReader> readers = ImageIO.getImageReaders(stream);
+//
+//                    if (!readers.hasNext()) {
+//                        System.err.println("No readers found");
+//                    }
+//
+//                    while(readers.hasNext()) {
+//                        ImageReader reader = readers.next();
+//
+//                        reader.setInput(stream);
+//                        int frameCount = reader.getNumImages(true);
+//                        BufferedImage[] frames = new BufferedImage[frameCount];
+//
+//                        for (int i = 0; i < frameCount; i++) {
+//                            frames[i] = reader.read(i);
+//                        }
+//
+//                        reader.dispose();
+//
+//                        String name = glGen
+//
+//                        System.out.println(reader.toString());
+//                    }
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                } finally {
+//                    if (meme != null) {
+//                        try {
+//                            meme.close();
+//                        } catch (IOException exception) {
+//                            exception.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
     
     @Override

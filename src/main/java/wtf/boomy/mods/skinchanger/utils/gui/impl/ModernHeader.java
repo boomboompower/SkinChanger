@@ -478,6 +478,18 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         this.headerColor = headerColor;
     }
     
+    public void setButtonWidth(int widthIn) {
+        for (ModernUIElement element : this.children) {
+            if (element instanceof ModernButton) {
+                ((ModernButton) element).setWidth(widthIn);
+                
+                if (widthIn > this.widthOfSub) {
+                    this.widthOfSub = widthIn;
+                }
+            }
+        }
+    }
+    
     /* Some good scales.
      *
      * Largest  2.0

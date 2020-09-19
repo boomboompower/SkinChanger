@@ -18,7 +18,6 @@
 package wtf.boomy.mods.skinchanger.utils.backend;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
@@ -28,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.utils.game.Callback;
 import wtf.boomy.mods.skinchanger.utils.resources.CapeBuffer;
+import wtf.boomy.mods.skinchanger.utils.resources.ImageBuffer;
 import wtf.boomy.mods.skinchanger.utils.resources.LocalFileData;
 import wtf.boomy.mods.skinchanger.utils.resources.SkinBuffer;
 
@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.UUID;
@@ -100,7 +99,7 @@ public class CacheRetriever {
         
         ResourceLocation location = new ResourceLocation("skins/" + getCacheName(name));
         
-        final IImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
+        final ImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
         
         if (dataFile.exists() && dataFile.isFile()) {
             loadFileDirectly(dataFile, cacheType, callback);
@@ -133,7 +132,7 @@ public class CacheRetriever {
     }
     
     public void loadFileDirectly(File file, CacheType cacheType, Callback<ResourceLocation> callback) {
-        final IImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
+        final ImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
         
         ResourceLocation location = new ResourceLocation("skins/" + getCacheName(file.getName()));
         

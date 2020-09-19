@@ -19,9 +19,6 @@ package wtf.boomy.mods.skinchanger.cosmetic;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
-import wtf.boomy.mods.skinchanger.cosmetic.impl.ShaderPatch;
-
-import net.minecraft.util.ResourceLocation;
 
 /**
  * A class to contain all the cosmetic components of SkinChanger.
@@ -32,11 +29,6 @@ import net.minecraft.util.ResourceLocation;
  */
 public class CosmeticFactory {
     
-    /**
-     * GUI blur when enabling she SkinChanger mod
-     */
-    private final ShaderPatch blurShader;
-    
     private FakePlayerRender fakePlayerRender;
     
     /**
@@ -46,9 +38,6 @@ public class CosmeticFactory {
     
     public CosmeticFactory(SkinChangerMod mod) {
         this.mod = mod;
-        
-        // Blur shader magic
-        this.blurShader = new ShaderPatch(this, new ResourceLocation("skinchanger", "shaders/post/customblur.json"));
     }
     
     /**
@@ -62,10 +51,6 @@ public class CosmeticFactory {
         }
         
         return this.fakePlayerRender;
-    }
-    
-    public ShaderPatch getBlurShader() {
-        return blurShader;
     }
     
     public SkinChangerMod getMod() {

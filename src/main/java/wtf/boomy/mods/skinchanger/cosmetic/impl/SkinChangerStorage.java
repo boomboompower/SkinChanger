@@ -24,6 +24,8 @@ import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class SkinChangerStorage {
@@ -40,6 +42,8 @@ public class SkinChangerStorage {
     private Minecraft minecraft;
     
     private final SkinChangerMod mod;
+    
+    private final Map<UUID, Boolean> cachedComparisons = new HashMap<>();
     
     public SkinChangerStorage(SkinChangerMod mod) {
         this.mod = mod;
@@ -118,14 +122,31 @@ public class SkinChangerStorage {
     }
     
     private boolean isMe(GameProfile profile) {
+        // If the mod isn't enabled trick em.
+        if (!this.mod.getConfigurationHandler().isModEnabled() || profile == null) {
+            return false;
+        }
+        
         if (this.mod.getConfigurationHandler().isEveryoneMe()) {
             return true;
+        }
+        
+        if (this.cachedComparisons.size() > 300) {
+            this.cachedComparisons.clear();
+        }
+        
+        if (this.cachedComparisons.containsKey(profile.getId())) {
+            return this.cachedComparisons.get(profile.getId());
         }
         
         UUID profileId = profile.getId();
         UUID mcId = getMinecraft().getSession().getProfile().getId();
     
-        return profileId.equals(mcId);
+        boolean equals = profileId.equals(mcId);
+        
+        this.cachedComparisons.put(profileId, equals);
+        
+        return equals;
     }
     
     private Minecraft getMinecraft() {

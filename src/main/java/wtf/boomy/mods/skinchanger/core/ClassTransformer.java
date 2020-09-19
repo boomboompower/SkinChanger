@@ -179,36 +179,6 @@ public class ClassTransformer implements IClassTransformer {
         }
     }
     
-//    private InsnList createForName(boolean devEnv, String isUsingX, String getX) {
-//        String gameProfileField = devEnv ? "gameProfile" : "field_178867_a";
-//
-//        // Constructs a list of bytecode asm instructions to and adds them to the start of the method
-//        return constructList(
-//                // We load the gameProfile from the class
-//                // and send it to SkinStorage#isUsingSkin
-//                getModInstance(),
-//                getStorage(),
-//
-//                // We load it into the stack
-//                new VarInsnNode(Opcodes.ALOAD, 0),
-//
-//                // We call the isUsingX statement in the SkinStorage class, parsing in the GameProfile from the NetworkPlayerInfo file
-//                new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/network/NetworkPlayerInfo", gameProfileField, "Lcom/mojang/authlib/GameProfile;"),
-//                invokeVirtual(storageClass, isUsingX, "(Lcom/mojang/authlib/GameProfile;)Z"),
-//
-//                // Using the knowledge above, we continue if the isUsingX method returns true
-//                whenTrue(
-//                        // We invoke the getX method from the SkinStorage class
-//                        getModInstance(),
-//                        getStorage(),
-//                        invokeVirtual(storageClass, getX, "()Lnet/minecraft/util/ResourceLocation;"),
-//
-//                        // Finally, we return the X value they wanted, the method has been successfully injected into.
-//                        new InsnNode(Opcodes.ARETURN)
-//                )
-//        );
-//    }
-    
     private InsnList createForSkinType(boolean devEnv) {
         String gameProfileField = devEnv ? "gameProfile" : "field_178867_a";
         
@@ -261,18 +231,6 @@ public class ClassTransformer implements IClassTransformer {
     
     private MethodInsnNode invokeVirtual(String owner, String name, String desc) {
         return new MethodInsnNode(Opcodes.INVOKEVIRTUAL, owner, name, desc, false);
-    }
-    
-    private InsnList whenTrue(Object... args) {
-        LabelNode label = new LabelNode();
-        
-        return constructList(new JumpInsnNode(Opcodes.IFEQ, label), constructList(args), label);
-    }
-    
-    private InsnList whenLess(Object... args) {
-        LabelNode label = new LabelNode();
-        
-        return constructList(new JumpInsnNode(Opcodes.IFLE, label), constructList(args), label);
     }
     
     private InsnList constructList(Object... args) {

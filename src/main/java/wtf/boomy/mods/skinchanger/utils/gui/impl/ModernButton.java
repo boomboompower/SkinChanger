@@ -17,6 +17,7 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
+import wtf.boomy.mods.skinchanger.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
@@ -27,7 +28,8 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
-import java.awt.*;
+import java.awt.Color;
+import java.util.List;
 
 /**
  * ModernButton, a nicer looking button
@@ -39,19 +41,16 @@ import java.awt.*;
  */
 public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
-    protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
-
     private final int id;
 
     private int width;
     private int height;
 
-    private final int x;
-    private final int y;
+    private int x;
+    private  int y;
 
     private boolean enabled;
     private boolean visible;
-    private boolean favourite;
 
     private boolean hovered;
 
@@ -59,8 +58,9 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
     private Color enabledColor = null;
     private Color disabledColor = null;
-
-    private Object buttonData;
+    
+    private final SimpleCallback<ModernButton> clickCallback;
+    private List<String> messageLines = null;
 
     private boolean partOfHeader;
 
@@ -78,6 +78,10 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     }
 
     public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
+        this(buttonId, x, y, widthIn, heightIn, buttonText, null);
+    }
+    
+    public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, SimpleCallback<ModernButton> clicked) {
         this.width = 200;
         this.height = 20;
         this.enabled = true;
@@ -88,6 +92,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         this.width = widthIn;
         this.height = heightIn;
         this.displayString = buttonText;
+        this.clickCallback = clicked;
     }
 
     @Override
@@ -156,8 +161,12 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     @Override
     public void onLeftClick(int mouseX, int mouseY, float yTranslation) {
         Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+        
+        if (this.clickCallback != null) {
+            this.clickCallback.run(this);
+        }
     }
-
+    
     @Override
     public boolean isInside(int mouseX, int mouseY, float yTranslation) {
         if (!this.visible) {
@@ -237,19 +246,35 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     public void setText(String text) {
         this.displayString = text != null ? text : "";
     }
-
-    public ModernButton setEnabled(boolean isEnabled) {
-        this.enabled = isEnabled;
-
+    
+    public void setX(int x) {
+        this.x = x;
+    }
+    
+    public void setY(int y) {
+        this.y = y;
+    }
+    
+    public void setWidth(int width) {
+        this.width = width;
+    }
+    
+    public void setHeight(int height) {
+        this.height = height;
+    }
+    
+    public ModernButton setMessageLines(List<String> messageLines) {
+        this.messageLines = messageLines;
+        
         return this;
     }
-
-    public boolean hasButtonData() {
-        return this.buttonData != null;
+    
+    public List<String> getMessageLines() {
+        return messageLines;
     }
-
-    public Object setButtonData(Object buttonData) {
-        this.buttonData = buttonData;
+    
+    public ModernButton setEnabled(boolean isEnabled) {
+        this.enabled = isEnabled;
 
         return this;
     }
@@ -267,10 +292,6 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
             textColor = 10526880;
         } else if (this.hovered) {
             textColor = 16777120;
-        }
-
-        if (this.enabled && this.favourite) {
-            fontrenderer.drawString("\u2726", xPosition + this.width - fontrenderer.getStringWidth("\u2726") - 4, yPosition + ((fontrenderer.FONT_HEIGHT / 2) + 2), Color.ORANGE.getRGB());
         }
 
         fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + ((float) this.height - 8) / 2, textColor, false);
@@ -299,20 +320,12 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         return visible;
     }
 
-    public boolean isFavourite() {
-        return favourite;
-    }
-
     public boolean isHovered() {
         return hovered;
     }
 
     public String getDisplayString() {
         return displayString;
-    }
-
-    public Object getButtonData() {
-        return buttonData;
     }
 
     public boolean isPartOfHeader() {

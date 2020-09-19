@@ -54,11 +54,11 @@ public class ConfigurationHandler {
     @SaveableField(customName = "animatedCapeRenderer")
     private boolean usingAnimatedCape = true;
     
-    @SaveableField(customName = "willBlurUI")
-    private boolean shouldBlurUI = true;
-    
     @SaveableField(customName = "apiType")
     private SkinAPIType skinAPIType = SkinAPIType.ASHCON;
+    
+    @SaveableField(customName = "modEnabled")
+    private boolean modEnabled = true;
     
     // A bloody hack
     private boolean everyoneMe = false;
@@ -409,12 +409,12 @@ public class ConfigurationHandler {
         this.skinAPIType = skinAPIType;
     }
     
-    public void setShouldBlurUI(boolean shouldBlurUI) {
-        this.shouldBlurUI = shouldBlurUI;
-    }
-    
     public void setEveryoneMe(boolean everyoneMe) {
         this.everyoneMe = everyoneMe;
+    }
+    
+    public void setModEnabled(boolean modEnabled) {
+        this.modEnabled = modEnabled;
     }
     
     public boolean isUsingAnimatedPlayer() {
@@ -425,12 +425,12 @@ public class ConfigurationHandler {
         return this.usingAnimatedCape;
     }
     
-    public boolean shouldBlurUI() {
-        return this.shouldBlurUI;
-    }
-    
     public boolean isEveryoneMe() {
         return this.everyoneMe;
+    }
+    
+    public boolean isModEnabled() {
+        return this.modEnabled;
     }
     
     public SkinAPIType getSkinAPIType() {

@@ -17,8 +17,6 @@
 
 package wtf.boomy.mods.skinchanger.utils.resources;
 
-import net.minecraft.client.renderer.IImageBuffer;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -26,12 +24,12 @@ import java.awt.image.BufferedImage;
 /**
  * Parses a cape texture to be the correct width + height for the player.
  */
-public class CapeBuffer implements IImageBuffer {
+public class CapeBuffer implements ImageBuffer {
     
     private static BufferedImage whiteSquare;
     
     @Override
-    public BufferedImage parseUserSkin(BufferedImage img) {
+    public BufferedImage parseIncomingBuffer(BufferedImage img) {
         // If the image is null, provide them with a 32*32 white square.
         if (img == null) {
             if (whiteSquare == null) {
@@ -59,10 +57,5 @@ public class CapeBuffer implements IImageBuffer {
         g.drawImage(img, 0, 0, null);
         g.dispose();
         return imgNew;
-    }
-    
-    @Override
-    public void skinAvailable() {
-        // Do nothing
     }
 }

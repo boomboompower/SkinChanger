@@ -58,30 +58,6 @@ public class SkinCommand extends ModCommand {
     
     @Override
     public void onCommand(ICommandSender sender, String[] args) {
-//        if (!this.storage.isSkinPatchApplied() && !this.storage.isCapePatchApplied() && !this.storage.isSkinTypePatchApplied()) {
-//            if (args.length > 0 && args[0].equalsIgnoreCase("noconfig")) {
-//                File file = new File(this.mod.getModConfigDirectory(), "asm.txt");
-//
-//                if (file.exists() && !file.delete()) {
-//                    sendMessage(ChatColor.RED + "Unable " + ChatColor.GRAY + " to reset your SkinChanger ASM config. Please visit " + ChatColor.AQUA + "https://bot.boomy.wtf/support");
-//                } else {
-//                    sendMessage(ChatColor.GRAY + "ASM Config has been deleted. Please restart your game for the changes to go into effect.");
-//                }
-//
-//                return;
-//            }
-//
-//            sendMessage(ChatColor.RED + "No patches have been applied so the mod is disabled. ");
-//            sendMessage("");
-//            sendMessage(ChatColor.GRAY + "Try: ");
-//            sendMessage(ChatColor.GRAY + "  1. Running " + ChatColor.AQUA + "/" + getCommandName() + " noconfig");
-//            sendMessage(ChatColor.GRAY + "  2. Restarting your game.");
-//            sendMessage("");
-//            sendMessage(ChatColor.GRAY + "Please visit " + ChatColor.AQUA + "https://bot.boomy.wtf/support" + ChatColor.GRAY + " for more assistance.");
-//
-//            return;
-//        }
-        
         // TODO remove this during production.
         if (args.length > 0) {
             if (args[0].equalsIgnoreCase("fix")) {

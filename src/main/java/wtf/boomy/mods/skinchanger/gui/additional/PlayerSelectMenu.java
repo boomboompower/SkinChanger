@@ -138,7 +138,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     }
     
     @Override
-    protected void onButtonPressedExtra(ModernButton button) {
+    public void buttonPressed(ModernButton button) {
         // Already doing an operation. Just do nothing
 //        if (loading) {
 //            System.out.println("Operation suppressed");
@@ -163,8 +163,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
             this.threadFactory.runAsync(() -> {
                 loading = true;
-                
-                onButtonPressedExtra(button);
+    
+                buttonPressed(button);
                 
                 loading = false;
             });

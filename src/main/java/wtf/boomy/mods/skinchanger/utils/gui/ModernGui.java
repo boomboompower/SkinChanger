@@ -111,24 +111,24 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
         
         try {
-            for (ModernUIElement elements : this.modernList) {
+            for (ModernUIElement element : this.modernList) {
                 GlStateManager.pushMatrix();
                 
-                if (elements instanceof ModernHeader) {
+                if (element instanceof ModernHeader) {
                     ScissorState.scissor(0, this.topYSnip, this.width + 30, (int) (this.height * 1.75));
                 }
                 
-                if (elements.isTranslatable()) {
+                if (element.isTranslatable()) {
                     GlStateManager.translate(0, this.yTranslation, 0);
                 }
                 
-                elements.render(mouseX, mouseY, this.yTranslation);
+                element.render(mouseX, mouseY, this.yTranslation);
                 
-                if (elements.isTranslatable()) {
+                if (element.isTranslatable()) {
                     GlStateManager.translate(0, -this.yTranslation, 0);
                 }
                 
-                if (elements instanceof ModernHeader) {
+                if (element instanceof ModernHeader) {
                     ScissorState.endScissor();
                 }
                 
@@ -157,9 +157,28 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         if (this.mod.getApagogeHandler().getBuildType() == -1) {
             GlStateManager.pushMatrix();
             
-            drawString(this.fontRendererObj, "Unofficial", 5, this.height - 10, Color.LIGHT_GRAY.getRGB());
+            drawString(this.fontRendererObj, "Open Beta - Subject to change", 5, this.height - 10, Color.LIGHT_GRAY.getRGB());
             
             GlStateManager.popMatrix();
+        }
+    
+        for (ModernUIElement element : this.modernList) {
+            if (!(element instanceof ModernButton)) {
+                continue;
+            }
+        
+            // For drawing text on the screen when hovered.
+            if (((ModernButton) element).isHovered() && ((ModernButton) element).getMessageLines() != null) {
+                GlStateManager.pushMatrix();
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                GlStateManager.disableAlpha();
+            
+                drawHoveringText(((ModernButton) element).getMessageLines(), mouseX, mouseY, this.fontRendererObj);
+            
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                GlStateManager.enableAlpha();
+                GlStateManager.popMatrix();
+            }
         }
     }
     
@@ -283,6 +302,17 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             this.textList.add((ModernTextBox) element);
         } else {
             System.err.println("Unable to register element (Elem: " + element.getClass() + ") as it was not a ModernDrawable.");
+        }
+    }
+    
+    /**
+     * Registers a list of elements
+     *
+     * @param elementList a list of elements to register
+     */
+    public final void registerElements(List<?> elementList) {
+        for (Object element : elementList) {
+            registerElement(element);
         }
     }
     
