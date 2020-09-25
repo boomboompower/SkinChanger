@@ -1,24 +1,26 @@
 ## The access transformer
 
 The transformer modifies the class, here is how the changes impact the game code.
-All the transformer does is append an additional conditional check to the `getLocationSkin` and `getLocationCape` methods.
+All the transformer does is append an additional conditional check to the `getLocationSkin`, `getLocationCape` and `getSkinType` methods.
 
 This functionality can be disabled if it causes issues with the game
 
 ```diff
 public String getSkinType() {
-+   String skinChangerType = SkinChangerMod.getInstance().getStorage().getSkinType(this.gameProfile);
++   String skinType = SkinChangerMod.getInstance().getStorage().getSkinType(this.gameProfile);
 +   
-+   if (skinChangerType != null) {
-+       return skinChangerType;
++   if (skinType != null) {
++       return skinType;
 +   }
     
     return this.skinType == null ? DefaultPlayerSkin.getSkinType(this.gameProfile.getId()) : this.skinType;
 }
 
 public ResourceLocation getLocationSkin() {
-+   if (SkinChangerMod.getInstance().getCosmeticFactory().getSkinStorage().isUsingSkin(this.gameProfile)) {
-+       return SkinChangerMod.getInstance().getCosmeticFactory().getSkinStorage().getSkin();
++   ResourceLocation customSkin = SkinChangerMod.getInstance().getStorage().getPlayerSkin(this.gameProfile);
++   
++   if (customSkin != null) {
++       return customSkin;
 +   }
     
     if (this.locationSkin == null) {
@@ -29,8 +31,10 @@ public ResourceLocation getLocationSkin() {
 }
 
 public ResourceLocation getLocationCape() {
-+   if (SkinChangerMod.getInstance().getCosmeticFactory().getSkinStorage().isUsingCape(this.gameProfile)) {
-+       return SkinChangerMod.getInstance().getCosmeticFactory().getSkinStorage().getCape();
++   ResourceLocation customCape = SkinChangerMod.getInstance().getStorage().getPlayerSkin(this.gameProfile);
++   
++   if (customCape != null) {
++       return customCape;
 +   }
     
     if (this.locationCape == null) {

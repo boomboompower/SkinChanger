@@ -25,11 +25,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.utils.game.Callback;
-import wtf.boomy.mods.skinchanger.utils.resources.CapeBuffer;
-import wtf.boomy.mods.skinchanger.utils.resources.ImageBuffer;
-import wtf.boomy.mods.skinchanger.utils.resources.LocalFileData;
-import wtf.boomy.mods.skinchanger.utils.resources.SkinBuffer;
+import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
+import wtf.boomy.mods.skinchanger.cosmetic.resources.CapeBuffer;
+import wtf.boomy.mods.skinchanger.cosmetic.resources.ImageBuffer;
+import wtf.boomy.mods.skinchanger.cosmetic.resources.LocalFileData;
+import wtf.boomy.mods.skinchanger.cosmetic.resources.SkinBuffer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -88,7 +88,7 @@ public class CacheRetriever {
      * @param callback  the real callback, will be called once the resource is properly loaded into the game
      */
     // String.format("https://minotar.net/skin/%s", name)
-    public void loadIntoGame(String name, String url, CacheType cacheType, Callback<ResourceLocation> callback) {
+    public void loadIntoGame(String name, String url, CacheType cacheType, SimpleCallback<ResourceLocation> callback) {
         if (cacheType == null || cacheType == CacheType.OTHER) {
             throw new IllegalArgumentException("Can no longer use none.");
         }
@@ -131,7 +131,7 @@ public class CacheRetriever {
         }
     }
     
-    public void loadFileDirectly(File file, CacheType cacheType, Callback<ResourceLocation> callback) {
+    public void loadFileDirectly(File file, CacheType cacheType, SimpleCallback<ResourceLocation> callback) {
         final ImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
         
         ResourceLocation location = new ResourceLocation("skins/" + getCacheName(file.getName()));

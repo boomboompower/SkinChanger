@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.game;
+package wtf.boomy.mods.skinchanger.utils;
 
 import java.util.regex.Pattern;
 

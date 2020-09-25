@@ -20,7 +20,8 @@ package wtf.boomy.mods.skinchanger.api;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.IOUtils;
-import wtf.boomy.mods.skinchanger.utils.game.Callback;
+
+import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -30,7 +31,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
- * Skin API, provides various implementations for skins from player names/uuids
+ * Skin API, provides various implementations for skins from player names/UUIDs
  *
  * @author boomboompower
  */
@@ -74,7 +75,7 @@ public abstract class SkinAPI {
      * @param playerId the id of the user (see {@link #getIdFromUsername(String)})
      * @param callback the {@link ResourceLocation} of the given player
      */
-    public abstract void getSkinFromId(String playerId, Callback<ResourceLocation> callback);
+    public abstract void getSkinFromId(String playerId, SimpleCallback<ResourceLocation> callback);
     
     /**
      * Is the textures provided a slim skin?

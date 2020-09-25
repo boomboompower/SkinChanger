@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.resources;
+package wtf.boomy.mods.skinchanger.cosmetic.resources;
 
 import java.awt.image.BufferedImage;
 

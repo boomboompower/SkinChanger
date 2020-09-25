@@ -17,8 +17,6 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui;
 
-import cc.hyperium.gui.ScissorState;
-
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
@@ -32,9 +30,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
-import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernHeader;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernTextBox;
 import wtf.boomy.mods.skinchanger.utils.gui.lock.UILock;
 
@@ -71,7 +68,6 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     private final List<InteractiveUIElement> selectedElements = Lists.newArrayList();
     
     protected float yTranslation = 0;
-    protected int topYSnip = 0;
     
     @Override
     public final void initGui() {
@@ -89,7 +85,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     @Override
     public final void drawScreen(int mouseX, int mouseY, float partialTicks) {
         try {
-            preRender(mouseX, mouseY);
+            preRender(mouseX, mouseY, partialTicks);
         } catch (Exception ex) {
             drawString(this.fontRendererObj, "An error occurred during preRender();", 5, 5, Color.RED.getRGB());
             
@@ -114,10 +110,6 @@ public abstract class ModernGui extends UILock implements UISkeleton {
             for (ModernUIElement element : this.modernList) {
                 GlStateManager.pushMatrix();
                 
-                if (element instanceof ModernHeader) {
-                    ScissorState.scissor(0, this.topYSnip, this.width + 30, (int) (this.height * 1.75));
-                }
-                
                 if (element.isTranslatable()) {
                     GlStateManager.translate(0, this.yTranslation, 0);
                 }
@@ -126,10 +118,6 @@ public abstract class ModernGui extends UILock implements UISkeleton {
                 
                 if (element.isTranslatable()) {
                     GlStateManager.translate(0, -this.yTranslation, 0);
-                }
-                
-                if (element instanceof ModernHeader) {
-                    ScissorState.endScissor();
                 }
                 
                 GlStateManager.popMatrix();

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.installing;
+package wtf.boomy.mods.skinchanger.installer.libs;
 
 import java.io.File;
 

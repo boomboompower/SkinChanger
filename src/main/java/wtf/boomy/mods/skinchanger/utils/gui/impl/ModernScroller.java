@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import java.awt.Color;
 import java.util.List;
 
-import wtf.boomy.mods.skinchanger.options.SimpleCallback;
+import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;

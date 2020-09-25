@@ -17,8 +17,6 @@
 
 package wtf.boomy.mods.skinchanger.configuration.meta;
 
-import wtf.boomy.mods.skinchanger.utils.general.Prerequisites;
-
 import java.lang.reflect.Field;
 
 /**
@@ -61,9 +59,6 @@ public class ConfigurationData {
      * @param overwriteOnLoad true if the data of the field should be overwritten as soon as it is loaded.
      */
     public ConfigurationData(Field fieldIn, String saveName, boolean overwriteOnLoad) {
-        Prerequisites.notNull(fieldIn);
-        Prerequisites.notNull(saveName);
-        
         this.field = fieldIn;
         this.saveName = saveName;
         this.overwriteOnLoad = overwriteOnLoad;

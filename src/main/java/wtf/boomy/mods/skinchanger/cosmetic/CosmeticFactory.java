@@ -17,6 +17,9 @@
 
 package wtf.boomy.mods.skinchanger.cosmetic;
 
+import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
 
@@ -48,6 +51,12 @@ public class CosmeticFactory {
     public FakePlayerRender getFakePlayerRender() {
         if (this.fakePlayerRender == null) {
             this.fakePlayerRender = new FakePlayerRender(this);
+    
+            if (ForgeVersion.mcVersion.startsWith("1.7")) {
+                FMLCommonHandler.instance().bus().register(this.fakePlayerRender);
+            } else {
+                MinecraftForge.EVENT_BUS.register(this.fakePlayerRender);
+            }
         }
         
         return this.fakePlayerRender;

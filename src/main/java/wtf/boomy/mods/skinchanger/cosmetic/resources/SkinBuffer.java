@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.resources;
+package wtf.boomy.mods.skinchanger.cosmetic.resources;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -38,7 +38,7 @@ public class SkinBuffer implements ImageBuffer {
             Graphics graphics = bufferedimage.getGraphics();
             graphics.drawImage(image, 0, 0, null);
             
-            if (image.getHeight() == 32) {
+            if (image.getHeight(null) == 32) {
                 graphics.drawImage(bufferedimage, 24, 48, 20, 52, 4, 16, 8, 20, null);
                 graphics.drawImage(bufferedimage, 28, 48, 24, 52, 8, 16, 12, 20, null);
                 graphics.drawImage(bufferedimage, 20, 52, 16, 64, 8, 20, 12, 32, null);

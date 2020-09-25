@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.command;
+package wtf.boomy.mods.skinchanger.commands;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -26,7 +26,7 @@ import net.minecraft.util.ChatComponentText;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
-import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +119,14 @@ public abstract class ModCommand extends CommandBase {
         }
     }
     
-    // Used in newer versions of the game.
+    /**
+     * Used in newer versions of the game.
+     *
+     * @param server the minecraft server instance
+     * @param sender the sender of the command
+     * @param args the arguments of the command
+     * @throws CommandException a required throws
+     */
     public void func_184881_a(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         processCommand(sender, args);
     }
@@ -215,5 +222,15 @@ public abstract class ModCommand extends CommandBase {
      */
     protected void sendMessage(String message) {
         Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(message));
+    }
+    
+    /**
+     * Sends a message to the client with SkinChanger branding out the front
+     *
+     * @param message the message to send
+     */
+    protected void sendBrandedMessage(String message) {
+        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(
+                ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY + message));
     }
 }

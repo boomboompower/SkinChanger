@@ -17,7 +17,7 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
-import wtf.boomy.mods.skinchanger.options.SimpleCallback;
+import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
@@ -59,7 +59,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     private Color enabledColor = null;
     private Color disabledColor = null;
     
-    private final SimpleCallback<ModernButton> clickCallback;
+    private final SimpleCallback<? extends ModernButton> clickCallback;
     private List<String> messageLines = null;
 
     private boolean partOfHeader;
@@ -81,7 +81,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         this(buttonId, x, y, widthIn, heightIn, buttonText, null);
     }
     
-    public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, SimpleCallback<ModernButton> clicked) {
+    public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, SimpleCallback<? extends ModernButton> clicked) {
         this.width = 200;
         this.height = 20;
         this.enabled = true;
@@ -160,13 +160,16 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
     @Override
     public void onLeftClick(int mouseX, int mouseY, float yTranslation) {
-        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+        if (mouseX != -1 && mouseY != -1) {
+            Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+        }
         
         if (this.clickCallback != null) {
-            this.clickCallback.run(this);
+            this.clickCallback.run(getMe());
         }
     }
     
+    // A dumb hack because Java is stupid
     @Override
     public boolean isInside(int mouseX, int mouseY, float yTranslation) {
         if (!this.visible) {
@@ -186,21 +189,21 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         return mouseX >= xPosition && mouseX < xPosition + this.width &&
                 mouseY >= yPosition && mouseY < yPosition + this.height;
     }
-
+    
     @Override
     public void setAsPartOfHeader(ModernHeader parent) {
         this.partOfHeader = true;
 
         this.parentHeader = parent;
     }
-
+    
     @Override
     public InteractiveUIElement disableTranslatable() {
         this.translatable = false;
 
         return this;
     }
-
+    
     /**
      * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
      * this button.
@@ -218,31 +221,31 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         }
         return state;
     }
-
+    
     public Color getEnabledColor() {
         return this.enabledColor == null ? new Color(255, 255, 255, 75) : this.enabledColor;
     }
-
+    
     public ModernButton setEnabledColor(Color colorIn) {
         this.enabledColor = colorIn;
 
         return this;
     }
-
+    
     public Color getDisabledColor() {
         return this.disabledColor == null ? new Color(100, 100, 100, 75) : this.disabledColor;
     }
-
+    
     public ModernButton setDisabledColor(Color colorIn) {
         this.disabledColor = colorIn;
 
         return this;
     }
-
+    
     public String getText() {
         return this.displayString;
     }
-
+    
     public void setText(String text) {
         this.displayString = text != null ? text : "";
     }
@@ -278,7 +281,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
         return this;
     }
-
+    
     /**
      * Renders the string of the button
      *
@@ -296,44 +299,48 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
         fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + ((float) this.height - 8) / 2, textColor, false);
     }
-
+    
     public int getId() {
         return id;
     }
-
+    
     @Override
     public int getWidth() {
         return width;
     }
-
+    
     @Override
     public int getHeight() {
         return height;
     }
-
+    
     @Override
     public boolean isEnabled() {
         return enabled;
     }
-
+    
     public boolean isVisible() {
         return visible;
     }
-
+    
     public boolean isHovered() {
         return hovered;
     }
-
+    
     public String getDisplayString() {
         return displayString;
     }
-
+    
     public boolean isPartOfHeader() {
         return partOfHeader;
     }
-
+    
     @Override
     public boolean isTranslatable() {
         return translatable;
+    }
+    
+    private <T extends ModernButton> T getMe() {
+        return (T) this;
     }
 }

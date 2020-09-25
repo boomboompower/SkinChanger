@@ -17,8 +17,8 @@
 
 package wtf.boomy.mods.skinchanger.installer;
 
-import wtf.boomy.mods.skinchanger.utils.installing.OSType;
-import wtf.boomy.mods.skinchanger.utils.installing.OperatingSystem;
+import wtf.boomy.mods.skinchanger.installer.libs.OSType;
+import wtf.boomy.mods.skinchanger.installer.libs.OperatingSystem;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;

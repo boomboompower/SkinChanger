@@ -123,11 +123,11 @@ public class SkinChangerStorage {
     
     private boolean isMe(GameProfile profile) {
         // If the mod isn't enabled trick em.
-        if (!this.mod.getConfigurationHandler().isModEnabled() || profile == null) {
+        if (!this.mod.getConfig().isModEnabled() || profile == null) {
             return false;
         }
         
-        if (this.mod.getConfigurationHandler().isEveryoneMe()) {
+        if (this.mod.getConfig().isEveryoneMe()) {
             return true;
         }
         

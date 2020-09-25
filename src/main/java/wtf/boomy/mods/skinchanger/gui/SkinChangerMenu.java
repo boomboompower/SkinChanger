@@ -17,36 +17,34 @@
 
 package wtf.boomy.mods.skinchanger.gui;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
 import wtf.boomy.mods.skinchanger.gui.additional.ModOptionsMenu;
 import wtf.boomy.mods.skinchanger.gui.additional.PlayerSelectMenu;
-import wtf.boomy.mods.skinchanger.options.SelectionOptions;
-import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
+import wtf.boomy.mods.skinchanger.language.Language;
+import wtf.boomy.mods.skinchanger.cosmetic.options.ReflectionOptions;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernHeader;
+import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernLocaleButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernSlider;
 
 import java.awt.Color;
-import java.lang.invoke.MethodHandle;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * The base SkinChanger menu, redesigned to be more user-friendly.
  *
  * @since 3.0.0
  */
+@SuppressWarnings("CodeBlock2Expr")
 public class SkinChangerMenu extends ModernGui {
     
-    private final SelectionOptions selectionOptions = new SelectionOptions();
+    private final ReflectionOptions reflectionOptions = new ReflectionOptions();
     
     protected static float rotation = 0;
     
@@ -54,27 +52,22 @@ public class SkinChangerMenu extends ModernGui {
     
     private PlayerSelectMenu selectionMenu;
     
-    // Store the basic values.
-    private final ResourceLocation originalSkin = Minecraft.getMinecraft().thePlayer.getLocationSkin();
-    private final ResourceLocation originalCape = Minecraft.getMinecraft().thePlayer.getLocationCape();
-    private final String originalSkinType = Minecraft.getMinecraft().thePlayer.getSkinType();
-    
     private ModernButton m_optionsButton;
     private ModernButton m_revertButton;
     private ModernButton m_applyBackButton;
-    private ModernButton m_applyCloseButton;
     
+    private final int transparentWhite = new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB();
+    
+    private final SkinChangerStorage storage = SkinChangerMod.getInstance().getStorage();
     private SkinChangerMenu instance;
-    private SkinChangerStorage storage;
     
+    protected String playerModelTranslation;
     private FakePlayerRender fakePlayer;
-    
-    // The location of the shader method.
-    private MethodHandle shade;
     
     public SkinChangerMenu() {
         this.instance = this;
-        this.storage = SkinChangerMod.getInstance().getStorage();
+        
+        this.reflectionOptions.resetCachedValues();
     }
     
     // ModernHeader hack
@@ -87,6 +80,10 @@ public class SkinChangerMenu extends ModernGui {
     
     @Override
     public final void onGuiOpen() {
+        // Prevent blur
+        this.mc.entityRenderer.stopUseShader();
+        
+        this.playerModelTranslation = Language.format("skinchanger.options.title");
         this.fakePlayer = this.mod.getCosmeticFactory().getFakePlayerRender();
         
         float bottomPosBox = this.height - 20;
@@ -107,33 +104,34 @@ public class SkinChangerMenu extends ModernGui {
         float middleButtonXPos = boxMiddlePoint - (baseButtonWidth / 2);
         float buttonRightXPos = boxMiddlePoint + (baseButtonWidth / 2);
         
-        ModernButton revertButton = new ModernButton(50, (int) buttonLeftXPos - 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Revert", mouseButton -> {
-            this.fakePlayer.copyFrom(this.originalSkin, this.originalCape, this.originalSkinType);
+        ModernLocaleButton revertButton = new ModernLocaleButton(50, (int) buttonLeftXPos - 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Revert", mouseButton -> {
+            this.reflectionOptions.resetPlayer(this.fakePlayer.getFakePlayer());
         });
-        
-        ModernButton confirmBackButton = new ModernButton(51, (int) middleButtonXPos, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Preview", mouseButton -> {
+    
+        ModernLocaleButton confirmBackButton = new ModernLocaleButton(51, (int) middleButtonXPos, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Preview", mouseButton -> {
             this.instance.display();
         });
-        ModernButton applyButton = new ModernButton(52, (int) buttonRightXPos + 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Apply", mouseButton -> {
+        
+        ModernLocaleButton applyButton = new ModernLocaleButton(52, (int) buttonRightXPos + 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Apply", mouseButton -> {
             if (this.storage.isSkinPatchApplied()) {
                 this.storage.setPlayerSkin(this.fakePlayer.getSkinLocation());
             } else {
-                this.selectionOptions.setSkin(this.mc.thePlayer, this.fakePlayer.getSkinLocation(), null);
+                this.reflectionOptions.setSkin(this.mc.thePlayer, this.fakePlayer.getSkinLocation(), null);
             }
     
             if (this.storage.isCapePatchApplied()) {
                 this.storage.setPlayerCape(this.fakePlayer.getCapeLocation());
             } else {
-                this.selectionOptions.setCape(this.mc.thePlayer, this.fakePlayer.getCapeLocation(), null);
+                this.reflectionOptions.setCape(this.mc.thePlayer, this.fakePlayer.getCapeLocation(), null);
             }
     
             if (this.storage.isSkinTypePatchApplied()) {
                 this.storage.setSkinType(this.fakePlayer.getSkinType().getSecretName());
             } else {
-                this.selectionOptions.setSkinType(this.mc.thePlayer, this.fakePlayer.getSkinType(), null);
+                this.reflectionOptions.setSkinType(this.mc.thePlayer, this.fakePlayer.getSkinType(), null);
             }
     
-            sendChatMessage(ChatColor.GREEN + "Your skin & cape have been applied!");
+            sendChatMessage(ChatColor.GREEN + Language.format("skinchanger.phrase.apply"));
     
             close();
         });
@@ -146,8 +144,7 @@ public class SkinChangerMenu extends ModernGui {
         
         this.m_revertButton = revertButton;
         this.m_applyBackButton = confirmBackButton;
-        this.m_applyCloseButton = applyButton;
-        
+    
         bottomPosBox -= 25;
         
         float sliderHeight = 20;
@@ -156,7 +153,7 @@ public class SkinChangerMenu extends ModernGui {
         float sliderXPos = ((leftPosBox + rightPosBox) / 2) - sliderWidth / 2;
         float sliderYPos = bottomPosBox - sliderHeight;
         
-        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, "Rotation: ", "\u00B0", 0.0F, 360.0F, rotation) {
+        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.options.rotation") + " ", "\u00B0", 0.0F, 360.0F, rotation) {
             @Override
             public void onSliderUpdate() {
                 rotation = (float) getValue();
@@ -165,10 +162,10 @@ public class SkinChangerMenu extends ModernGui {
         
         registerElement(slider.disableTranslatable());
     
-        ModernButton modPauseButton = new ModernButton(101, (int) leftPosBox - 20, 20, 25, 25, this.mod.getConfigurationHandler().isUsingAnimatedPlayer() ? "\u2713" : "\u2717", buttonPressed -> {
-            this.mod.getConfigurationHandler().setUsingAnimatedPlayer(!this.mod.getConfigurationHandler().isUsingAnimatedPlayer());
+        ModernButton modPauseButton = new ModernButton(101, (int) leftPosBox - 20, 20, 25, 25, this.mod.getConfig().isUsingAnimatedPlayer() ? "\u2713" : "\u2717", buttonPressed -> {
+            this.mod.getConfig().setUsingAnimatedPlayer(!this.mod.getConfig().isUsingAnimatedPlayer());
     
-            buttonPressed.setText(this.mod.getConfigurationHandler().isUsingAnimatedPlayer() ? "\u2713" : "\u2717");
+            buttonPressed.setText(this.mod.getConfig().isUsingAnimatedPlayer() ? "\u2713" : "\u2717");
         });
         
         // You cheeky son of a gun
@@ -183,11 +180,7 @@ public class SkinChangerMenu extends ModernGui {
                 return;
             }
     
-            if (this.optionsMenu == null) {
-                this.optionsMenu = new ModOptionsMenu(this);
-            }
-    
-            this.optionsMenu.display();
+            getOptionsMenu().display();
         });
         
         registerElement(modPauseButton);
@@ -211,22 +204,23 @@ public class SkinChangerMenu extends ModernGui {
         int minXLeft = Math.max(5, middle - 155);
         int widthOfButtons = (middle - minXLeft) - 15;
         
-        ModernHeader skinSettings = new ModernHeader(this, minXLeft, yVal, "Skin Settings", 1.5F, true, Color.WHITE);
+        ModernHeader skinSettings = new ModernHeader(this, minXLeft, yVal, Language.format("skinchanger.options.skin-title"), 1.5F, true, Color.WHITE);
         
         skinSettings.setOffsetBetweenChildren(24F);
         
-        skinSettings.addChild(new ModernButton(12, 5, 20, widthOfButtons, 20, "Load from Player"));
-        skinSettings.addChild(new ModernButton(13, 5, 20, widthOfButtons, 20, "Load from UUID"));
-        skinSettings.addChild(new ModernButton(14, 5, 20, widthOfButtons, 20, "Load from URL"));
+        skinSettings.addChild(new ModernLocaleButton(12, 5, 20, widthOfButtons, 20, "Load from Player"));
+        skinSettings.addChild(new ModernLocaleButton(13, 5, 20, widthOfButtons, 20, "Load from UUID"));
+        skinSettings.addChild(new ModernLocaleButton(14, 5, 20, widthOfButtons, 20, "Load from URL"));
         
         // On left click we'll open a file screen to set the skin
-        skinSettings.addChild(new ModernButton(15, 5, 20, widthOfButtons, 20, "Load from File", mouseButton -> {
-            this.selectionOptions.loadFromFile((location) -> this.fakePlayer.setSkinLocation(location), false);
+        skinSettings.addChild(new ModernLocaleButton(15, 5, 20, widthOfButtons, 20, "Load from File", mouseButton -> {
+            this.reflectionOptions.loadFromFile((location) -> this.fakePlayer.setSkinLocation(location), false);
         }));
         
         // On left click we'll try reset the render to the original skin.
-        skinSettings.addChild(new ModernButton(16, 5, 20, widthOfButtons, 20, "Reset Skin", mouseButton -> {
-            this.fakePlayer.setSkinLocation(this.originalSkin);
+        skinSettings.addChild(new ModernLocaleButton(16, 5, 20, widthOfButtons, 20, "Reset Skin", mouseButton -> {
+            this.fakePlayer.setSkinLocation(this.reflectionOptions.getOriginalSkin());
+            this.fakePlayer.setSkinType(this.reflectionOptions.getOriginalSkinType());
         }));
         
         // ----------------------------------
@@ -237,24 +231,24 @@ public class SkinChangerMenu extends ModernGui {
             capeSettingY = skinSettings.getY() + skinSettings.getHeightOfHeader() + 44;
         }
         
-        ModernHeader capeSettings = new ModernHeader(this, minXLeft, capeSettingY, "Cape Settings", 1.5F, true, Color.WHITE);
+        ModernHeader capeSettings = new ModernHeader(this, minXLeft, capeSettingY, Language.format("skinchanger.options.cape-title"), 1.5F, true, Color.WHITE);
         
         // Makes the space between each element 24 pixels.
         capeSettings.setOffsetBetweenChildren(24F);
         
         // See onButtonPressedExtra for the callback for these methods.
-        capeSettings.addChild(new ModernButton(17, 5, 20, widthOfButtons, 20, "Load from Player"));
-        capeSettings.addChild(new ModernButton(18, 5, 20, widthOfButtons, 20, "Load from UUID"));
-        capeSettings.addChild(new ModernButton(19, 5, 20, widthOfButtons, 20, "Load from URL"));
+        capeSettings.addChild(new ModernLocaleButton(17, 5, 20, widthOfButtons, 20, "Load from Player"));
+        capeSettings.addChild(new ModernLocaleButton(18, 5, 20, widthOfButtons, 20, "Load from UUID"));
+        capeSettings.addChild(new ModernLocaleButton(19, 5, 20, widthOfButtons, 20, "Load from URL"));
         
         // Open a file selector for this option
-        capeSettings.addChild(new ModernButton(20, 5, 20, widthOfButtons, 20, "Load from File", mouseButton -> {
-            this.selectionOptions.loadFromFile(location -> this.fakePlayer.setCapeLocation(location), true);
+        capeSettings.addChild(new ModernLocaleButton(20, 5, 20, widthOfButtons, 20, "Load from File", mouseButton -> {
+            this.reflectionOptions.loadFromFile(location -> this.fakePlayer.setCapeLocation(location), true);
         }));
         
         // Set the cape to the original cape for the player.
-        capeSettings.addChild(new ModernButton(21, 5, 20, widthOfButtons, 20, "Reset Cape", mouseButton -> {
-            this.fakePlayer.setCapeLocation(this.originalCape);
+        capeSettings.addChild(new ModernLocaleButton(21, 5, 20, widthOfButtons, 20, "Reset Cape", mouseButton -> {
+            this.fakePlayer.setCapeLocation(this.reflectionOptions.getOriginalCape());
         }));
     
         if (capeSettings.getY() + capeSettings.getHeightOfHeader() > this.height) {
@@ -273,7 +267,7 @@ public class SkinChangerMenu extends ModernGui {
     }
     
     @Override
-    public void preRender(int mouseX, int mouseY) {
+    public void preRender(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
         
         int halfWidth = this.width / 2 + 20;
@@ -282,11 +276,9 @@ public class SkinChangerMenu extends ModernGui {
     
         GlStateManager.pushMatrix();
         
-        this.fakePlayer.renderFakePlayer((halfWidth + (this.width - 20)) / 2, this.height - 10 - scale, scale, 0, rotation);
+        this.fakePlayer.renderFakePlayer((halfWidth + (this.width - 20)) / 2, this.height - 10 - scale, scale, partialTicks, rotation);
         
         GlStateManager.popMatrix();
-        
-        GlStateManager.pushMatrix();
     }
     
     @Override
@@ -306,22 +298,12 @@ public class SkinChangerMenu extends ModernGui {
         drawCenteredString(this.fontRendererObj, "by " + ChatColor.AQUA + "boomboompower" + ChatColor.RESET, (int) (((this.width / 4) + 10) / smallScale), (int) (20 / smallScale), Color.WHITE.getRGB());
     
         GlStateManager.popMatrix();
-        
-        GlStateManager.pushMatrix();
-        
-        // 20 pixel margin.
-        Gui.drawRect(this.width / 2 + 20, 20, this.width - 20, this.height - 20, new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB());
-        
-        drawCenteredString(this.fontRendererObj, "Player Model", ((this.width / 2 + 20) + (this.width - 20)) / 2, 30, Color.WHITE.getRGB());
-        
-        GlStateManager.popMatrix();
-        
-        this.topYSnip = 55;
+    
+        drawRenderBox();
     }
     
     @Override
     public void postRender(float partialTicks) {
-        GlStateManager.popMatrix();
     }
     
     @Override
@@ -339,6 +321,20 @@ public class SkinChangerMenu extends ModernGui {
                 return;
             }
         }
+    }
+    
+    /**
+     * Draws the background for the render box
+     */
+    protected final void drawRenderBox() {
+        GlStateManager.pushMatrix();
+    
+        // 20 pixel margin.
+        Gui.drawRect(this.width / 2 + 20, 20, this.width - 20, this.height - 20, this.transparentWhite);
+    
+        drawCenteredString(this.fontRendererObj, this.playerModelTranslation, ((this.width / 2 + 20) + (this.width - 20)) / 2, 30, Color.WHITE.getRGB());
+    
+        GlStateManager.popMatrix();
     }
     
     /**
@@ -366,26 +362,24 @@ public class SkinChangerMenu extends ModernGui {
     }
     
     /**
-     * Called when the player supplies an argument to the SkinChanger main command.
+     * Returns the cached instance of the mods option menu
      *
-     * @param incomingInput the first argument of the command
-     *
-     * @return true if the input was valid
+     * @return the cached option menu
      */
-    public boolean handleIncomingInput(String incomingInput) {
-        try {
-            // Try parse it as a URL
-            URL url = new URL(incomingInput);
-            
-            return this.selectionMenu.handleIncomingInput(incomingInput, PlayerSelectMenu.StringSelectionType.P_URL);
-        } catch (MalformedURLException ignored) {
+    public ModOptionsMenu getOptionsMenu() {
+        if (this.optionsMenu == null) {
+            this.optionsMenu = new ModOptionsMenu(this);
         }
         
-        // Try parse it as a player name
-        if (incomingInput.length() < 2 || incomingInput.length() > 16) {
-            return false;
-        } else {
-            return this.selectionMenu.handleIncomingInput(incomingInput, PlayerSelectMenu.StringSelectionType.P_USERNAME);
-        }
+        return this.optionsMenu;
+    }
+    
+    /**
+     * Returns the cached reflection options, including the cape, skin and skin-type from launch
+     *
+     * @return the reflection options instance.
+     */
+    public ReflectionOptions getReflectionOptions() {
+        return reflectionOptions;
     }
 }

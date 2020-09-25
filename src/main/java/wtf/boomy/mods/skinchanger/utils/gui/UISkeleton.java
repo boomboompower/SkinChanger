@@ -49,7 +49,7 @@ public interface UISkeleton {
      * @param mouseX the x position of the mouse
      * @param mouseY the y position of the mouse
      */
-    public default void preRender(int mouseX, int mouseY) {
+    public default void preRender(int mouseX, int mouseY, float partialTicks) {
     }
     
     /**

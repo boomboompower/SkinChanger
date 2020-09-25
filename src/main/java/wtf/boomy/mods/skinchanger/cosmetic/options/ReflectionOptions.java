@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.options;
+package wtf.boomy.mods.skinchanger.cosmetic.options;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -24,27 +24,33 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
+import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
+import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayer;
 import wtf.boomy.mods.skinchanger.utils.backend.ReflectionUtils;
 import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
-import wtf.boomy.mods.skinchanger.utils.general.PlayerSkinType;
-import wtf.boomy.mods.skinchanger.utils.resources.CapeBuffer;
-import wtf.boomy.mods.skinchanger.utils.resources.LocalFileData;
-import wtf.boomy.mods.skinchanger.utils.resources.SkinBuffer;
+import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
+import wtf.boomy.mods.skinchanger.cosmetic.resources.CapeBuffer;
+import wtf.boomy.mods.skinchanger.cosmetic.resources.LocalFileData;
+import wtf.boomy.mods.skinchanger.cosmetic.resources.SkinBuffer;
 
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.File;
 import java.util.HashMap;
 
-public class SelectionOptions {
+public class ReflectionOptions {
     
     private final HashMap<AbstractClientPlayer, NetworkPlayerInfo> cachedPlayerInfo = new HashMap<>();
-    private final ThreadFactory threadFactory = new ThreadFactory("SelectionOptions");
+    private final ThreadFactory threadFactory = new ThreadFactory("ReflectionOptions");
+    
+    private ResourceLocation originalSkin;
+    private ResourceLocation originalCape = Minecraft.getMinecraft().thePlayer.getLocationCape();
+    private String originalSkinType = Minecraft.getMinecraft().thePlayer.getSkinType();
     
     /**
      * Loads a ResourceLocation from a file, with a buffer if possible
      *
-     * @param callback the callback with the resourcelocation to be ran if this suceeds.
+     * @param callback the callback with the ResourceLocation to be ran if this succeeds.
      * @param isCape true if a cape buffer should be used.
      */
     public void loadFromFile(SimpleCallback<ResourceLocation> callback, boolean isCape) {
@@ -62,10 +68,11 @@ public class SelectionOptions {
             dialog.setMultipleMode(false);
             
             if (isCape) {
-                dialog.setDirectory(SkinChangerMod.getInstance().getConfigurationHandler().getCapesDirectory().getAbsolutePath());
+                dialog.setDirectory(SkinChangerMod.getInstance().getConfig().getCapesDirectory().getAbsolutePath());
             }
             
             dialog.setVisible(true);
+            dialog.requestFocus();
             
             if (dialog.getFiles().length > 0) {
                 File f = dialog.getFiles()[0];
@@ -143,6 +150,17 @@ public class SelectionOptions {
      * @param response called once the operation is complete
      */
     public void setSkinType(AbstractClientPlayer player, PlayerSkinType skinType, SimpleCallback<Void> response) {
+        setSkinType(player, skinType.getSecretName(), response);
+    }
+    
+    /**
+     * Uses reflection to set the players skin type
+     *
+     * @param player the player to use
+     * @param skinType the skin type to use
+     * @param response called once the operation is complete
+     */
+    public void setSkinType(AbstractClientPlayer player, String skinType, SimpleCallback<Void> response) {
         NetworkPlayerInfo playerInfo = getPlayerInfo(player, response);
     
         if (playerInfo == null) {
@@ -150,11 +168,53 @@ public class SelectionOptions {
             return;
         }
     
-        ReflectionUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, skinType.getSecretName(), "skinType", "field_178863_g", "g");
+        ReflectionUtils.setPrivateValue(NetworkPlayerInfo.class, playerInfo, skinType, "skinType", "field_178863_g", "g");
     
         if (response != null) {
             response.run(null);
         }
+    }
+    
+    public void resetCachedValues() {
+        this.originalSkin = Minecraft.getMinecraft().thePlayer.getLocationSkin();
+        this.originalCape = Minecraft.getMinecraft().thePlayer.getLocationCape();
+        this.originalSkinType = Minecraft.getMinecraft().thePlayer.getSkinType();
+    }
+    
+    public void resetPlayer(FakePlayer player) {
+        player.copyFrom(this.originalSkin, this.originalCape, this.originalSkinType);
+    }
+    
+    public void resetPlayer(SkinChangerStorage storage) {
+        if (storage.isSkinPatchApplied()) {
+            storage.setPlayerSkin(null);
+        } else {
+            setSkin(Minecraft.getMinecraft().thePlayer, this.originalSkin, null);
+        }
+    
+        if (storage.isCapePatchApplied()) {
+            storage.setPlayerCape(null);
+        } else {
+            setCape(Minecraft.getMinecraft().thePlayer, this.originalCape, null);
+        }
+    
+        if (storage.isSkinTypePatchApplied()) {
+            storage.setSkinType(null);
+        } else {
+            setSkinType(Minecraft.getMinecraft().thePlayer, this.originalSkinType, null);
+        }
+    }
+    
+    public ResourceLocation getOriginalSkin() {
+        return originalSkin;
+    }
+    
+    public ResourceLocation getOriginalCape() {
+        return originalCape;
+    }
+    
+    public String getOriginalSkinType() {
+        return originalSkinType;
     }
     
     private NetworkPlayerInfo getPlayerInfo(AbstractClientPlayer player, SimpleCallback<Void> response) {

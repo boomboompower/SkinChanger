@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.resources;
+package wtf.boomy.mods.skinchanger.cosmetic.resources;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -46,9 +46,9 @@ public class CapeBuffer implements ImageBuffer {
         
         int imageWidth = 64;
         int imageHeight = 32;
-        int srcWidth = img.getWidth();
+        int srcWidth = img.getWidth(null);
         
-        for (int srcHeight = img.getHeight(); imageWidth < srcWidth || imageHeight < srcHeight; imageHeight *= 2) {
+        for (int srcHeight = img.getHeight(null); imageWidth < srcWidth || imageHeight < srcHeight; imageHeight *= 2) {
             imageWidth *= 2;
         }
         

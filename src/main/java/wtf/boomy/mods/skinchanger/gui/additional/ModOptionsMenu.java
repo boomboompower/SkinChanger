@@ -17,18 +17,18 @@
 
 package wtf.boomy.mods.skinchanger.gui.additional;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.core.ClassTransformer;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
-import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
-import wtf.boomy.mods.skinchanger.utils.general.PlayerSkinType;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
+import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
+import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernLocaleButton;
 
-import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -39,8 +39,10 @@ import java.util.List;
 
 public class ModOptionsMenu extends SkinChangerMenu {
     
+    private final Logger logger = LogManager.getLogger("SkinChanger - Settings");
+    
     private final SkinChangerMenu skinChangerMenu;
-    private final ConfigurationHandler skinChangerSettings;
+    private final ConfigurationHandler config;
     
     private boolean saveMixinConfig = false;
     private boolean saveNormalConfig = false;
@@ -52,67 +54,85 @@ public class ModOptionsMenu extends SkinChangerMenu {
     public ModOptionsMenu(SkinChangerMenu skinChangerMenu) {
         this.skinChangerMenu = skinChangerMenu;
         
-        this.skinChangerSettings = SkinChangerMod.getInstance().getConfigurationHandler();
+        this.config = SkinChangerMod.getInstance().getConfig();
         
         this.extraButtons = Arrays.asList(
                 
-                new ModernButton(0x69, 0, 0, 0, 20, "Mod Enabled: " + getYesOrNo(this.skinChangerSettings.isModEnabled()), button -> {
-                    this.skinChangerSettings.setModEnabled(!this.skinChangerSettings.isModEnabled());;
+                new ModernLocaleButton(0x69, 0, 0, 0, 20, "Mod Enabled", getYesOrNo(this.config.isModEnabled()), button -> {
+                    this.config.setModEnabled(!this.config.isModEnabled());;
             
-                    button.setText("Mod Enabled: " + getYesOrNo(this.skinChangerSettings.isModEnabled()));
-                }).setMessageLines(Arrays.asList("Toggles the mod globally, ", "disabling all skin & cape overrides.", "", "Default: " + getYesOrNo(true))),
+                    button.updateValue(getYesOrNo(this.config.isModEnabled()));
+                }).setDefaultValue(getYesOrNo(true)),
                 
-                new ModernButton(0x70, 0, 0, 0, 20, "Patch Skins: " + getYesOrNo(ClassTransformer.shouldPatchSkinGetter), button -> {
+                new ModernLocaleButton(0x70, 0, 0, 0, 20, "Patch Skins", getYesOrNo(ClassTransformer.shouldPatchSkinGetter), button -> {
                     ClassTransformer.shouldPatchSkinGetter = !ClassTransformer.shouldPatchSkinGetter;
             
-                    button.setText("Patch Skins: " + getYesOrNo(ClassTransformer.shouldPatchSkinGetter));
-                }).setMessageLines(Arrays.asList("Overrides the internal skin service, ", "improving skin change performance. ", "", "You must restart your game for", "this change to take effect.", "", "Default: " + getYesOrNo(true))),
+                    button.updateValue(getYesOrNo(ClassTransformer.shouldPatchSkinGetter));
+                }).setDefaultValue(getYesOrNo(true)),
                 
-                new ModernButton(0x71, 0, 0, 0, 20, "Type: " + ChatColor.AQUA + this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType().getDisplayName(), button -> {
+                new ModernLocaleButton(0x71, 0, 0, 0, 20, "Type", ChatColor.AQUA + this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType().getDisplayName(), button -> {
                     this.currentSkinType = this.currentSkinType.getNextSkin();
             
-                    button.setText("Type: " + ChatColor.AQUA + this.currentSkinType.getDisplayName());
+                    button.updateValue(ChatColor.AQUA + this.currentSkinType.getDisplayName());
             
                     this.mod.getCosmeticFactory().getFakePlayerRender().setSkinType(this.currentSkinType.getSecretName());
-                }).setMessageLines(Arrays.asList("Sets the current model skin type", "hit apply to use this.", "", "Default: " + ChatColor.AQUA + "Steve")),
+                }).setDefaultValue(ChatColor.AQUA + "Steve"),
                 
-                new ModernButton(0x72, 0, 0, 0, 20, "Patch Capes: " + getYesOrNo(ClassTransformer.shouldPatchCapeGetter), button -> {
+                new ModernLocaleButton(0x72, 0, 0, 0, 20, "Patch Capes", getYesOrNo(ClassTransformer.shouldPatchCapeGetter), button -> {
                     ClassTransformer.shouldPatchCapeGetter = !ClassTransformer.shouldPatchCapeGetter;
             
-                    button.setText("Patch Capes: " + getYesOrNo(ClassTransformer.shouldPatchCapeGetter));
-                }).setMessageLines(Arrays.asList("Overrides the internal cape service, ", "improving cape change performance. ", "", "You must restart your game for", "this change to take effect.", "", "Default: " + getYesOrNo(true))),
+                    button.updateValue(getYesOrNo(ClassTransformer.shouldPatchCapeGetter));
+                }).setDefaultValue(getYesOrNo(true)),
                 
-                new ModernButton(0x73, 0, 0, 0, 20, "API: " + ChatColor.AQUA + this.skinChangerSettings.getSkinAPIType().getDisplayName(), button -> {
-                    this.skinChangerSettings.setSkinAPIType(this.skinChangerSettings.getSkinAPIType().nextValue());
+                new ModernLocaleButton(0x73, 0, 0, 0, 20, "API", ChatColor.AQUA + this.config.getSkinAPIType().getDisplayName(), button -> {
+                    this.config.setSkinAPIType(this.config.getSkinAPIType().nextValue());
             
-                    button.setText("API: " + ChatColor.AQUA + this.skinChangerSettings.getSkinAPIType().getDisplayName());
-                }).setMessageLines(Arrays.asList("Choose where skins are retrieved from.", "", "Only change this if you're having", "issues with skins loading.", "", "Ashcon - Faster (recommended)", "Mojang - Slower, multiple requests.", "", "Default: " + ChatColor.AQUA + "Ashcon")),
+                    button.updateValue(ChatColor.AQUA + this.config.getSkinAPIType().getDisplayName());
+                }).setDefaultValue(ChatColor.AQUA + "Ashcon"),
                 
-                new ModernButton(0x74, 0, 0, 0, 20, "Patch Skin Type: " + getYesOrNo(ClassTransformer.shouldPatchSkinType), button -> {
+                new ModernLocaleButton(0x74, 0, 0, 0, 20, "Patch Skin Type", getYesOrNo(ClassTransformer.shouldPatchSkinType), button -> {
                     ClassTransformer.shouldPatchSkinType = !ClassTransformer.shouldPatchSkinType;
             
-                    button.setText("Patch Skin Type: " + getYesOrNo(ClassTransformer.shouldPatchSkinType));
-                }).setMessageLines(Arrays.asList("Overrides the skin type, ", "letting you use slim skins.", "", "You must restart your game for", "this change to take effect.", "", "Default: " + getYesOrNo(true))),
+                    button.updateValue(getYesOrNo(ClassTransformer.shouldPatchSkinType));
+                }).setDefaultValue(getYesOrNo(true)),
                 
-                new ModernButton(0x75, 0, 0, 0, 20, "Animated Model: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedPlayer()), button -> {
-                    this.skinChangerSettings.setUsingAnimatedPlayer(!this.skinChangerSettings.isUsingAnimatedPlayer());
+                new ModernLocaleButton(0x75, 0, 0, 0, 20, "Animated Model", getYesOrNo(this.config.isUsingAnimatedPlayer()), button -> {
+                    this.config.setUsingAnimatedPlayer(!this.config.isUsingAnimatedPlayer());
             
-                    button.setText("Animated Model: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedPlayer()));
-                }).setMessageLines(Arrays.asList("Toggles the moving player model", "This includes the cape animation.", "", "Default: " + getYesOrNo(true))),
+                    button.updateValue(getYesOrNo(this.config.isUsingAnimatedPlayer()));
+                }).setDefaultValue(getYesOrNo(true)),
                 
-                new ModernButton(0x77, 0, 0, 0, 20, "Animated Cape: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedCape()), button -> {
-                    this.skinChangerSettings.setUsingAnimatedCape(!this.skinChangerSettings.isUsingAnimatedCape());
+                new ModernLocaleButton(0x77, 0, 0, 0, 20, "Animated Cape", getYesOrNo(this.config.isUsingAnimatedCape()), button -> {
+                    this.config.setUsingAnimatedCape(!this.config.isUsingAnimatedCape());
             
-                    button.setText("Animated Cape: " + getYesOrNo(this.skinChangerSettings.isUsingAnimatedCape()));
-                }).setMessageLines(Arrays.asList("Toggles the moving cape animation", "", "Default: " + getYesOrNo(true))),
-                
-                new ModernButton(0x78, 0, 0, 0, 20, "All me: " + getYesOrNo(this.skinChangerSettings.isEveryoneMe()), button -> {
-                    this.skinChangerSettings.setEveryoneMe(!this.skinChangerSettings.isEveryoneMe());
+                    button.updateValue(getYesOrNo(this.config.isUsingAnimatedCape()));
+                }).setDefaultValue(getYesOrNo(true)),
+        
+                new ModernLocaleButton(0x78, 0, 0, 0, 20, "Animation Speed", ChatColor.AQUA.toString() + this.config.getAnimationSpeed(), button -> {
+                    float animationSpeed = this.config.getAnimationSpeed() + 0.25F;
+                    
+                    if (animationSpeed > 2) {
+                        animationSpeed = 0.5F;
+                    }
+                    
+                    this.config.setAnimationSpeed(animationSpeed);
             
-                    button.setText("All me: " + getYesOrNo(this.skinChangerSettings.isEveryoneMe()));
-                }).setMessageLines(Arrays.asList("Gives every player the same skin as you", "", "Default: " + getYesOrNo(false))),
+                    button.updateValue(ChatColor.AQUA.toString() + animationSpeed);
+                }).setDefaultValue(ChatColor.AQUA + "1.0"),
+        
+                new ModernLocaleButton(0x81, 0, 0, 0, 20, "Animation Lighting", getYesOrNo(this.config.isUsingLighting()), button -> {
+                    this.config.setUsingLighting(!this.config.isUsingLighting());
+            
+                    button.updateValue(getYesOrNo(this.config.isUsingLighting()));
+                }).setDefaultValue(getYesOrNo(false)),
                 
-                new ModernButton(0x79, 0, 0, 0, 20, "Useless: " + getYesOrNo(true), button -> {
+                new ModernLocaleButton(0x80, 0, 0, 0, 20, "All me", getYesOrNo(this.config.isEveryoneMe()), button -> {
+                    this.config.setEveryoneMe(!this.config.isEveryoneMe());
+            
+                    button.updateValue(getYesOrNo(this.config.isEveryoneMe()));
+                }).setDefaultValue(getYesOrNo(false)),
+                
+                new ModernButton(0x82, 0, 0, 0, 20, "Useless: " + getYesOrNo(true), button -> {
                     System.err.println("Unimplemented o.o");
                 }).setMessageLines(Collections.singletonList("Does nothing"))
         );
@@ -127,6 +147,8 @@ public class ModOptionsMenu extends SkinChangerMenu {
         setAsSubMenu(this.skinChangerMenu);
         
         this.currentSkinType = this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType();
+        this.saveMixinConfig = false;
+        this.saveNormalConfig = false;
         
         int yVal = 10;
         
@@ -139,6 +161,18 @@ public class ModOptionsMenu extends SkinChangerMenu {
             int mod = i % 2;
             
             ModernButton button = this.extraButtons.get(i);
+            
+            if (button instanceof ModernLocaleButton) {
+                ModernLocaleButton locale = (ModernLocaleButton) button;
+                
+                String defaultValue = locale.getDefaultValue();
+                
+                if (defaultValue == null) {
+                    defaultValue = ChatColor.RED + "No";
+                }
+                
+                locale.interpretLoreKey(locale.getKey(), defaultValue);
+            }
             
             // Left button
             if (mod == 0) {
@@ -162,26 +196,17 @@ public class ModOptionsMenu extends SkinChangerMenu {
     
     @Override
     public void onRender(int mouseX, int mouseY, float partialTicks) {
-        GlStateManager.pushMatrix();
-        
-        // 20 pixel margin.
-        Gui.drawRect(this.width / 2 + 20, 20, this.width - 20, this.height - 20, new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB());
-        
-        drawCenteredString(this.fontRendererObj, "Player Model", ((this.width / 2 + 20) + (this.width - 20)) / 2, 30, Color.WHITE.getRGB());
-        
-        GlStateManager.popMatrix();
-        
-        this.topYSnip = 0;
+        drawRenderBox();
     }
     
     @Override
     public void buttonPressed(ModernButton button) {
-        // bitwise AND operator. If both bits are 1 it will return 1.
-        int isFirstRow = button.getId() & 1;
+        boolean isASMRow = button.getId() >= 0x70 && button.getId() <= 0x74;
+        boolean isConfigRange = button.getId() >= 0x69 && button.getId() <= 0x80;
         
-        if (isFirstRow == 0) {
+        if (isASMRow) {
             this.saveMixinConfig = true;
-        } else {
+        } else if (isConfigRange) {
             this.saveNormalConfig = true;
         }
     }
@@ -189,9 +214,9 @@ public class ModOptionsMenu extends SkinChangerMenu {
     @Override
     public void onGuiClose() {
         if (this.saveMixinConfig) {
-            System.out.println("Saving ASM config.");
+            this.logger.debug("Saving ASM config.");
             
-            writeToFile(new File(this.skinChangerSettings.getConfigFile().getParentFile(), "asm.txt"), "" +
+            writeToFile(new File(this.config.getConfigFile().getParentFile(), "asm.txt"), "" +
                     "PatchSkins: " + (ClassTransformer.shouldPatchSkinGetter ? "yes" : "no") + System.lineSeparator() +
                     "PatchCapes: " + (ClassTransformer.shouldPatchCapeGetter ? "yes" : "no") + System.lineSeparator() +
                     "PatchSkinType: " + (ClassTransformer.shouldPatchSkinType ? "yes" : "no")
@@ -199,7 +224,9 @@ public class ModOptionsMenu extends SkinChangerMenu {
         }
         
         if (this.saveNormalConfig) {
-            this.skinChangerSettings.save();
+            this.logger.debug("Saving Normal config.");
+            
+            this.config.save();
         }
     }
     
@@ -238,5 +265,9 @@ public class ModOptionsMenu extends SkinChangerMenu {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    public List<ModernButton> getExtraButtons() {
+        return Collections.unmodifiableList(extraButtons);
     }
 }

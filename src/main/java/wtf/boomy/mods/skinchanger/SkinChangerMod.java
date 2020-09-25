@@ -29,12 +29,12 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import wtf.boomy.apagoge.ApagogeHandler;
-import wtf.boomy.mods.skinchanger.commands.SkinCommand;
+import wtf.boomy.mods.skinchanger.commands.impl.SkinCommand;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
-import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -140,7 +140,7 @@ public class SkinChangerMod {
      *
      * @return the config handler used by the mod.
      */
-    public ConfigurationHandler getConfigurationHandler() {
+    public ConfigurationHandler getConfig() {
         return this.configurationHandler;
     }
     

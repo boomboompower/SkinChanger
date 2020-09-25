@@ -23,10 +23,10 @@ import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.api.SkinAPI;
-import wtf.boomy.mods.skinchanger.utils.game.Callback;
+import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
-import wtf.boomy.mods.skinchanger.utils.general.BetterJsonObject;
-import wtf.boomy.mods.skinchanger.utils.general.LowerCaseHashMap;
+import wtf.boomy.mods.skinchanger.utils.BetterJsonObject;
+import wtf.boomy.mods.skinchanger.utils.LowerCaseHashMap;
 
 import java.io.File;
 import java.util.HashMap;
@@ -97,7 +97,7 @@ public class AshconHooker extends SkinAPI {
     }
     
     @Override
-    public void getSkinFromId(String playerId, Callback<ResourceLocation> callback) {
+    public void getSkinFromId(String playerId, SimpleCallback<ResourceLocation> callback) {
         if (playerId == null || playerId.isEmpty()) {
             callback.run(DefaultPlayerSkin.getDefaultSkinLegacy());
             

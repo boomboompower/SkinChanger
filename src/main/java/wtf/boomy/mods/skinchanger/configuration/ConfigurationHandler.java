@@ -27,7 +27,7 @@ import wtf.boomy.mods.skinchanger.api.SkinAPIType;
 import wtf.boomy.mods.skinchanger.configuration.meta.ConfigurationData;
 import wtf.boomy.mods.skinchanger.configuration.meta.SaveableClassData;
 import wtf.boomy.mods.skinchanger.configuration.meta.SaveableField;
-import wtf.boomy.mods.skinchanger.utils.general.BetterJsonObject;
+import wtf.boomy.mods.skinchanger.utils.BetterJsonObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,11 +54,17 @@ public class ConfigurationHandler {
     @SaveableField(customName = "animatedCapeRenderer")
     private boolean usingAnimatedCape = true;
     
+    @SaveableField(customName = "animatedLighting")
+    private boolean usingLighting = false;
+    
     @SaveableField(customName = "apiType")
     private SkinAPIType skinAPIType = SkinAPIType.ASHCON;
     
     @SaveableField(customName = "modEnabled")
     private boolean modEnabled = true;
+    
+    @SaveableField(customName = "animationSpeed")
+    private float animationSpeed = 1;
     
     // A bloody hack
     private boolean everyoneMe = false;
@@ -70,12 +76,7 @@ public class ConfigurationHandler {
     private final HashMap<Class<?>, ConfigurationData[]> saveableValues = new HashMap<>();
     
     public ConfigurationHandler(SkinChangerMod mod) {
-        this.mod = mod;
-        
-        this.configFile = new File(mod.getModConfigDirectory(), "config.json");
-        this.capesDirectory = new File(mod.getModConfigDirectory(), "capes");
-        
-        extractCapesDirectory();
+        this(mod, mod.getModConfigDirectory());
     }
     
     public ConfigurationHandler(SkinChangerMod mod, File configDirectory) {
@@ -83,6 +84,8 @@ public class ConfigurationHandler {
         
         this.configFile = new File(configDirectory, "config.json");
         this.capesDirectory = new File(configDirectory, "capes");
+    
+        extractCapesDirectory();
     }
     
     public void save() {
@@ -417,6 +420,14 @@ public class ConfigurationHandler {
         this.modEnabled = modEnabled;
     }
     
+    public void setUsingLighting(boolean usingLighting) {
+        this.usingLighting = usingLighting;
+    }
+    
+    public void setAnimationSpeed(float animationSpeed) {
+        this.animationSpeed = animationSpeed;
+    }
+    
     public boolean isUsingAnimatedPlayer() {
         return this.usingAnimatedPlayer;
     }
@@ -425,12 +436,20 @@ public class ConfigurationHandler {
         return this.usingAnimatedCape;
     }
     
+    public boolean isUsingLighting() {
+        return usingLighting;
+    }
+    
     public boolean isEveryoneMe() {
         return this.everyoneMe;
     }
     
     public boolean isModEnabled() {
         return this.modEnabled;
+    }
+    
+    public float getAnimationSpeed() {
+        return animationSpeed;
     }
     
     public SkinAPIType getSkinAPIType() {

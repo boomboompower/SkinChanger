@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import wtf.boomy.mods.skinchanger.utils.general.Prerequisites;
 import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
@@ -132,10 +131,6 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
      * @param color         the color of which the elements will be drawn.
      */
     public ModernHeader(ModernGui gui, int x, int y, String header, float scaleSize, boolean drawUnderline, Color color) {
-        Prerequisites.notNull(gui);
-        Prerequisites.notNull(header);
-        Prerequisites.conditionMet(scaleSize > 0, "Scale cannot be less than 0");
-        
         this.modernGui = gui;
         
         this.x = x;

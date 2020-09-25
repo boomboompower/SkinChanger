@@ -18,9 +18,13 @@
 package wtf.boomy.mods.skinchanger.api;
 
 import com.google.gson.annotations.SerializedName;
+
 import wtf.boomy.mods.skinchanger.api.impl.AshconHooker;
 import wtf.boomy.mods.skinchanger.api.impl.MojangHooker;
 
+/**
+ * A holder for the different API's provided by the mod
+ */
 public enum SkinAPIType {
     
     @SerializedName("Mojang")
@@ -37,6 +41,12 @@ public enum SkinAPIType {
         this.api = instance;
     }
     
+    /**
+     * Retrieves the next value (higher ordinal), or loops
+     * back to the enum at position 0 if there is no higher enum available.
+     *
+     * @return the next {@link SkinAPIType} after this one
+     */
     public SkinAPIType nextValue() {
         // At the next index.
         int nextOrdinal = ordinal() + 1;
@@ -51,14 +61,30 @@ public enum SkinAPIType {
         return values()[nextOrdinal];
     }
     
+    /**
+     * Returns the display name for this given skin api
+     *
+     * @return the readable name for this api
+     */
     public String getDisplayName() {
         return this.displayName;
     }
     
+    /**
+     * Returns the hooker for this api which requests will be made through
+     *
+     * @return the api hooker
+     */
     public SkinAPI getAPI() {
         return this.api;
     }
     
+    /**
+     * Returns a value if the param matches either an API's {@link #name()} or {@link #getDisplayName()}
+     *
+     * @param in the value to search for
+     * @return a {@link SkinAPIType} or {@link #ASHCON} if no matches are found
+     */
     public static SkinAPIType getFromString(String in) {
         for (SkinAPIType type : values()) {
             if (type.name().equalsIgnoreCase(in) || type.getDisplayName().equalsIgnoreCase(in)) {

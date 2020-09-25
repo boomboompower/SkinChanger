@@ -29,10 +29,10 @@ import net.minecraft.util.ResourceLocation;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.api.SkinAPI;
-import wtf.boomy.mods.skinchanger.utils.game.Callback;
+import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
-import wtf.boomy.mods.skinchanger.utils.general.BetterJsonObject;
-import wtf.boomy.mods.skinchanger.utils.general.LowerCaseHashMap;
+import wtf.boomy.mods.skinchanger.utils.BetterJsonObject;
+import wtf.boomy.mods.skinchanger.utils.LowerCaseHashMap;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -305,7 +305,7 @@ public class MojangHooker extends SkinAPI {
      *
      * @param callback the {@link ResourceLocation} of the given id
      */
-    public void getSkinFromId(String id, Callback<ResourceLocation> callback) {
+    public void getSkinFromId(String id, SimpleCallback<ResourceLocation> callback) {
         try {
             getSkinFromIdUnsafe(id, callback);
         } catch (IllegalArgumentException ex) {
@@ -324,7 +324,7 @@ public class MojangHooker extends SkinAPI {
      *
      * @param callback the {@link ResourceLocation} of the given id
      */
-    private void getSkinFromIdUnsafe(String id, Callback<ResourceLocation> callback) {
+    private void getSkinFromIdUnsafe(String id, SimpleCallback<ResourceLocation> callback) {
         if (id != null && !id.isEmpty()) {
             if (skins.containsKey(id)) {
                 ResourceLocation loc = skins.get(id);

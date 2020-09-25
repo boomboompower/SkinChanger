@@ -15,22 +15,37 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.general;
+package wtf.boomy.mods.skinchanger.cosmetic.options;
 
-import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.core.FMLLoadingPlugin;
-
-public class EntryPointer {
+/**
+ * Simple callback class
+ *
+ * @param <T> the type of data to receive
+ *
+ * @author boomboompower
+ * @since 3.0.0
+ */
+public interface SimpleCallback<T> {
     
-    public static void main(String[] args) {
-        try {
-            FMLLoadingPlugin plugin = new FMLLoadingPlugin();
-            SkinChangerMod mod = new SkinChangerMod();
-            
-            mod.preInit(new net.minecraftforge.fml.common.event.FMLPreInitializationEvent(null, null, null, null));
-            plugin.getASMTransformerClass();
-        } catch (Exception ignored) { }
-        
-        System.out.println("Entrypoint done.");
+    /**
+     * Runs the callback and provides the associated data
+     *
+     * @param data the data to receive once the callback is run
+     */
+    public abstract void run(T data);
+    
+    /**
+     * Called when this callback is cancelled
+     */
+    public default void onCancel() {
     }
+    
+    /**
+     * Called when an error occurs while running this callback
+     *
+     * @param message the message from the error
+     */
+    public default void onError(String message) {
+    }
+    
 }

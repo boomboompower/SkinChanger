@@ -15,19 +15,19 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.commands;
+package wtf.boomy.mods.skinchanger.commands.impl;
 
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.command.ICommandSender;
 
-import net.minecraft.entity.player.EntityPlayer;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
+import wtf.boomy.mods.skinchanger.commands.ModCommand;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
-import wtf.boomy.mods.skinchanger.utils.command.ModCommand;
-import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
+import wtf.boomy.mods.skinchanger.language.Language;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
+import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,17 +59,12 @@ public class SkinCommand extends ModCommand {
     @Override
     public void onCommand(ICommandSender sender, String[] args) {
         // TODO remove this during production.
-        if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("fix")) {
-                org.lwjgl.opengl.Display.setResizable(false);
-                org.lwjgl.opengl.Display.setResizable(true);
-                
-                return;
-            } else if (args[0].equalsIgnoreCase("reload")) {
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("reload")) {
                 this.mainMenu = new SkinChangerMenu();
-                
+    
                 args = new String[0];
-            } else if (args[0].equalsIgnoreCase("debug")) {
+            } else if (args[0].equalsIgnoreCase("resources")) {
                 sendMessage("Skin is: " + ((AbstractClientPlayer)sender).getLocationSkin().toString());
                 sendMessage("Cape is: " + ((AbstractClientPlayer)sender).getLocationCape().toString());
                 sendMessage("Type is: " + ((AbstractClientPlayer)sender).getSkinType());
@@ -77,8 +72,52 @@ public class SkinCommand extends ModCommand {
                 return;
             }
         }
+    
+        if (args.length > 0) {
+            if (args[0].equalsIgnoreCase("reset")) {
+                getMenu().getReflectionOptions().resetPlayer(this.mod.getStorage());
+                
+                sendBrandedMessage(ChatColor.GREEN + Language.format("skinchanger.phrase.apply"));
+                
+                return;
+//            } else if (args[0].equalsIgnoreCase("skin") || args[0].equalsIgnoreCase("cape")) {
+            } else if (args[0].equalsIgnoreCase("toggle")) {
+                if (args.length == 1) {
+                    this.mod.getConfig().setModEnabled(!this.mod.getConfig().isModEnabled());
+                
+                    sendBrandedMessage("SkinChanger is now " + Language.format("skinchanger.phrase." + (this.mod.getConfig().isModEnabled() ? "enabled" : "disabled")));
+                
+                    return;
+                } else {
+                    String identifier = args[1].toLowerCase();
+                    SkinChangerMenu menu = getMenu();
+                    
+                    if (menu == null) {
+                        return;
+                    }
+                    
+                    ModernButton found = null;
+                    
+                    for (ModernButton button : menu.getOptionsMenu().getExtraButtons()) {
+                        if (button.getText().toLowerCase().startsWith(identifier)) {
+                            found = button;
+                        }
+                    }
+                    
+                    if (found == null) {
+                        sendBrandedMessage("Unable to find a setting matching that name");
+                        
+                        return;
+                    } else {
+                        found.onLeftClick(-1, -1, 0);
+                        
+                        sendBrandedMessage(found.getText());
+                    }
+                }
+            }
+        }
         
-        SkinChangerMenu menu = getMenu(args.length > 0 ? args[0] : null);
+        SkinChangerMenu menu = getMenu();
         
         // Something went wrong or an argument was incorrect.
         if (menu == null) {
@@ -103,21 +142,12 @@ public class SkinCommand extends ModCommand {
     /**
      * Gets the cached SkinChanger menu
      *
-     * @param incomingInput the name of the player or a URL
-     *
      * @return the cached SkinChanger menu if one exists, or a new one.
      */
-    private SkinChangerMenu getMenu(String incomingInput) {
+    private SkinChangerMenu getMenu() {
         // Check if a cached menu exists.
         if (this.mainMenu == null) {
             this.mainMenu = new SkinChangerMenu();
-        }
-        
-        // If the player has specified an input it should be handled
-        if (incomingInput != null && !incomingInput.isEmpty()) {
-            if (!this.mainMenu.handleIncomingInput(incomingInput)) {
-                return null;
-            }
         }
         
         return this.mainMenu;

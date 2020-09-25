@@ -15,37 +15,30 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.options;
+package wtf.boomy.mods.skinchanger.installer.libs;
 
 /**
- * Simple callback class
- *
- * @param <T> the type of data to receive
+ * Stores the different supported OS's supported by the installer and their corresponding
+ * Minecraft installation directories.
  *
  * @author boomboompower
+ * @version 1.0
  * @since 3.0.0
  */
-public interface SimpleCallback<T> {
+public enum OSType {
     
-    /**
-     * Runs the callback and provides the associated data
-     *
-     * @param data the data to receive once the callback is run
-     */
-    public abstract void run(T data);
+    WINDOWS("C:\\Users\\USERNAME\\AppData\\Roaming\\.minecraft"),
+    MAC("~/Library/Application Support/minecraft"),
+    LINUX("~/.minecraft"),
+    UNKNOWN("?");
     
-    /**
-     * Called when this callback is cancelled
-     */
-    public default void onCancel() {
+    private final String normalDirectory;
+    
+    OSType(String directory) {
+        this.normalDirectory = directory;
     }
     
-    /**
-     * Called when an error occurs while running this callback
-     *
-     * @param message the message from the error
-     */
-    public default void onError(String message) {
+    public String getNormalDirectory() {
+        return this.normalDirectory;
     }
-    
 }

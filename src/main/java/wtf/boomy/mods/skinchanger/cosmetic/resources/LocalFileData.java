@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.resources;
+package wtf.boomy.mods.skinchanger.cosmetic.resources;
 
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -23,7 +23,6 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.data.TextureMetadataSection;
 import net.minecraft.util.ResourceLocation;
-import wtf.boomy.mods.skinchanger.utils.general.Prerequisites;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -73,9 +72,6 @@ public class LocalFileData extends SimpleTexture {
      */
     public LocalFileData(ResourceLocation textureLocation, File fileToLoad, ImageBuffer imageBuffer) {
         super(textureLocation);
-        
-        Prerequisites.notNull(textureLocation);
-        Prerequisites.notNull(fileToLoad);
         
         this.fileLocation = fileToLoad;
         this.imageBuffer = imageBuffer;

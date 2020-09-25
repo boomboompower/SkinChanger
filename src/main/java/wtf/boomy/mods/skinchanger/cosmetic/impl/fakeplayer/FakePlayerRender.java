@@ -26,8 +26,9 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
+import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
-import wtf.boomy.mods.skinchanger.utils.general.PlayerSkinType;
+import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
 
 /**
  * Cosmetic class for the Fake Player renderer
@@ -61,6 +62,7 @@ public class FakePlayerRender {
      */
     public void renderFakePlayer(int posX, int posY, int scale, float partialTicks, float rotation) {
         FakePlayer entity = fakePlayer;
+        ConfigurationHandler config = this.cosmeticFactory.getMod().getConfig();
         
         // Stops entity clipping behind the screen
         GlStateManager.translate(0, 0, 100);
@@ -98,7 +100,7 @@ public class FakePlayerRender {
         entity.rotationYawHead = entity.rotationYaw;
         entity.prevRotationYawHead = entity.rotationYaw;
         
-        entity.prevChasingPosX = 2;
+        entity.prevChasingPosX = 0;
         entity.chasingPosX = 0;
         
         entity.prevChasingPosY = 0;
@@ -113,39 +115,64 @@ public class FakePlayerRender {
         entity.prevDistanceWalkedModified = 1;
         entity.distanceWalkedModified = 0;
         
-        // Simulate player movement
-        if (this.cosmeticFactory.getMod().getConfigurationHandler().isUsingAnimatedPlayer()) {
-            entity.limbSwingAmount += (0.6F - entity.limbSwingAmount) * 0.4F;
-            entity.limbSwing += (entity.limbSwingAmount) / 6;
+        if (config.getAnimationSpeed() < 0.5) {
+            config.setAnimationSpeed(0.5F);
+        } else if (config.getAnimationSpeed() > 2) {
+            config.setAnimationSpeed(2);
         }
+        
+        // Simulate player movement
+        if (config.isUsingAnimatedPlayer()) {
+            entity.prevLimbSwingAmount = entity.limbSwingAmount;
+            entity.limbSwingAmount = 0.25F * config.getAnimationSpeed();
+            entity.limbSwing += entity.limbSwingAmount * config.getAnimationSpeed();
+        } else {
+            entity.prevLimbSwingAmount = 0;
+            entity.limbSwingAmount = 0;
+        }
+        
+        entity.prevChasingPosX = 0;
+        entity.chasingPosX = 0;
+        
+        entity.prevChasingPosZ = 0;
+        entity.chasingPosZ = 0;
         
         entity.prevPosX = 0;
         entity.posX = 0;
         
+        entity.prevPosZ = 0;
+        entity.posZ = 0;
+    
         entity.prevPosY = 0;
         entity.posY = 0;
         
-        entity.prevPosZ = entity.posZ;
-        
         RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
     
-        if (this.cosmeticFactory.getMod().getConfigurationHandler().isUsingAnimatedCape()) {
-            float capeSwing = MathHelper.cos(entity.limbSwing / 2 * 0.662F) * 1.1F * entity.limbSwingAmount / 2;
+        if (config.isUsingAnimatedCape()) {
+            float capeSwing = MathHelper.cos(entity.limbSwing * 0.662F) * 1.7F * (0.25F * config.getAnimationSpeed()) / 2;
     
-            entity.posZ = lerp(0, capeSwing, 0.5F);
-            entity.posZ += 0.5;
+            entity.chasingPosY = lerp(0, capeSwing, 0.5F);
+            entity.chasingPosY += 0.5;
+            entity.chasingPosY *= 3;
+            
+            entity.prevChasingPosY = entity.chasingPosY;
         } else {
-            entity.posZ = 0;
+            entity.prevChasingPosY = 0;
+            entity.chasingPosY = 0;
         }
         
-        GlStateManager.disableLighting();
+        if (!config.isUsingLighting()) {
+            GlStateManager.disableLighting();
+        }
         
         rendermanager.setPlayerViewY(rotation);
         rendermanager.setRenderShadow(false);
-        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
+        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, (config.isUsingAnimatedPlayer() ? partialTicks : 0), true);
         rendermanager.setRenderShadow(true);
         
-        GlStateManager.enableLighting();
+        if (!config.isUsingLighting()) {
+            GlStateManager.enableLighting();
+        }
         
         entity.renderYawOffset = prevYawOffset;
         entity.rotationYaw = prevYaw;

@@ -26,11 +26,10 @@ import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
-import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
-import wtf.boomy.mods.skinchanger.utils.general.PlayerSkinType;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
+import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernTextBox;
-import wtf.boomy.mods.skinchanger.utils.installing.InternetConnection;
 
 import java.awt.Color;
 import java.util.Objects;
@@ -60,7 +59,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         this.skinChangerMenu = menu;
         this.selectionType = selectionType;
         
-        this.skinAPI = SkinChangerMod.getInstance().getConfigurationHandler().getSkinAPIType();
+        this.skinAPI = SkinChangerMod.getInstance().getConfig().getSkinAPIType();
         this.fakePlayerRender = SkinChangerMod.getInstance().getCosmeticFactory().getFakePlayerRender();
         this.cacheRetriever = SkinChangerMod.getInstance().getCacheRetriever();
         this.threadFactory = new ThreadFactory("SelectionMenu");
@@ -70,7 +69,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     protected void onGuiInitExtra() {
         setAsSubMenu(this.skinChangerMenu);
     
-        this.skinAPI = SkinChangerMod.getInstance().getConfigurationHandler().getSkinAPIType();
+        this.skinAPI = SkinChangerMod.getInstance().getConfig().getSkinAPIType();
         
         float boxWidth = 150;
         float boxHeight = 20;
@@ -203,12 +202,6 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     }
     
     private void handleSelectionPress(String enteredText) {
-        if (!InternetConnection.hasInternetConnection()) {
-            this.errorMessage = "Could not connect to the internet. Make sure you have a stable internet connection!";
-        
-            return;
-        }
-        
         String cacheName = this.selectionType.name().charAt(0) + enteredText;
         
         if (this.selectionType.isTypeOfUrl()) {
@@ -258,10 +251,6 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                 // Cape UUID Resource
                 this.cacheRetriever.loadIntoGame(enteredText, "http://s.optifine.net/capes/" + this.skinAPI.getAPI().getNameFromID(enteredText) + ".png", this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
         }
-    }
-    
-    public boolean handleIncomingInput(String incomingInput, StringSelectionType selectionType) {
-        return false;
     }
     
     /**
@@ -354,7 +343,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
             
             if (isTypeOfUUID()) {
                 // Tiny performance increase
-                this.storedUUID = SkinChangerMod.getInstance().getConfigurationHandler().getSkinAPIType().getAPI().getUUIDFromStrippedString(input);
+                this.storedUUID = SkinChangerMod.getInstance().getConfig().getSkinAPIType().getAPI().getUUIDFromStrippedString(input);
                 
                 return this.storedUUID != null;
             }

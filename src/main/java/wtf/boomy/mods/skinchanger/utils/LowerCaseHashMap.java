@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.general;
+package wtf.boomy.mods.skinchanger.utils;
 
 import java.util.HashMap;
 

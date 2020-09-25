@@ -20,7 +20,7 @@ package wtf.boomy.mods.skinchanger.utils.gui.lock;
 import java.awt.Color;
 import java.io.IOException;
 
-import wtf.boomy.mods.skinchanger.utils.game.ChatColor;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;

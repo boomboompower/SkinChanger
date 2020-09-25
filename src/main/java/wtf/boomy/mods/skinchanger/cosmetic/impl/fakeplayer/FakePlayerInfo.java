@@ -25,7 +25,7 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 
-import wtf.boomy.mods.skinchanger.utils.general.PlayerSkinType;
+import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
 
 /**
  * The NetworkPlayerInfo of the {@link FakePlayer}
