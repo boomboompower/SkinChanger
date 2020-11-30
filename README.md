@@ -84,9 +84,6 @@ This has been tested for the following OS's
 #### Contributors
 * [boomboompower](https://github.com/boomboompower)
 
-##### Support
-[![Become a Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/boomboompower)
-
 #### Redistribution
 If you would like to redistribute SkinChanger via a modpack, client or by any other means; please contact me. This is to ensure the code here is being used for ethical purposes.
 
