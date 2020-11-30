@@ -66,6 +66,7 @@ repositories {
 
 // General mod dependencies
 dependencies {
+    // Updater functionality
     provided 'com.github.boomboompower:ApagogeJava:master-SNAPSHOT'
 }
 
