@@ -128,11 +128,7 @@ sourceJar {
 sourceSets {
     //noinspection GroovyAssignabilityCheck
     main {
-        // This is just to get Mixin working in dev environment.
-        // The class is just a simple Tweaker class similar to
-        // MixinTweaker however it contains some credentials
-        // Which is why I've excluded it here. If you need help settings
-        // this up don't hesitate to message me anywhere.
+        // Hidden dev environment stuff
         java {
             exclude '**/priv'
         }
