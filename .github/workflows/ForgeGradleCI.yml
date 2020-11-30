@@ -74,7 +74,7 @@ jobs:
             > Huh, nothing here?
             
             ```
-            ${{ $commitmsg }}
+            ${{ commitmsg }}
             ```
             
             **Next up**
@@ -83,8 +83,8 @@ jobs:
             
             **Hashes**
             > Don't install untrusted files
-            SkinChangerMod: ${{ $program_hash }}
-            SkinChangerMod-sources: ${{ $source_hash }}
+            SkinChangerMod: ${{ program_hash }}
+            SkinChangerMod-sources: ${{ source_hash }}
             
             Automagically generated with lots of ❤
           draft: false
