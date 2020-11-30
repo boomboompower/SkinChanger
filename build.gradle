@@ -128,7 +128,8 @@ sourceJar {
 sourceSets {
     //noinspection GroovyAssignabilityCheck
     main {
-        // Hidden dev environment stuff
+        // Hidden dev environment variables and credentials
+        // Not for public consumption.
         java {
             exclude '**/priv'
         }
