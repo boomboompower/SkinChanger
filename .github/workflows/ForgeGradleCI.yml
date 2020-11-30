@@ -31,7 +31,7 @@ jobs:
         env: 
           GITHUB_CONTEXT: ${{ toJson(github) }} 
         run: |
-           echo ::set-env name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
+           echo "name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})" >> $GITHUB_ENV
            echo "${{ github.run_number }}" > ./src/main/resources/GHCI.txt
 
         # Required so gradlew can build the JAR file
@@ -55,8 +55,8 @@ jobs:
       
       - name: Calculate Hashes
         run: |
-          echo ::set-env name=program_hash::$(sha256sum ./build/libs/SkinChangerMod.jar | cut -d ' ' -f 1)
-          echo ::set-env name=source_hash::$(sha256sum ./build/libs/SkinChangerMod-sources.jar | cut -d ' ' -f 1)
+          echo "name=program_hash::$(sha256sum ./build/libs/SkinChangerMod.jar | cut -d ' ' -f 1)" >> $GITHUB_ENV
+          echo "name=source_hash::$(sha256sum ./build/libs/SkinChangerMod-sources.jar | cut -d ' ' -f 1)" >> $GITHUB_ENV
 
       # Upload the main mod to the releases tab
       - name: Create Release
@@ -74,7 +74,7 @@ jobs:
             > Huh, nothing here?
             
             ```
-            ${{ env.commitmsg }}
+            ${{ $commitmsg }}
             ```
             
             **Next up**
@@ -83,8 +83,8 @@ jobs:
             
             **Hashes**
             > Don't install untrusted files
-            SkinChangerMod: ${{ env.program_hash }}
-            SkinChangerMod-sources: ${{ env.source_hash }}
+            SkinChangerMod: ${{ $program_hash }}
+            SkinChangerMod-sources: ${{ $source_hash }}
             
             Automagically generated with lots of ❤
           draft: false
