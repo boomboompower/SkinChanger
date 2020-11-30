@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.gui;
+package wtf.boomy.mods.skinchanger.utils.gui.faces;
 
 /**
  * An type of {@link ModernUIElement} which can be interacted with in a GUI. (Such as buttons, sliders etc)

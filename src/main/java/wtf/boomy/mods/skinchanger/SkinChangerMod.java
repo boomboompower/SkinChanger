@@ -33,8 +33,8 @@ import wtf.boomy.mods.skinchanger.commands.impl.SkinCommand;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
-import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
+import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 
 import java.io.File;
 import java.net.URISyntaxException;

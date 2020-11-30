@@ -34,7 +34,7 @@ buildscript {
 
 apply plugin: "net.minecraftforge.gradle.forge"
 
-version = '3.0.2'
+version = '3.0.0'
 group = "wtf.boomy.skinchanger"
 archivesBaseName = "SkinChangerMod"
 

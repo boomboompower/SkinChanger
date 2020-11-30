@@ -22,7 +22,6 @@ import net.minecraft.command.ICommandSender;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.commands.ModCommand;
-import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
 import wtf.boomy.mods.skinchanger.language.Language;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
@@ -38,12 +37,9 @@ public class SkinCommand extends ModCommand {
     
     // Cached main menu, saves memory and options.
     private SkinChangerMenu mainMenu = null;
-    private final SkinChangerStorage storage;
     
     public SkinCommand(SkinChangerMod modIn) {
         super(modIn);
-        
-        this.storage = modIn.getStorage();
     }
     
     @Override
@@ -65,8 +61,8 @@ public class SkinCommand extends ModCommand {
     
                 args = new String[0];
             } else if (args[0].equalsIgnoreCase("resources")) {
-                sendMessage("Skin is: " + ((AbstractClientPlayer)sender).getLocationSkin().toString());
-                sendMessage("Cape is: " + ((AbstractClientPlayer)sender).getLocationCape().toString());
+                sendMessage("Skin is: " + ((AbstractClientPlayer)sender).getLocationSkin());
+                sendMessage("Cape is: " + ((AbstractClientPlayer)sender).getLocationCape());
                 sendMessage("Type is: " + ((AbstractClientPlayer)sender).getSkinType());
                 
                 return;

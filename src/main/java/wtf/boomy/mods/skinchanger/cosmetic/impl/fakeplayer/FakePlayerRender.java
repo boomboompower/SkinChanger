@@ -26,6 +26,9 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
 import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
@@ -40,8 +43,19 @@ public class FakePlayerRender {
     
     // The player should be the same across every instance and every thread.
     private static final FakePlayer fakePlayer = new FakePlayer(Minecraft.getMinecraft().thePlayer);
+    private static float rotation = 0;
     
     private final CosmeticFactory cosmeticFactory;
+    
+    private boolean shouldCompute;
+    
+    private float prevLimbSwingAmount;
+    private float limbSwingAmount;
+    private float limbSwing;
+    
+    private float internalIncrementalCounter;
+    private float prevChasingPosY;
+    private float chasingPosY;
     
     /**
      * Simple constructor for the FakePlayer renderer
@@ -62,6 +76,7 @@ public class FakePlayerRender {
      */
     public void renderFakePlayer(int posX, int posY, int scale, float partialTicks, float rotation) {
         FakePlayer entity = fakePlayer;
+        
         ConfigurationHandler config = this.cosmeticFactory.getMod().getConfig();
         
         // Stops entity clipping behind the screen
@@ -115,17 +130,12 @@ public class FakePlayerRender {
         entity.prevDistanceWalkedModified = 1;
         entity.distanceWalkedModified = 0;
         
-        if (config.getAnimationSpeed() < 0.5) {
-            config.setAnimationSpeed(0.5F);
-        } else if (config.getAnimationSpeed() > 2) {
-            config.setAnimationSpeed(2);
-        }
-        
         // Simulate player movement
         if (config.isUsingAnimatedPlayer()) {
-            entity.prevLimbSwingAmount = entity.limbSwingAmount;
-            entity.limbSwingAmount = 0.25F * config.getAnimationSpeed();
-            entity.limbSwing += entity.limbSwingAmount * config.getAnimationSpeed();
+            // Use precomputed values.
+            entity.prevLimbSwingAmount = this.prevLimbSwingAmount;
+            entity.limbSwing = this.limbSwing;
+            entity.limbSwingAmount = this.limbSwingAmount;
         } else {
             entity.prevLimbSwingAmount = 0;
             entity.limbSwingAmount = 0;
@@ -149,13 +159,8 @@ public class FakePlayerRender {
         RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
     
         if (config.isUsingAnimatedCape()) {
-            float capeSwing = MathHelper.cos(entity.limbSwing * 0.662F) * 1.7F * (0.25F * config.getAnimationSpeed()) / 2;
-    
-            entity.chasingPosY = lerp(0, capeSwing, 0.5F);
-            entity.chasingPosY += 0.5;
-            entity.chasingPosY *= 3;
-            
-            entity.prevChasingPosY = entity.chasingPosY;
+            entity.prevChasingPosY = this.prevChasingPosY;
+            entity.chasingPosY = this.chasingPosY;
         } else {
             entity.prevChasingPosY = 0;
             entity.chasingPosY = 0;
@@ -188,6 +193,59 @@ public class FakePlayerRender {
         GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
         GlStateManager.disableTexture2D();
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+    }
+    
+    /**
+     * Values should be calculated on the client tick to copy the vanilla behaviour as exhibited
+     * in the vanilla {@link net.minecraft.client.entity.EntityOtherPlayerMP#onUpdate} method.
+     *
+     * Running these functions during render can be performance heavy and differs across
+     * frame rates, and similarly occurs at an unpredictable rate, which results in floating
+     * point inaccuracies (and a choppy render).
+     *
+     * This function will only call if the renderer has been told to compute, and will do so until
+     * `false` is passed through {@link #setShouldCompute(boolean)}. A minor performance increase.
+     *
+     * @param event the client tick event. Occurs 20 times per second.
+     */
+    @SubscribeEvent
+    public void onGameTick(TickEvent.ClientTickEvent event) {
+        if (!this.shouldCompute) return;
+        
+        ConfigurationHandler config = this.cosmeticFactory.getMod().getConfig();
+        
+        // Only precompute if the player has animated models enabled.
+        if (config.isUsingAnimatedPlayer()) {
+            // Use the speed stored in the config
+            float animationSpeed = config.getAnimationSpeed();
+    
+            if (animationSpeed > 0.8) {
+                animationSpeed = 0.8f;
+        
+                config.setAnimationSpeed(animationSpeed);
+            } else if (animationSpeed < 0.4) {
+                animationSpeed = 0.4f;
+        
+                config.setAnimationSpeed(animationSpeed);
+            }
+    
+            this.prevLimbSwingAmount = this.limbSwingAmount;
+            this.limbSwingAmount += (animationSpeed - this.limbSwingAmount);
+            this.limbSwing += this.limbSwingAmount * animationSpeed;
+        }
+        
+        // Only precompute if the user has animated capes enabled and the model actually has a cape.
+        if (config.isUsingAnimatedCape() && fakePlayer.getPlayerInfo().hasLocationCape()) {
+            this.internalIncrementalCounter += 0.1;
+            
+            float capeSwing = MathHelper.cos(this.internalIncrementalCounter * config.getAnimationSpeed()) / 2;
+    
+            this.chasingPosY = lerp(0, capeSwing, 0.5F);
+            this.chasingPosY += 0.75;
+            this.chasingPosY *= 2;
+    
+            this.prevChasingPosY = this.chasingPosY;
+        }
     }
     
     /**
@@ -303,7 +361,19 @@ public class FakePlayerRender {
         return (1 - alpha) * point1 + alpha * point2;
     }
     
+    public void setShouldCompute(boolean shouldCompute) {
+        this.shouldCompute = shouldCompute;
+    }
+    
     public CosmeticFactory getCosmeticFactory() {
         return this.cosmeticFactory;
+    }
+    
+    public static void setRotation(float rotation) {
+        FakePlayerRender.rotation = rotation;
+    }
+    
+    public static float getRotation() {
+        return rotation;
     }
 }

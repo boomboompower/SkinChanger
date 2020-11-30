@@ -23,9 +23,9 @@ import org.apache.logging.log4j.Logger;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.core.ClassTransformer;
+import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
-import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernLocaleButton;
 
@@ -108,16 +108,16 @@ public class ModOptionsMenu extends SkinChangerMenu {
                     button.updateValue(getYesOrNo(this.config.isUsingAnimatedCape()));
                 }).setDefaultValue(getYesOrNo(true)),
         
-                new ModernLocaleButton(0x78, 0, 0, 0, 20, "Animation Speed", ChatColor.AQUA.toString() + this.config.getAnimationSpeed(), button -> {
-                    float animationSpeed = this.config.getAnimationSpeed() + 0.25F;
+                new ModernLocaleButton(0x78, 0, 0, 0, 20, "Animation Speed", ChatColor.AQUA.toString() + Double.toString((this.config.getAnimationSpeed() * 10) / 4), button -> {
+                    float animationSpeed = (this.config.getAnimationSpeed() * 10) + 1F;
                     
-                    if (animationSpeed > 2) {
-                        animationSpeed = 0.5F;
+                    if (animationSpeed > 8) {
+                        animationSpeed = 4F;
                     }
                     
-                    this.config.setAnimationSpeed(animationSpeed);
+                    this.config.setAnimationSpeed(animationSpeed / 10);
             
-                    button.updateValue(ChatColor.AQUA.toString() + animationSpeed);
+                    button.updateValue(ChatColor.AQUA.toString() + (Double.toString(animationSpeed / 4)));
                 }).setDefaultValue(ChatColor.AQUA + "1.0"),
         
                 new ModernLocaleButton(0x81, 0, 0, 0, 20, "Animation Lighting", getYesOrNo(this.config.isUsingLighting()), button -> {
@@ -196,7 +196,7 @@ public class ModOptionsMenu extends SkinChangerMenu {
     
     @Override
     public void onRender(int mouseX, int mouseY, float partialTicks) {
-        drawRenderBox();
+        drawRenderBox(this.fontRendererObj, this.playerModelTranslation, this.width, this.height);
     }
     
     @Override
@@ -213,6 +213,8 @@ public class ModOptionsMenu extends SkinChangerMenu {
     
     @Override
     public void onGuiClose() {
+        super.onGuiClose();
+        
         if (this.saveMixinConfig) {
             this.logger.debug("Saving ASM config.");
             

@@ -15,8 +15,9 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.gui;
+package wtf.boomy.mods.skinchanger.utils.gui.faces;
 
+import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernHeader;
 
 /**

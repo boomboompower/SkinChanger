@@ -31,9 +31,11 @@ import org.lwjgl.input.Mouse;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.ModernUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.UISkeleton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernTextBox;
-import wtf.boomy.mods.skinchanger.utils.gui.lock.UILock;
 
 import java.awt.Color;
 import java.util.Collections;

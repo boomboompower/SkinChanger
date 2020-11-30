@@ -19,9 +19,9 @@ package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
 import java.awt.*;
 
-import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
-import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.StartEndUIElement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;

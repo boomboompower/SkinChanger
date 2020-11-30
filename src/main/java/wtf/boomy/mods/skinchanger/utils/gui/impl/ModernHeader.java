@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
-import wtf.boomy.mods.skinchanger.utils.gui.ModernUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.ModernUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
-import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.StartEndUIElement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -397,8 +397,6 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
                 ((ModernTextBox) element).setEnabled(enabled);
             } else if (element instanceof ModernSlider) {
                 ((ModernSlider) element).setEnabled(enabled);
-            } else if (element instanceof ModernCheckbox) {
-                ((ModernCheckbox) element).setEnabled(enabled);
             }
         }
     }

@@ -17,19 +17,21 @@
 
 package wtf.boomy.mods.skinchanger.gui;
 
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
+import wtf.boomy.mods.skinchanger.cosmetic.options.ReflectionOptions;
 import wtf.boomy.mods.skinchanger.gui.additional.ModOptionsMenu;
 import wtf.boomy.mods.skinchanger.gui.additional.PlayerSelectMenu;
+import wtf.boomy.mods.skinchanger.gui.additional.SkinCopyMenu;
 import wtf.boomy.mods.skinchanger.language.Language;
-import wtf.boomy.mods.skinchanger.cosmetic.options.ReflectionOptions;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.PlayerModelUI;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
+import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButtonHead;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernHeader;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernLocaleButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernSlider;
@@ -42,13 +44,12 @@ import java.awt.Color;
  * @since 3.0.0
  */
 @SuppressWarnings("CodeBlock2Expr")
-public class SkinChangerMenu extends ModernGui {
+public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
     
     private final ReflectionOptions reflectionOptions = new ReflectionOptions();
     
-    protected static float rotation = 0;
-    
     private ModOptionsMenu optionsMenu;
+    private SkinCopyMenu skinCopyMenu;
     
     private PlayerSelectMenu selectionMenu;
     
@@ -85,6 +86,7 @@ public class SkinChangerMenu extends ModernGui {
         
         this.playerModelTranslation = Language.format("skinchanger.options.title");
         this.fakePlayer = this.mod.getCosmeticFactory().getFakePlayerRender();
+        this.fakePlayer.setShouldCompute(true);
         
         float bottomPosBox = this.height - 20;
         
@@ -153,16 +155,16 @@ public class SkinChangerMenu extends ModernGui {
         float sliderXPos = ((leftPosBox + rightPosBox) / 2) - sliderWidth / 2;
         float sliderYPos = bottomPosBox - sliderHeight;
         
-        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.options.rotation") + " ", "\u00B0", 0.0F, 360.0F, rotation) {
+        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.options.rotation") + " ", "\u00B0", 0.0F, 360.0F, FakePlayerRender.getRotation()) {
             @Override
             public void onSliderUpdate() {
-                rotation = (float) getValue();
+                FakePlayerRender.setRotation((float) getValue());
             }
         };
         
         registerElement(slider.disableTranslatable());
     
-        ModernButton modPauseButton = new ModernButton(101, (int) leftPosBox - 20, 20, 25, 25, this.mod.getConfig().isUsingAnimatedPlayer() ? "\u2713" : "\u2717", buttonPressed -> {
+        ModernButton modPauseButton = new ModernButton(101, (int) leftPosBox - 20, 20, 26, 26, this.mod.getConfig().isUsingAnimatedPlayer() ? "\u2713" : "\u2717", buttonPressed -> {
             this.mod.getConfig().setUsingAnimatedPlayer(!this.mod.getConfig().isUsingAnimatedPlayer());
     
             buttonPressed.setText(this.mod.getConfig().isUsingAnimatedPlayer() ? "\u2713" : "\u2717");
@@ -173,7 +175,7 @@ public class SkinChangerMenu extends ModernGui {
             modPauseButton.setEnabled(false);
         }
         
-        ModernButton modSettingsButton = new ModernButton(102, this.width - 20 - 25, 20, 25, 25, "\u2699", mouseButton -> {
+        ModernButton modSettingsButton = new ModernButton(102, this.width - 46, 20, 26, 26, "\u2699", mouseButton -> {
             if (this.m_optionsButton != null && this.m_optionsButton.getText().equalsIgnoreCase("\u2190")) {
                 this.instance.display();
         
@@ -222,8 +224,8 @@ public class SkinChangerMenu extends ModernGui {
             this.fakePlayer.setSkinLocation(this.reflectionOptions.getOriginalSkin());
             this.fakePlayer.setSkinType(this.reflectionOptions.getOriginalSkinType());
         }));
-        
-        // ----------------------------------
+    
+        // ------------------------------------------
         
         int capeSettingY = this.height / 2;
         
@@ -262,23 +264,24 @@ public class SkinChangerMenu extends ModernGui {
             capeSettings.setButtonWidth(doubleWidth);
         }
         
+        // ------------------------------------------
+    
+        ModernButton stealButton = new ModernButtonHead(104, this.width - 46, 50, 26, 26, this.fakePlayer.getFakePlayer(), mouseButton -> {
+            getSkinCopyMenu().display();
+        });
+    
+        // ------------------------------------------
+        
         registerElement(skinSettings);
         registerElement(capeSettings);
+        registerElement(stealButton);
     }
     
     @Override
     public void preRender(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
         
-        int halfWidth = this.width / 2 + 20;
-        
-        int scale = (int) ((1.5 * this.width) / 10);
-    
-        GlStateManager.pushMatrix();
-        
-        this.fakePlayer.renderFakePlayer((halfWidth + (this.width - 20)) / 2, this.height - 10 - scale, scale, partialTicks, rotation);
-        
-        GlStateManager.popMatrix();
+        renderFakePlayer(this.width, this.height, partialTicks, this.fakePlayer);
     }
     
     @Override
@@ -299,7 +302,7 @@ public class SkinChangerMenu extends ModernGui {
     
         GlStateManager.popMatrix();
     
-        drawRenderBox();
+        drawRenderBox(this.fontRendererObj, this.playerModelTranslation, this.width, this.height);
     }
     
     @Override
@@ -310,7 +313,7 @@ public class SkinChangerMenu extends ModernGui {
     public void buttonPressed(ModernButton button) {
         int id = button.getId();
     
-        for (PlayerSelectMenu.StringSelectionType selectionType : PlayerSelectMenu.StringSelectionType.values()) {
+        for (StringSelectionType selectionType : StringSelectionType.values()) {
             if (selectionType.getButtonID() == id) {
                 if (this.selectionMenu == null) {
                     this.selectionMenu = new PlayerSelectMenu(this, selectionType);
@@ -323,18 +326,10 @@ public class SkinChangerMenu extends ModernGui {
         }
     }
     
-    /**
-     * Draws the background for the render box
-     */
-    protected final void drawRenderBox() {
-        GlStateManager.pushMatrix();
-    
-        // 20 pixel margin.
-        Gui.drawRect(this.width / 2 + 20, 20, this.width - 20, this.height - 20, this.transparentWhite);
-    
-        drawCenteredString(this.fontRendererObj, this.playerModelTranslation, ((this.width / 2 + 20) + (this.width - 20)) / 2, 30, Color.WHITE.getRGB());
-    
-        GlStateManager.popMatrix();
+    @Override
+    public void onGuiClose() {
+        // Tell the fake player to stop working out animations in the background
+        this.fakePlayer.setShouldCompute(false);
     }
     
     /**
@@ -372,6 +367,19 @@ public class SkinChangerMenu extends ModernGui {
         }
         
         return this.optionsMenu;
+    }
+    
+    /**
+     * Returns the cached instance of the skin stealer menu
+     *
+     * @return the cached skin stealer menu
+     */
+    public SkinCopyMenu getSkinCopyMenu() {
+        if (this.skinCopyMenu == null) {
+            this.skinCopyMenu = new SkinCopyMenu(this);
+        }
+        
+        return this.skinCopyMenu;
     }
     
     /**

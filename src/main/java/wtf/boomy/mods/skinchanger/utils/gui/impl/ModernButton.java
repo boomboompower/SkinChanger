@@ -18,9 +18,9 @@
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
 import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
-import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
-import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.StartEndUIElement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -58,6 +58,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
     private Color enabledColor = null;
     private Color disabledColor = null;
+    private Color hoverColor = null;
     
     private final SimpleCallback<? extends ModernButton> clickCallback;
     private List<String> messageLines = null;
@@ -184,7 +185,9 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
             xPosition += this.parentHeader.getX();
         }
         
-        yPosition += yTranslation;
+        if (isTranslatable()) {
+            yPosition += yTranslation;
+        }
         
         return mouseX >= xPosition && mouseX < xPosition + this.width &&
                 mouseY >= yPosition && mouseY < yPosition + this.height;
@@ -201,6 +204,12 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     public InteractiveUIElement disableTranslatable() {
         this.translatable = false;
 
+        return this;
+    }
+    
+    public InteractiveUIElement enableTranslatable() {
+        this.translatable = true;
+        
         return this;
     }
     
@@ -223,7 +232,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     }
     
     public Color getEnabledColor() {
-        return this.enabledColor == null ? new Color(255, 255, 255, 75) : this.enabledColor;
+        return this.enabledColor == null ? (this.enabledColor = new Color(255, 255, 255, 75)) : this.enabledColor;
     }
     
     public ModernButton setEnabledColor(Color colorIn) {
@@ -233,12 +242,22 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     }
     
     public Color getDisabledColor() {
-        return this.disabledColor == null ? new Color(100, 100, 100, 75) : this.disabledColor;
+        return this.disabledColor == null ? (this.disabledColor = new Color(100, 100, 100, 75)) : this.disabledColor;
     }
     
     public ModernButton setDisabledColor(Color colorIn) {
         this.disabledColor = colorIn;
 
+        return this;
+    }
+    
+    public Color getTextHoverColor() {
+        return this.hoverColor == null ? (this.hoverColor = new Color(255, 255, 160)) : this.hoverColor;
+    }
+    
+    public ModernButton setTextHoverColor(Color colorIn) {
+        this.hoverColor = colorIn;
+        
         return this;
     }
     
@@ -290,11 +309,11 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
      * @param yPosition the y position of the button
      * @param textColor the color of the text
      */
-    private void renderButtonString(FontRenderer fontrenderer, int xPosition, int yPosition, int textColor) {
+    protected void renderButtonString(FontRenderer fontrenderer, int xPosition, int yPosition, int textColor) {
         if (!this.enabled) {
             textColor = 10526880;
         } else if (this.hovered) {
-            textColor = 16777120;
+            textColor = getTextHoverColor().getRGB();
         }
 
         fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + ((float) this.height - 8) / 2, textColor, false);

@@ -23,9 +23,9 @@ import java.awt.Color;
 import java.util.List;
 
 import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
-import wtf.boomy.mods.skinchanger.utils.gui.InteractiveUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
-import wtf.boomy.mods.skinchanger.utils.gui.StartEndUIElement;
+import wtf.boomy.mods.skinchanger.utils.gui.faces.StartEndUIElement;
 
 /**
  * A class which handles scrolling.

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package wtf.boomy.mods.skinchanger.utils.gui.lock;
+package wtf.boomy.mods.skinchanger.utils.gui;
 
 import java.awt.Color;
 import java.io.IOException;

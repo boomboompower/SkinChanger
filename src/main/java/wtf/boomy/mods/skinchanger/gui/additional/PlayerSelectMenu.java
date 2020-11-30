@@ -20,20 +20,21 @@ package wtf.boomy.mods.skinchanger.gui.additional;
 import net.minecraft.client.Minecraft;
 
 import org.apache.commons.codec.digest.DigestUtils;
+
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.api.SkinAPIType;
+import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
+import wtf.boomy.mods.skinchanger.gui.StringSelectionType;
+import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
-import wtf.boomy.mods.skinchanger.utils.ChatColor;
-import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernTextBox;
 
 import java.awt.Color;
 import java.util.Objects;
-import java.util.UUID;
 
 public class PlayerSelectMenu extends SkinChangerMenu {
     
@@ -51,7 +52,6 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     private String lastErrorMessage = null;
     private String errorMessage = "";
     
-    private ModernButton loadButton;
     private ModernButton skinTypeButton;
     private ModernTextBox textBox;
     
@@ -92,26 +92,26 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         this.textBox = entryBox;
         
         yLocation += boxHeight + 4;
+    
+        ModernButton loadButton = new ModernButton(500, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Load", this::onLoadClicked);
         
-        this.loadButton = new ModernButton(500, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Load");
-        
-        yLocation += this.loadButton.getHeight() + 20;
+        yLocation += loadButton.getHeight() + 20;
         
         if (this.selectionType.isTypeOfSkin()) {
-            ModernButton type = new ModernButton(505, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Type: " + ChatColor.AQUA + this.fakePlayerRender.getSkinType().getDisplayName());
+            ModernButton type = new ModernButton(505, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Type: " + ChatColor.AQUA + this.fakePlayerRender.getSkinType().getDisplayName(), this::onTypeClicked);
     
             type.setEnabled(this.mod.getStorage().isSkinTypePatchApplied());
             
-            yLocation += this.loadButton.getHeight() + 4;
+            yLocation += loadButton.getHeight() + 4;
     
             registerElement(type);
             
             this.skinTypeButton = type;
         }
     
-        ModernButton confirm = new ModernButton(506, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Confirm");
+        ModernButton confirm = new ModernButton(506, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Confirm", button -> this.skinChangerMenu.display());
     
-        registerElement(this.loadButton);
+        registerElement(loadButton);
         registerElement(confirm);
     }
     
@@ -138,36 +138,29 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     
     @Override
     public void buttonPressed(ModernButton button) {
-        // Already doing an operation. Just do nothing
-//        if (loading) {
-//            System.out.println("Operation suppressed");
-//
-//            return;
-//        }
-    
-        if (button.getId() == 55 || button.getId() == 506) {
+        if (button.getId() == 55) {
             this.skinChangerMenu.display();
-            
-//            onButtonPressedExtra(this.loadButton);
-        } else if (button.getId() == 505) {
-            PlayerSkinType nextType = this.fakePlayerRender.getSkinType().getNextSkin();
-        
-            this.fakePlayerRender.setRawSkinType(nextType);
-        
-            button.setText("Type: " + ChatColor.AQUA + nextType.getDisplayName());
-            
-            return;
         }
+    }
+    
+    private void onTypeClicked(ModernButton button) {
+        PlayerSkinType nextType = this.fakePlayerRender.getSkinType().getNextSkin();
         
+        this.fakePlayerRender.setRawSkinType(nextType);
+        
+        button.setText("Type: " + ChatColor.AQUA + nextType.getDisplayName());
+    }
+    
+    private void onLoadClicked(ModernButton button) {
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
             this.threadFactory.runAsync(() -> {
                 loading = true;
     
-                buttonPressed(button);
-                
+                onLoadClicked(button);
+            
                 loading = false;
             });
-            
+        
             return;
         }
         
@@ -175,27 +168,27 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         if (this.textBox == null) {
             return;
         }
-        
+    
         String enteredText = this.textBox.getText().trim();
-        
+    
         if (enteredText.isEmpty()) {
             return;
         }
-        
+    
         if (!this.selectionType.isValid(enteredText)) {
             String errorText = "";
-            
+        
             if (this.selectionType.isTypeOfUrl()) {
                 this.errorMessage = "The entered value did not start with https:// or http://";
             } else if (this.selectionType.isTypeOfUsername()) {
                 this.errorMessage = "The entered value was larger than valid username's";
             }
-            
+        
             this.errorMessage = errorText;
-            
+        
             return;
         }
-        
+    
         if (button.getId() == 500) {
             handleSelectionPress(enteredText);
         }
@@ -281,123 +274,5 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         this.selectionType = type;
         
         display();
-    }
-    
-    /**
-     * Tells this class which variant of itself it should use
-     */
-    public enum StringSelectionType {
-        P_USERNAME("Enter the username of the player.", 12, CacheRetriever.CacheType.SKIN),
-        C_USERNAME("Enter the username of the player.", 17, CacheRetriever.CacheType.CAPE),
-        
-        P_URL("Enter the URL of the skin. (https://....)", 14, CacheRetriever.CacheType.SKIN),
-        C_URL("Enter the URL of the cape. (https://....)", 19, CacheRetriever.CacheType.CAPE),
-        
-        P_UUID("Enter the UUID of the player. (ABCD-EFGH-...)", 13, CacheRetriever.CacheType.SKIN),
-        C_UUID("Enter the UUID of the player. (ABCD-EFGH-...)", 18, CacheRetriever.CacheType.CAPE);
-    
-        private final CacheRetriever.CacheType cacheType;
-        private final String displaySentence;
-        private final int buttonID;
-        
-        
-        // If a UUID has been generated we should store
-        // it so we don't have to parse it twice
-        private UUID storedUUID;
-        
-        StringSelectionType(String displaySentence, int buttonID, CacheRetriever.CacheType cacheType) {
-            this.displaySentence = displaySentence;
-            
-            this.buttonID = buttonID;
-            this.cacheType = cacheType;
-        }
-    
-        public int getButtonID() {
-            return this.buttonID;
-        }
-    
-        public CacheRetriever.CacheType getCacheType() {
-            return this.cacheType;
-        }
-    
-        /**
-         * Checks the entered string to see if it complies with this Selection's rules.
-         *
-         * @param input the input string to validate
-         *
-         * @return true if the string follows the specifications
-         */
-        public boolean isValid(String input) {
-            if (input == null || input.isEmpty()) {
-                return false;
-            }
-            
-            if (isTypeOfUsername()) {
-                return input.length() > 2 && input.length() < 16;
-            }
-            
-            if (isTypeOfUrl()) {
-                // In order of preference
-                return input.startsWith("https://") || input.startsWith("http://") || input.startsWith("www.");
-            }
-            
-            if (isTypeOfUUID()) {
-                // Tiny performance increase
-                this.storedUUID = SkinChangerMod.getInstance().getConfig().getSkinAPIType().getAPI().getUUIDFromStrippedString(input);
-                
-                return this.storedUUID != null;
-            }
-            
-            return false;
-        }
-        
-        /**
-         * Is this enum a type of URL?
-         *
-         * @return true if the enum is of type URL
-         */
-        public boolean isTypeOfUrl() {
-            return this == P_URL || this == C_URL;
-        }
-        
-        /**
-         * Is this enum a type of username?
-         *
-         * @return true if the enum is of type username
-         */
-        public boolean isTypeOfUsername() {
-            return this == P_USERNAME || this == C_USERNAME;
-        }
-        
-        /**
-         * Is this enum a type of UUID?
-         *
-         * @return true if the enum is of type UUID
-         */
-        public boolean isTypeOfUUID() {
-            return this == P_UUID || this == C_UUID;
-        }
-    
-        /**
-         * Is this enum for a skin?
-         *
-         * @return true if the selection is related to skins
-         */
-        public boolean isTypeOfSkin() {
-            return this == P_USERNAME || this == P_UUID || this == P_URL;
-        }
-        
-        /**
-         * If a UUID has been generated we should store it so we don't have to parse it twice
-         *
-         * @return the stored uuid.
-         */
-        public UUID getStoredUUID() {
-            return this.storedUUID;
-        }
-        
-        public String getDisplaySentence() {
-            return this.displaySentence;
-        }
     }
 }

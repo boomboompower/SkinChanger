@@ -78,6 +78,10 @@ public class FakePlayerInfo extends NetworkPlayerInfo {
         this.locationSkin = locationSkin;
     }
     
+    public boolean hasLocationCape() {
+        return this.locationCape != null;
+    }
+    
     @Override
     public ResourceLocation getLocationCape() {
         return this.locationCape;
