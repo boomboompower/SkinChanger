@@ -27,8 +27,12 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Process commit information
+      - name: Commit message
+        id: com-mess
+        env: 
+          GITHUB_CONTEXT: ${{ toJson(github) }} 
         run: |
+           echo ::set-output name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
            echo "${{ github.run_number }}" > ./src/main/resources/GHCI.txt
 
         # Required so gradlew can build the JAR file
@@ -49,6 +53,12 @@ jobs:
         # Uses ForgeGradle to build the jar
       - name: Build with Gradle
         run: ./gradlew build
+      
+      - name: Calculate Hashes
+        id: hashes
+        run: |
+          echo ::set-output name=program_hash::$(sha256sum ./build/libs/SkinChangerMod.jar | cut -d ' ' -f 1)
+          echo ::set-output name=source_hash::$(sha256sum ./build/libs/SkinChangerMod-sources.jar | cut -d ' ' -f 1)
 
       # Upload the main mod to the releases tab
       - name: Create Release
@@ -58,10 +68,6 @@ jobs:
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_CONTEXT: ${{ toJson(github) }} 
-          COMMIT_MESSAGE: ${{ git log --format=%B -n 1 ${{ github.event.after }}) }}
-          PROGRAM_HASH: ${{ sha256sum ./build/libs/SkinChangerMod.jar | cut -d ' ' -f 1) }}  
-          SOURCE_HASH: ${{ sha256sum ./build/libs/SkinChangerMod-sources.jar | cut -d ' ' -f 1) }} 
         with:
           tag_name: ${{ github.run_number }}
           release_name: Beta Release ${{ github.run_number }}
@@ -70,7 +76,7 @@ jobs:
             > Huh, nothing here?
             
             ```
-            ${{ env.COMMIT_MESSAGE }}
+            ${{ steps.com-mess.outputs.commitmsg }}
             ```
             
             **Next up**
@@ -79,8 +85,8 @@ jobs:
             
             **Hashes**
             > Don't install untrusted files
-            SkinChangerMod: ${{ env.PROGRAM_HASH }}
-            SkinChangerMod-sources: ${{ env.SOURCE_HASH }}
+            SkinChangerMod: ${{ steps.hashes.outputs.program_hash }}
+            SkinChangerMod-sources: ${{ steps.hashes.outputs.source_hash }}
             
             Automagically generated with lots of ❤
           draft: false
