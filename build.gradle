@@ -130,14 +130,13 @@ sourceSets {
     //noinspection GroovyAssignabilityCheck
     main {
         // Hidden dev environment variables and credentials
-        // Not for public consumption.
         java {
             exclude '**/priv'
         }
     }
 }
 
-// Makes the "compile" configuration extend from the compile
+// Makes the "compile" configuration extend from the provided
 // configuration (this makes it inherit similar build properties)
 configurations {
     provided
