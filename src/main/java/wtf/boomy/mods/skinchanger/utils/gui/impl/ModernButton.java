@@ -17,6 +17,8 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
+import wtf.boomy.mods.skinchanger.SkinChangerMod;
+import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
@@ -40,8 +42,11 @@ import java.util.List;
  * @since 3.0.0
  */
 public class ModernButton implements InteractiveUIElement, StartEndUIElement {
-
+    
+    private static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
+    
     private final int id;
+    protected final ConfigurationHandler handler;
 
     private int width;
     private int height;
@@ -70,19 +75,12 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
     private boolean translatable;
 
-    public ModernButton(int buttonId, int x, int y, String buttonText) {
-        this(buttonId, x, y, 200, 20, buttonText);
-    }
-
-    public ModernButton(int buttonId, String idName, int x, int y, String buttonText) {
-        this(buttonId, x, y, 200, 20, buttonText);
-    }
-
     public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
         this(buttonId, x, y, widthIn, heightIn, buttonText, null);
     }
     
     public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, SimpleCallback<? extends ModernButton> clicked) {
+        this.handler = SkinChangerMod.getInstance().getConfig();
         this.width = 200;
         this.height = 20;
         this.enabled = true;
@@ -121,10 +119,10 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
             int textColor = 14737632;
 
-            if (this.enabled) {
-                ModernGui.drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getEnabledColor().getRGB());
+            if (this.handler.isOldButtons()) {
+                drawOldBackground(xPosition, yPosition);
             } else {
-                ModernGui.drawRect(xPosition, yPosition, xPosition + this.width, yPosition + this.height, getDisabledColor().getRGB());
+                drawNewBackground(xPosition, yPosition, this.enabled ? getEnabledColor().getRGB() : getDisabledColor().getRGB());
             }
 
             renderButtonString(fontrenderer, xPosition, yPosition, textColor);
@@ -148,11 +146,11 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
             int i = this.getHoverState(this.hovered);
 
             int j = 14737632;
-
-            if (this.enabled) {
-                ModernGui.drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getEnabledColor().getRGB());
+    
+            if (this.handler.isOldButtons()) {
+                drawOldBackground(xPosition, yPosition);
             } else {
-                ModernGui.drawRect(xPosition, yPosition, xPosition + this.width, yPosition + height, getDisabledColor().getRGB());
+                drawNewBackground(xPosition, yPosition, this.enabled ? getEnabledColor().getRGB() : getDisabledColor().getRGB());
             }
 
             renderButtonString(fontrenderer, xPosition, yPosition, j);
@@ -170,7 +168,6 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         }
     }
     
-    // A dumb hack because Java is stupid
     @Override
     public boolean isInside(int mouseX, int mouseY, float yTranslation) {
         if (!this.visible) {
@@ -235,30 +232,12 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         return this.enabledColor == null ? (this.enabledColor = new Color(255, 255, 255, 75)) : this.enabledColor;
     }
     
-    public ModernButton setEnabledColor(Color colorIn) {
-        this.enabledColor = colorIn;
-
-        return this;
-    }
-    
     public Color getDisabledColor() {
         return this.disabledColor == null ? (this.disabledColor = new Color(100, 100, 100, 75)) : this.disabledColor;
     }
     
-    public ModernButton setDisabledColor(Color colorIn) {
-        this.disabledColor = colorIn;
-
-        return this;
-    }
-    
     public Color getTextHoverColor() {
         return this.hoverColor == null ? (this.hoverColor = new Color(255, 255, 160)) : this.hoverColor;
-    }
-    
-    public ModernButton setTextHoverColor(Color colorIn) {
-        this.hoverColor = colorIn;
-        
-        return this;
     }
     
     public String getText() {
@@ -316,7 +295,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
             textColor = getTextHoverColor().getRGB();
         }
 
-        fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - (float) fontrenderer.getStringWidth(this.displayString) / 2), yPosition + ((float) this.height - 8) / 2, textColor, false);
+        fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - fontrenderer.getStringWidth(this.displayString) / 2.0f), yPosition + ((float) this.height - 8) / 2, textColor, false);
     }
     
     public int getId() {
@@ -338,20 +317,8 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         return enabled;
     }
     
-    public boolean isVisible() {
-        return visible;
-    }
-    
     public boolean isHovered() {
         return hovered;
-    }
-    
-    public String getDisplayString() {
-        return displayString;
-    }
-    
-    public boolean isPartOfHeader() {
-        return partOfHeader;
     }
     
     @Override
@@ -361,5 +328,42 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     
     private <T extends ModernButton> T getMe() {
         return (T) this;
+    }
+    
+    private void drawNewBackground(int startX, int startY, int color) {
+        ModernGui.drawRect(startX, startY, startX + this.width, startY + this.height, color);
+    }
+    
+    private void drawOldBackground(int startX, int startY) {
+        Minecraft minecraft = Minecraft.getMinecraft();
+        minecraft.getTextureManager().bindTexture(buttonTextures);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        
+        int hoverState = this.getHoverState(this.hovered);
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.blendFunc(770, 771);
+        
+        // Pre-compute.
+        float halfWidth = this.width / 2.0f;
+        float halfHeight = this.height / 2.0f;
+    
+        // Dimensions of the button are 200 x 20
+        // The last 4 pixels on the bottom should be used
+    
+        // Starting Y of texture is 66
+        // Starting X of texture is 0
+    
+        // Ending Y is 88
+        // Ending X is 199
+        
+        // This renders a scalable button texture
+        // By default the game scales horizontally by splitting the texture on the y axis,
+        // however this can be also done vertically by splitting on the x axis, allowing buttons
+        // of any width and height to be rendered without the screen.
+        ModernGui.drawTexturedModalRect(startX, startY + halfHeight, 0, 66 - halfHeight + (hoverState * 20), halfWidth, halfHeight);
+        ModernGui.drawTexturedModalRect(startX + halfWidth, startY + halfHeight, 200 - halfWidth, 66 - halfHeight + (hoverState * 20), halfWidth, halfHeight);
+        ModernGui.drawTexturedModalRect(startX, startY, 0, 46 + hoverState * 20, halfWidth, halfHeight);
+        ModernGui.drawTexturedModalRect(startX + halfWidth, startY, 200 - halfWidth, 46 + hoverState * 20, halfWidth, halfHeight);
     }
 }

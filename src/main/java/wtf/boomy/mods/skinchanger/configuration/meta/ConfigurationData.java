@@ -35,25 +35,6 @@ public class ConfigurationData {
     /**
      * Constructor for a serializable field
      *
-     * @param fieldIn the field to load data from
-     */
-    public ConfigurationData(Field fieldIn) {
-        this(fieldIn, fieldIn.getName(), true);
-    }
-    
-    /**
-     * Constructor for a serializable field
-     *
-     * @param fieldIn  the field to load data from
-     * @param saveName the name of the field as it appears in the json
-     */
-    public ConfigurationData(Field fieldIn, String saveName) {
-        this(fieldIn, saveName, true);
-    }
-    
-    /**
-     * Constructor for a serializable field
-     *
      * @param fieldIn         the field to load data from
      * @param saveName        the name of the field as it appears in the json
      * @param overwriteOnLoad true if the data of the field should be overwritten as soon as it is loaded.

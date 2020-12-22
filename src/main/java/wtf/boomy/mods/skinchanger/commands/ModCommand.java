@@ -57,7 +57,6 @@ public abstract class ModCommand extends CommandBase {
      * @return the message to send this player if {@link net.minecraft.command.WrongUsageException} is
      * thrown
      */
-    @Override
     public String getCommandUsage(ICommandSender sender) {
         return ChatColor.RED + "Usage: /" + getCommandName();
     }
@@ -68,7 +67,6 @@ public abstract class ModCommand extends CommandBase {
      *
      * @return a never-null list of command aliases.
      */
-    @Override
     public final List<String> getCommandAliases() {
         List<String> aliases = getAliases();
         
@@ -120,19 +118,6 @@ public abstract class ModCommand extends CommandBase {
     }
     
     /**
-     * Used in newer versions of the game.
-     *
-     * @param server the minecraft server instance
-     * @param sender the sender of the command
-     * @param args the arguments of the command
-     * @throws CommandException a required throws
-     */
-    public void func_184881_a(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-        processCommand(sender, args);
-    }
-    
-    
-    /**
      * A safer way to execute a command. Errors which occur here will not cause the game to crash.
      *
      * @param sender the sender of the command
@@ -155,7 +140,6 @@ public abstract class ModCommand extends CommandBase {
      *
      * @return true if the sender can use this command.
      */
-    @Override
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
         return true;
     }
@@ -232,5 +216,28 @@ public abstract class ModCommand extends CommandBase {
     protected void sendBrandedMessage(String message) {
         Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(
                 ChatColor.AQUA + "SkinChanger" + ChatColor.GOLD + " > " + ChatColor.GRAY + message));
+    }
+    
+    /// ----------------------------------- Compatibility --------------------------------
+    
+    // For 1.12.2 functionality
+    public final String getName() {
+        return getCommandName();
+    }
+    
+    public final String getUsage(ICommandSender sender) {
+        return getCommandUsage(sender);
+    }
+    
+    public final void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+        processCommand(sender, args);
+    }
+    
+    public final boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+        return true;
+    }
+    
+    public final int getRequiredPermissionLevel() {
+        return 0;
     }
 }

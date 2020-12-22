@@ -21,6 +21,9 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
@@ -28,11 +31,14 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import wtf.boomy.apagoge.ApagogeHandler;
 import wtf.boomy.mods.skinchanger.commands.impl.SkinCommand;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
 import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
+import wtf.boomy.mods.skinchanger.language.Language;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 
@@ -61,13 +67,16 @@ public class SkinChangerMod {
     
     private File modConfigDirectory;
     
-    private final SkinChangerStorage skinChangerStorage;
+    private final SkinChangerStorage skinChangerStorage = new SkinChangerStorage(this);
+    private final Logger logger = LogManager.getLogger("SkinChanger - Core");
     private final ApagogeHandler apagogeHandler;
     
-    // When forge creates a new instance of this class we need
-    // to also build the storage component of the mod.
+    /**
+     * A basic constructor for the mod.
+     *
+     * @throws URISyntaxException an exception thrown when Java is unable to locate the code source.
+     */
     public SkinChangerMod() throws URISyntaxException {
-        this.skinChangerStorage = new SkinChangerStorage(this);
         this.apagogeHandler = new ApagogeHandler(new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI()), "SkinChanger", SkinChangerMod.VERSION);
     }
     
@@ -94,14 +103,15 @@ public class SkinChangerMod {
                 SkinCommand.class,
                 CacheRetriever.class,
                 ConfigurationHandler.class,
-                CosmeticFactory.class
+                CosmeticFactory.class,
+                Language.class
         );
         
         this.apagogeHandler.addCompletionListener((handler, success) -> {
             if (!success) {
-                System.err.println("Apagoge failed.");
+                this.logger.error("Apagoge failed.");
             } else {
-                System.err.println("Apagoge succeeded");
+                this.logger.trace("Apagoge succeeded");
             }
         });
         
@@ -114,16 +124,53 @@ public class SkinChangerMod {
         
         this.cosmeticFactory = new CosmeticFactory(this);
         
+        // Load the translation system!
+        Language.loadTranslations();
+        
         // This forces our patches to be done as the game loads
         new NetworkPlayerInfo((GameProfile) null);
     }
     
     @Mod.EventHandler
     public void onSignatureViolation(FMLFingerprintViolationEvent event) {
-        System.err.println("Signature violation detected. Killing updater.");
+        this.logger.warn("Signature violation detected. SkinChanger is NOT running an official release.");
+        this.logger.warn("This may be a sign the mod has been modified, or a dev build is being ran");
+        this.logger.warn("The only official place to get SkinChanger safely is from https://mods.boomy.wtf/");
+        this.logger.warn("or from the github page located at https://github.com/boomboompower/SkinChanger/");
         
-        // Deletes updater & all data under it
+        // Requests the updater to destroy itself.
+        // Depending on the implementation this can be ignored.
         this.apagogeHandler.requestKill();
+    }
+    
+    /**
+     * Version independent event registering. 1.7 does not
+     * use the same event bus as 1.8 and above.
+     *
+     * @param target the object to register events under.
+     */
+    public void registerEvents(Object target) {
+        // noinspection ConstantConditions
+        if (ForgeVersion.mcVersion.startsWith("1.7")) {
+            FMLCommonHandler.instance().bus().register(target);
+        } else {
+            MinecraftForge.EVENT_BUS.register(target);
+        }
+    }
+    
+    /**
+     * Version independent event registering. 1.7 does not
+     * use the same event bus as 1.8 and above.
+     *
+     * @param target the object to deregister events under.
+     */
+    public void unregisterEvents(Object target) {
+        // noinspection ConstantConditions
+        if (ForgeVersion.mcVersion.startsWith("1.7")) {
+            FMLCommonHandler.instance().bus().unregister(target);
+        } else {
+            MinecraftForge.EVENT_BUS.unregister(target);
+        }
     }
     
     /**

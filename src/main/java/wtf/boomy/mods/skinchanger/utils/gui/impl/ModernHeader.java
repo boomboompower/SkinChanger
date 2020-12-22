@@ -42,18 +42,16 @@ import net.minecraft.client.renderer.GlStateManager;
 public class ModernHeader extends Gui implements InteractiveUIElement {
     
     private int x;
-    
     private int y;
     
     private final String headerText;
     
-    private float scaleSize;
+    private final float scaleSize;
     
-    private boolean drawUnderline;
-    private boolean visible = true;
-    private boolean drawCentered = false;
+    private final boolean drawUnderline;
+    private final boolean visible = true;
     
-    private Color headerColor;
+    private final Color headerColor;
     
     private final List<ModernUIElement> children;
     
@@ -66,58 +64,6 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
     private int widthOfSub;
     private int heightOfSub;
     private int furthestSubX;
-    
-    /**
-     * Basic constructor for UI headers. Scale size is 1.5 of normal text. Draws an underline.
-     *
-     * @param gui    the parent of this header
-     * @param x      the x location of the header
-     * @param y      the y location of the header
-     * @param header the text which will be rendered
-     */
-    public ModernHeader(ModernGui gui, int x, int y, String header) {
-        this(gui, x, y, header, 1.5F, true);
-    }
-    
-    /**
-     * Basic constructor for UI headers. Draws an underline.
-     *
-     * @param gui       the parent of this header
-     * @param x         the x location of the header
-     * @param y         the y location of the header
-     * @param header    the text which will be rendered
-     * @param scaleSize the scale of the text. (scale greater than 1 means bigger)
-     */
-    public ModernHeader(ModernGui gui, int x, int y, String header, float scaleSize) {
-        this(gui, x, y, header, scaleSize, true);
-    }
-    
-    /**
-     * Basic constructor for UI headers. Draws an underline.
-     *
-     * @param gui       the parent of this header
-     * @param x         the x location of the header
-     * @param y         the y location of the header
-     * @param header    the text which will be rendered
-     * @param scaleSize the scale of the text. (scale greater than 1 means bigger)
-     */
-    public ModernHeader(ModernGui gui, int x, int y, String header, int scaleSize) {
-        this(gui, x, y, header, scaleSize, true);
-    }
-    
-    /**
-     * Basic constructor for UI headers.
-     *
-     * @param gui           the parent of this header
-     * @param x             the x location of the header
-     * @param y             the y location of the header
-     * @param header        the text which will be rendered
-     * @param scaleSize     the scale of the text. (scale greater than 1 means bigger)
-     * @param drawUnderline true if an underline should be drawn.
-     */
-    public ModernHeader(ModernGui gui, int x, int y, String header, float scaleSize, boolean drawUnderline) {
-        this(gui, x, y, header, scaleSize, drawUnderline, Color.WHITE);
-    }
     
     /**
      * Basic constructor for UI headers.
@@ -193,17 +139,12 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         // Scales it up
         GlStateManager.scale(this.scaleSize, this.scaleSize, 0F);
         
-        float xPos = this.x;/// Minecraft.getMinecraft().gameSettings.guiScale;
-        float yPos = this.y;/// Minecraft.getMinecraft().gameSettings.guiScale;
-        
-        if (this.drawCentered) {
-            // Draws the text
-            fontRenderer.drawString(this.headerText, (xPos / this.scaleSize) - (getWidth() / this.scaleSize), yPos / this.scaleSize, this.headerColor.getRGB(), false);
-        } else {
-            // Draws the text
-            fontRenderer.drawString(this.headerText, xPos / this.scaleSize, yPos / this.scaleSize, this.headerColor.getRGB(), false);
-        }
-        
+        float xPos = this.x;
+        float yPos = this.y;
+    
+        // Draws the text
+        fontRenderer.drawString(this.headerText, xPos / this.scaleSize, yPos / this.scaleSize, this.headerColor.getRGB(), false);
+    
         // Check if the header should have an underline or not.
         if (this.drawUnderline) {
             drawHorizontalLine((int) (xPos / this.scaleSize), (int) ((xPos + (getWidth() * this.scaleSize)) / this.scaleSize), (int) ((yPos + (12 * this.scaleSize)) / this.scaleSize), this.headerColor.getRGB());
@@ -313,13 +254,6 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         return this.scaledResolution;
     }
     
-    /**
-     * Force updates the resolution.
-     */
-    public void updateResolution() {
-        this.scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
-    }
-    
     public int getWidthOfHeader() {
         return this.widthOfSub;
     }
@@ -384,23 +318,6 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         }
     }
     
-    /**
-     * Sets all the children to this enabled state o.o
-     *
-     * @param enabled true if the elements should be enabled.
-     */
-    public void setEnabled(boolean enabled) {
-        for (ModernUIElement element : this.children) {
-            if (element instanceof ModernButton) {
-                ((ModernButton) element).setEnabled(enabled);
-            } else if (element instanceof ModernTextBox) {
-                ((ModernTextBox) element).setEnabled(enabled);
-            } else if (element instanceof ModernSlider) {
-                ((ModernSlider) element).setEnabled(enabled);
-            }
-        }
-    }
-    
     @Override
     public int getX() {
         return x;
@@ -419,56 +336,8 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         this.y = y;
     }
     
-    public String getHeaderText() {
-        return this.headerText;
-    }
-    
-    public float getScaleSize() {
-        return scaleSize;
-    }
-    
-    public void setScaleSize(float scaleSize) {
-        this.scaleSize = scaleSize;
-    }
-    
-    public float getOffsetBetweenChildren() {
-        return offsetBetweenChildren;
-    }
-    
     public void setOffsetBetweenChildren(float offsetBetweenChildren) {
         this.offsetBetweenChildren = offsetBetweenChildren;
-    }
-    
-    public boolean isDrawCentered() {
-        return drawCentered;
-    }
-    
-    public void setDrawCentered(boolean drawCentered) {
-        this.drawCentered = drawCentered;
-    }
-    
-    public boolean isDrawUnderline() {
-        return drawUnderline;
-    }
-    
-    public void setDrawUnderline(boolean drawUnderline) {
-        this.drawUnderline = drawUnderline;
-    }
-    
-    public boolean isVisible() {
-        return visible;
-    }
-    
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-    
-    public Color getHeaderColor() {
-        return headerColor;
-    }
-    
-    public void setHeaderColor(Color headerColor) {
-        this.headerColor = headerColor;
     }
     
     public void setButtonWidth(int widthIn) {

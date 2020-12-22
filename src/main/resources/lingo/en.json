@@ -1,0 +1,187 @@
+{
+  "skinchanger": {
+    "mod": {
+      "authors": [
+        "boomboompower"
+      ]
+    },
+
+    "chat": {
+      "applied": "Your skin & cape have been applied!"
+    },
+
+    "phrase": {
+      "yes": "Yes",
+      "no": "No",
+
+      "enabled": "enabled",
+      "disabled": "disabled",
+
+      "revert": "Revert",
+      "apply": "Apply",
+      "preview": "Preview",
+
+      "default": "Default: %s"
+    },
+
+    "model": {
+      "title": "Player Model",
+      "rotation": "Rotation: "
+    },
+
+    "buttons": {
+      "skins": {
+        "title": "Skin Settings",
+        "reset": "Reset Skin"
+      },
+
+      "capes": {
+        "title": "Cape Settings",
+        "reset": "Reset Cape"
+      },
+
+      "load-from-player": "Load from Player",
+      "load-from-uuid": "Load from UUID",
+      "load-from-url": "Load from URL",
+      "load-from-file": "Load from File"
+    },
+
+    "options": {
+      "all-me": {
+        "title": "All Me",
+        "format": "All Me: %s",
+        "description": [
+          "Gives every player the same skin as you"
+        ]
+      },
+
+      "animated-capes": {
+        "title": "Animated Capes",
+        "format": "Animated Capes: %s",
+        "description": [
+          "Toggles the moving cape animation ",
+          " ",
+          "Turn this off to increase ",
+          "performance while in the menu"
+        ]
+      },
+
+      "animated-player": {
+        "title": "Animated Player",
+        "format": "Animated Player: %s",
+        "description": [
+          "Toggles the moving player animation ",
+          " ",
+          "Turn this off to increase ",
+          "performance while in the menu"
+        ]
+      },
+
+      "animation-lighting": {
+        "title": "Animation Lighting",
+        "format": "Animation Lighting: %s",
+        "description": [
+          "Enables or disables lighting on the model ",
+          " ",
+          "This effect is purely visual",
+          " ",
+          "Having lighting off will",
+          "slightly increase performance."
+        ]
+      },
+
+      "animation-speed": {
+        "title": "Animation Speed",
+        "format": "Animation Speed: %s",
+        "description": [
+          "Sets the speed of the animation",
+          "Between 1 and 2 (increments by 0.25)"
+        ]
+      },
+
+      "api": {
+        "title": "API",
+        "format": "API: %s",
+        "description": [
+          "Choose where skins are retrieved from. ",
+          " ",
+          "Only change this if you're having ",
+          "issues with skins loading.",
+          " ",
+          "Ashcon - Faster (recommended)",
+          "Mojang - Slower, multiple requests."
+        ]
+      },
+
+      "mod-enabled": {
+        "title": "Mod Enabled",
+        "format": "Mod Enabled: %s",
+        "description": [
+          "Toggles the mod globally, ",
+          "disabling all skin & cape overrides."
+        ]
+      },
+
+      "patch-capes": {
+        "title": "Patch Capes",
+        "format": "Patch Capes: %s",
+        "description": [
+          "Overrides the internal cape service, ",
+          "improving cape change performance. ",
+          " ",
+          "You must restart your game for ",
+          "this change to take effect."
+        ]
+      },
+
+      "patch-optifine": {
+        "title": "Patch OptiFine",
+        "format": "Patch OptiFine: %s",
+        "description": [
+          "Overrides OptiFine capes, making the ",
+          "mod work if you have an OptiFine cape. ",
+          " ",
+          "This will cause the \"Capes On/Off\" setting in ",
+          "OptiFine to not disable SkinChanger ",
+          "capes and may therefore degrade performance. ",
+          " ",
+          "You must restart your game for ",
+          "this change to take effect."
+        ]
+      },
+
+      "patch-skins": {
+        "title": "Patch Skins",
+        "format": "Patch Skins: %s",
+        "description": [
+          "Overrides the internal skin service, ",
+          "improving cape change performance. ",
+          " ",
+          "You must restart your game for ",
+          "this change to take effect."
+        ]
+      },
+
+      "patch-skin-type": {
+        "title": "Patch Skin Type",
+        "format": "Patch Skin Type: %s",
+        "description": [
+          "Overrides the skin type, ",
+          "letting you use slim skins. ",
+          " ",
+          "You must restart your game for ",
+          "this change to take effect."
+        ]
+      },
+
+      "type": {
+        "title": "Skin Type",
+        "format": "Skin Type: %s",
+        "description": [
+          "Overrides the current model skin type",
+          "hit apply to use this."
+        ]
+      }
+    }
+  }
+}

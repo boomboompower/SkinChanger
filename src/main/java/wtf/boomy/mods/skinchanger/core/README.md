@@ -44,3 +44,31 @@ public ResourceLocation getLocationCape() {
     return this.locationCape;
 }
 ```
+
+If the Optifine patcher is enabled, the following change will be made to the AbstractClientPlayer class.
+
+It is worth noting that turning capes off in the optifine settings **will not** impact SkinChanger with capes on. Meaning you
+will either need to disable capes in the mod settings, or disable the patch in the mod settings.
+```diff
+public ResourceLocation getLocationCape() {
++   ResourceLocation playerCape = SkinChangerMod.getInstance().getStorage().getPlayerCape(getGameProfile());
++   
++   if (playerCape != null) {
++       return playerCape;
++   }
+
+    if (!Config.isShowCapes()) {
+        return null;
+    }
+    
+    if (this.reloadCapeTimeMs != 0L && System.currentTimeMillis() > this.reloadCapeTimeMs) {
+        CapeUtils.reloadCape(this);
+        this.reloadCapeTimeMs = 0L;
+    }
+    if (this.locationOfCape != null) {
+        return this.locationOfCape;
+    }
+    final NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
+    return (networkplayerinfo == null) ? null : networkplayerinfo.getLocationCape();
+}
+``` 

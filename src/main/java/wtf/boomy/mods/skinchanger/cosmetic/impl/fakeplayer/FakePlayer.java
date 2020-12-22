@@ -47,13 +47,6 @@ public class FakePlayer extends AbstractClientPlayer {
     private FakePlayerInfo playerInfo;
     
     /**
-     * New constructor, just uses the players current world.
-     */
-    public FakePlayer() {
-        this(Minecraft.getMinecraft().thePlayer.worldObj);
-    }
-    
-    /**
      * Clones the resources from a user
      *
      * @param player the player to clone

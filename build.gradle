@@ -144,6 +144,7 @@ configurations {
     compile.extendsFrom(provided)
 }
 
+// For obfuscating the jar file.
 task proguard(type: ProGuardTask) {
     configuration 'proguard/proguard.txt'
 

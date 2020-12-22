@@ -77,7 +77,7 @@ public class SkinCopyMenu extends ModernGui implements PlayerModelUI {
         float sliderXPos = ((leftPosBox + rightPosBox) / 2) - sliderWidth / 2;
         float sliderYPos = bottomPosBox - sliderHeight;
         
-        ModernSlider slider = new ModernSlider(5, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.options.rotation") + " ", "\u00B0", 0.0F, 360.0F, FakePlayerRender.getRotation()) {
+        ModernSlider slider = new ModernSlider(5, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.model.rotation") + " ", "\u00B0", 0.0F, 360.0F, FakePlayerRender.getRotation()) {
             @Override
             public void onSliderUpdate() {
                 FakePlayerRender.setRotation((float) getValue());
@@ -155,7 +155,7 @@ public class SkinCopyMenu extends ModernGui implements PlayerModelUI {
                 SkinChangerMod.getInstance().getStorage().setSkinType(player.getSkinType());
             
                 this.fakePlayer.copyFrom(player);
-            }).enableTranslatable());
+            }).enableNameOnHover().enableTranslatable());
             
             // Increment the x offset by the width of this button.
             xPos += btnWidth;

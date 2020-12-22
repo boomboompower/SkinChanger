@@ -31,16 +31,6 @@ public enum PlayerSkinType {
     /**
      * Constructs the enum
      *
-     * @param secretName the id used in the RenderManager
-     */
-    PlayerSkinType(String secretName) {
-        this.displayName = name().toLowerCase();
-        this.secretName = secretName;
-    }
-    
-    /**
-     * Constructs the enum
-     *
      * @param displayName the name the user will see
      * @param secretName  the id used in the RenderManager
      */

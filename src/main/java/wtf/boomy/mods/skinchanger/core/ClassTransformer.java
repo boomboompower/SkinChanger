@@ -55,6 +55,10 @@ public class ClassTransformer implements IClassTransformer {
     public static boolean shouldPatchSkinGetter = true;
     public static boolean shouldPatchCapeGetter = true;
     public static boolean shouldPatchSkinType = true;
+    public static boolean shouldPatchOptifine = true;
+    
+    // If capes have already been tweaked on optifine don't bother patching networkplayerinfo
+    private boolean tweakedOptifine = false;
     
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     public ClassTransformer() {
@@ -62,7 +66,7 @@ public class ClassTransformer implements IClassTransformer {
         
         threadFactory.runAsync(() -> {
             try {
-                String defaultText = "PatchSkins: yes" + System.lineSeparator() + "PatchCapes: yes" + System.lineSeparator() + "PatchSkinType: yes";
+                String defaultText = "PatchSkins: yes" + System.lineSeparator() + "PatchCapes: yes" + System.lineSeparator() + "PatchSkinType: yes" + System.lineSeparator() + "PatchOF: yes";
                 File file = new File(new File("config", "skinchanger"), "asm.txt");
                 
                 if (!file.getParentFile().exists()) {
@@ -108,6 +112,10 @@ public class ClassTransformer implements IClassTransformer {
                         if (id.equalsIgnoreCase("PatchSkinType")) {
                             shouldPatchSkinType = toPatch;
                         }
+                        
+                        if (id.equalsIgnoreCase("PatchOF")) {
+                            shouldPatchOptifine = toPatch;
+                        }
                     }
                 } catch (Exception ex) {
                     writeToFile(file, defaultText);
@@ -144,9 +152,33 @@ public class ClassTransformer implements IClassTransformer {
             ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
             classNode.accept(writer);
             return writer.toByteArray();
+        } else if (transformedName.equals("net.minecraft.client.entity.AbstractClientPlayer")) {
+            ClassReader reader = new ClassReader(bytes);
+            ClassNode classNode = new ClassNode();
+            reader.accept(classNode, ClassReader.SKIP_FRAMES);
+    
+            classNode.methods.forEach(m -> transformOptifine(isDevEnv, classNode, m));
+    
+            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+            classNode.accept(writer);
+            return writer.toByteArray();
         }
         
         return bytes;
+    }
+    
+    private void transformOptifine(boolean isDevEnv, ClassNode clazz, MethodNode method) {
+        String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(clazz.name, method.name, method.desc);
+        
+        if (methodName.equals("getLocationCape") || methodName.equals("func_178861_h") || methodName.equals("k")) {
+            logger.info("Patching Optifine capes (" + method.name + ")");
+            
+            method.instructions.insert(createForOptifine(isDevEnv, "getPlayerCape"));
+            
+            logger.info("Finished patching Optifine capes (" + method.name + ")");
+            
+            this.tweakedOptifine = true;
+        }
     }
     
     private void transformNetworkPlayerInfo(boolean isDevEnv, ClassNode clazz, MethodNode method) {
@@ -161,11 +193,15 @@ public class ClassTransformer implements IClassTransformer {
             
             SkinChangerMod.getInstance().getStorage().setSkinPatchApplied(true);
         } else if (shouldPatchCapeGetter && methodName.equals((isDevEnv ? "getLocationCape" : "func_178861_h"))) {
-            logger.info("Patching getLocationCape (" + method.name + ")");
-            
-            method.instructions.insert(createForResource(isDevEnv, "getPlayerCape"));
-            
-            logger.info("Finished patching getLocationCape (" + method.name + ")");
+            if (this.tweakedOptifine) {
+                logger.info("Skipping getLocationCape patch (" + method.name + ") since optifine has already been patched!");
+            } else {
+                logger.info("Patching getLocationCape (" + method.name + ")");
+    
+                method.instructions.insert(createForResource(isDevEnv, "getPlayerCape"));
+    
+                logger.info("Finished patching getLocationCape (" + method.name + ")");
+            }
             
             SkinChangerMod.getInstance().getStorage().setCapePatchApplied(true);
         } else if (shouldPatchSkinType && methodName.equals((isDevEnv ? "getSkinType" : "func_178851_f"))) {
@@ -211,6 +247,27 @@ public class ClassTransformer implements IClassTransformer {
                 getStorage(), // INVOKEVIRTUAL
                 new VarInsnNode(Opcodes.ALOAD, 0),
                 new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/network/NetworkPlayerInfo", gameProfileField, "Lcom/mojang/authlib/GameProfile;"),
+                invokeVirtual(storageClass, methodName, "(Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/util/ResourceLocation;"),
+                new VarInsnNode(Opcodes.ASTORE, 1),
+                new VarInsnNode(Opcodes.ALOAD, 1),
+                new JumpInsnNode(Opcodes.IFNULL, skip),
+                new VarInsnNode(Opcodes.ALOAD, 1),
+                new InsnNode(Opcodes.ARETURN),
+                skip
+        );
+    }
+    
+    private InsnList createForOptifine(boolean devEnv, String methodName) {
+        String gameProfileMethod = devEnv ? "getGameProfile" : "func_146103_bH";
+    
+        LabelNode skip = new LabelNode();
+    
+        // Constructs a list of bytecode asm instructions to and adds them to the start of the method
+        return constructList(
+                getModInstance(), // INVOKESTATIC
+                getStorage(), // INVOKEVIRTUAL
+                new VarInsnNode(Opcodes.ALOAD, 0),
+                new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/client/entity/AbstractClientPlayer", gameProfileMethod, "()Lcom/mojang/authlib/GameProfile;", false),
                 invokeVirtual(storageClass, methodName, "(Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/util/ResourceLocation;"),
                 new VarInsnNode(Opcodes.ASTORE, 1),
                 new VarInsnNode(Opcodes.ALOAD, 1),

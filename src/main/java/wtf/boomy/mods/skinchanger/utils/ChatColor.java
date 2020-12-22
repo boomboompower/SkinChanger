@@ -19,6 +19,9 @@ package wtf.boomy.mods.skinchanger.utils;
 
 import java.util.regex.Pattern;
 
+/**
+ * A version-independent class for colorizing the Minecraft chat and other strings.
+ */
 public enum ChatColor {
     
     BLACK('0'),

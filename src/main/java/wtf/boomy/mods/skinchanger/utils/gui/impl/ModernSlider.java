@@ -19,6 +19,10 @@ package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
 import java.awt.*;
 
+import net.minecraft.util.ResourceLocation;
+
+import wtf.boomy.mods.skinchanger.SkinChangerMod;
+import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.StartEndUIElement;
@@ -33,9 +37,13 @@ import net.minecraft.client.renderer.GlStateManager;
  */
 public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
     
+    private static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
+    
     private final int id;
     private final int x;
     private final int y;
+    
+    private final ConfigurationHandler handler;
     
     private final int width;
     private final int height;
@@ -64,6 +72,8 @@ public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
     }
     
     public ModernSlider(int id, int xPos, int yPos, int width, int height, String prefix, String suffix, double minVal, double maxVal, double currentVal) {
+        this.handler = SkinChangerMod.getInstance().getConfig();
+        
         this.id = id;
         this.x = xPos;
         this.y = yPos;
@@ -100,7 +110,11 @@ public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
                 backgroundColor = new Color(67, 175, 67, 75);
             }
     
-            ModernGui.drawRect(this.x, this.y, this.x + this.width, this.y + this.height, backgroundColor.getRGB());
+            if (this.handler.isOldButtons()) {
+                drawOldBackground(this.x, this.y);
+            } else {
+                drawNewBackground(this.x, this.y, backgroundColor.getRGB());
+            }
             
             mouseDragged(mouseX, mouseY);
             
@@ -151,7 +165,14 @@ public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
                 updateSlider(true);
             }
             
-            ModernGui.drawRect(this.x + (int) (this.sliderValue * (float) (this.width - 4)), this.y, this.x + (int) (this.sliderValue * (float) (this.width - 4)) + 4, this.y + this.height, Color.WHITE.getRGB());
+            if (this.handler.isOldButtons()) {
+                Minecraft.getMinecraft().getTextureManager().bindTexture(buttonTextures);
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                ModernGui.drawTexturedModalRect(this.x + (int)(this.sliderValue * (float)(this.width - 8)), y, 0f, 66, 4, 20);
+                ModernGui.drawTexturedModalRect(this.x + (int)(this.sliderValue * (float)(this.width - 8)) + 4, y, 196f, 66, 4, 20);
+            } else {
+                ModernGui.drawRect(this.x + (int) (this.sliderValue * (float) (this.width - 4)), this.y, this.x + (int) (this.sliderValue * (float) (this.width - 4)) + 4, this.y + this.height, Color.WHITE.getRGB());
+            }
         }
     }
     
@@ -276,5 +297,33 @@ public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
     
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+    
+    private void drawNewBackground(int startX, int startY, int color) {
+        ModernGui.drawRect(startX, startY, startX + this.width, startY + this.height, color);
+    }
+    
+    private void drawOldBackground(int startX, int startY) {
+        Minecraft minecraft = Minecraft.getMinecraft();
+        minecraft.getTextureManager().bindTexture(buttonTextures);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        
+        int hoverState = 1;
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.blendFunc(770, 771);
+        
+        // Pre-compute.
+        float halfWidth = this.width / 2f;
+        float halfHeight = this.height / 2f;
+        
+        // This renders a scalable button texture
+        // By default the game scales horizontally by splitting the texture on the y axis,
+        // however this can be also done vertically by splitting on the x axis, allowing buttons
+        // of any width and height to be rendered without the screen.
+        ModernGui.drawTexturedModalRect(startX, startY, 0, 46 + hoverState * 20, halfWidth, halfHeight);
+        ModernGui.drawTexturedModalRect(startX + halfWidth, startY, 200 - halfWidth, 46 + hoverState * 20, halfWidth, halfHeight);
+        ModernGui.drawTexturedModalRect(startX, startY + halfHeight, 0, 66 - halfHeight + (hoverState * 20), halfWidth, halfHeight);
+        ModernGui.drawTexturedModalRect(startX + halfWidth, startY + halfHeight, 200 - halfWidth, 66 - halfHeight + (hoverState * 20), halfWidth, halfHeight);
     }
 }

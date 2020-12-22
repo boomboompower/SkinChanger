@@ -84,7 +84,7 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
         // Prevent blur
         this.mc.entityRenderer.stopUseShader();
         
-        this.playerModelTranslation = Language.format("skinchanger.options.title");
+        this.playerModelTranslation = Language.format("skinchanger.model.title");
         this.fakePlayer = this.mod.getCosmeticFactory().getFakePlayerRender();
         this.fakePlayer.setShouldCompute(true);
         
@@ -105,36 +105,36 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
         float buttonLeftXPos = boxMiddlePoint - (baseButtonWidth * 1.5F);
         float middleButtonXPos = boxMiddlePoint - (baseButtonWidth / 2);
         float buttonRightXPos = boxMiddlePoint + (baseButtonWidth / 2);
-        
-        ModernLocaleButton revertButton = new ModernLocaleButton(50, (int) buttonLeftXPos - 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Revert", mouseButton -> {
+    
+        ModernLocaleButton revertButton = new ModernLocaleButton(50, (int) buttonLeftXPos - 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Revert", "skinchanger.phrase.revert", mouseButton -> {
             this.reflectionOptions.resetPlayer(this.fakePlayer.getFakePlayer());
         });
     
-        ModernLocaleButton confirmBackButton = new ModernLocaleButton(51, (int) middleButtonXPos, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Preview", mouseButton -> {
+        ModernLocaleButton confirmBackButton = new ModernLocaleButton(51, (int) middleButtonXPos, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Preview", "skinchanger.phrase.preview", mouseButton -> {
             this.instance.display();
         });
-        
-        ModernLocaleButton applyButton = new ModernLocaleButton(52, (int) buttonRightXPos + 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Apply", mouseButton -> {
+    
+        ModernLocaleButton applyButton = new ModernLocaleButton(52, (int) buttonRightXPos + 2, (int) bottomPosBox - 20, (int) baseButtonWidth, 20, "Apply", "skinchanger.phrase.apply", mouseButton -> {
             if (this.storage.isSkinPatchApplied()) {
                 this.storage.setPlayerSkin(this.fakePlayer.getSkinLocation());
             } else {
-                this.reflectionOptions.setSkin(this.mc.thePlayer, this.fakePlayer.getSkinLocation(), null);
+                this.reflectionOptions.setSkin(this.player, this.fakePlayer.getSkinLocation(), null);
             }
-    
+        
             if (this.storage.isCapePatchApplied()) {
                 this.storage.setPlayerCape(this.fakePlayer.getCapeLocation());
             } else {
-                this.reflectionOptions.setCape(this.mc.thePlayer, this.fakePlayer.getCapeLocation(), null);
+                this.reflectionOptions.setCape(this.player, this.fakePlayer.getCapeLocation(), null);
             }
-    
+        
             if (this.storage.isSkinTypePatchApplied()) {
                 this.storage.setSkinType(this.fakePlayer.getSkinType().getSecretName());
             } else {
-                this.reflectionOptions.setSkinType(this.mc.thePlayer, this.fakePlayer.getSkinType(), null);
+                this.reflectionOptions.setSkinType(this.player, this.fakePlayer.getSkinType(), null);
             }
-    
-            sendChatMessage(ChatColor.GREEN + Language.format("skinchanger.phrase.apply"));
-    
+        
+            sendChatMessage(ChatColor.GREEN + Language.format("skinchanger.chat.applied"));
+        
             close();
         });
     
@@ -155,7 +155,7 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
         float sliderXPos = ((leftPosBox + rightPosBox) / 2) - sliderWidth / 2;
         float sliderYPos = bottomPosBox - sliderHeight;
         
-        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.options.rotation") + " ", "\u00B0", 0.0F, 360.0F, FakePlayerRender.getRotation()) {
+        ModernSlider slider = new ModernSlider(6, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.model.rotation"), "\u00B0", 0.0F, 360.0F, FakePlayerRender.getRotation()) {
             @Override
             public void onSliderUpdate() {
                 FakePlayerRender.setRotation((float) getValue());
@@ -206,21 +206,21 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
         int minXLeft = Math.max(5, middle - 155);
         int widthOfButtons = (middle - minXLeft) - 15;
         
-        ModernHeader skinSettings = new ModernHeader(this, minXLeft, yVal, Language.format("skinchanger.options.skin-title"), 1.5F, true, Color.WHITE);
+        ModernHeader skinSettings = new ModernHeader(this, minXLeft, yVal, Language.format("skinchanger.buttons.skins.title"), 1.5F, true, Color.WHITE);
         
         skinSettings.setOffsetBetweenChildren(24F);
-        
-        skinSettings.addChild(new ModernLocaleButton(12, 5, 20, widthOfButtons, 20, "Load from Player"));
-        skinSettings.addChild(new ModernLocaleButton(13, 5, 20, widthOfButtons, 20, "Load from UUID"));
-        skinSettings.addChild(new ModernLocaleButton(14, 5, 20, widthOfButtons, 20, "Load from URL"));
-        
+    
+        skinSettings.addChild(new ModernLocaleButton(12, 5, 20, widthOfButtons, 20, "Load from Player", "skinchanger.buttons.load-from-player"));
+        skinSettings.addChild(new ModernLocaleButton(13, 5, 20, widthOfButtons, 20, "Load from UUID", "skinchanger.buttons.load-from-uuid"));
+        skinSettings.addChild(new ModernLocaleButton(14, 5, 20, widthOfButtons, 20, "Load from URL", "skinchanger.buttons.load-from-url"));
+    
         // On left click we'll open a file screen to set the skin
-        skinSettings.addChild(new ModernLocaleButton(15, 5, 20, widthOfButtons, 20, "Load from File", mouseButton -> {
+        skinSettings.addChild(new ModernLocaleButton(15, 5, 20, widthOfButtons, 20, "Load from File", "skinchanger.buttons.load-from-file", mouseButton -> {
             this.reflectionOptions.loadFromFile((location) -> this.fakePlayer.setSkinLocation(location), false);
         }));
-        
+    
         // On left click we'll try reset the render to the original skin.
-        skinSettings.addChild(new ModernLocaleButton(16, 5, 20, widthOfButtons, 20, "Reset Skin", mouseButton -> {
+        skinSettings.addChild(new ModernLocaleButton(16, 5, 20, widthOfButtons, 20, "Reset Skin", "skinchanger.buttons.skins.reset", mouseButton -> {
             this.fakePlayer.setSkinLocation(this.reflectionOptions.getOriginalSkin());
             this.fakePlayer.setSkinType(this.reflectionOptions.getOriginalSkinType());
         }));
@@ -232,24 +232,24 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
         if (skinSettings.getY() + skinSettings.getHeightOfHeader() > capeSettingY) {
             capeSettingY = skinSettings.getY() + skinSettings.getHeightOfHeader() + 44;
         }
-        
-        ModernHeader capeSettings = new ModernHeader(this, minXLeft, capeSettingY, Language.format("skinchanger.options.cape-title"), 1.5F, true, Color.WHITE);
-        
+    
+        ModernHeader capeSettings = new ModernHeader(this, minXLeft, capeSettingY, Language.format("skinchanger.buttons.capes.title"), 1.5F, true, Color.WHITE);
+    
         // Makes the space between each element 24 pixels.
         capeSettings.setOffsetBetweenChildren(24F);
-        
+    
         // See onButtonPressedExtra for the callback for these methods.
-        capeSettings.addChild(new ModernLocaleButton(17, 5, 20, widthOfButtons, 20, "Load from Player"));
-        capeSettings.addChild(new ModernLocaleButton(18, 5, 20, widthOfButtons, 20, "Load from UUID"));
-        capeSettings.addChild(new ModernLocaleButton(19, 5, 20, widthOfButtons, 20, "Load from URL"));
-        
+        capeSettings.addChild(new ModernLocaleButton(17, 5, 20, widthOfButtons, 20, "Load from Player", "skinchanger.buttons.load-from-player"));
+        capeSettings.addChild(new ModernLocaleButton(18, 5, 20, widthOfButtons, 20, "Load from UUID", "skinchanger.buttons.load-from-uuid"));
+        capeSettings.addChild(new ModernLocaleButton(19, 5, 20, widthOfButtons, 20, "Load from URL", "skinchanger.buttons.load-from-url"));
+    
         // Open a file selector for this option
-        capeSettings.addChild(new ModernLocaleButton(20, 5, 20, widthOfButtons, 20, "Load from File", mouseButton -> {
+        capeSettings.addChild(new ModernLocaleButton(20, 5, 20, widthOfButtons, 20, "Load from File", "skinchanger.buttons.load-from-file", mouseButton -> {
             this.reflectionOptions.loadFromFile(location -> this.fakePlayer.setCapeLocation(location), true);
         }));
-        
+    
         // Set the cape to the original cape for the player.
-        capeSettings.addChild(new ModernLocaleButton(21, 5, 20, widthOfButtons, 20, "Reset Cape", mouseButton -> {
+        capeSettings.addChild(new ModernLocaleButton(21, 5, 20, widthOfButtons, 20, "Reset Cape", "skinchanger.buttons.capes.reset", mouseButton -> {
             this.fakePlayer.setCapeLocation(this.reflectionOptions.getOriginalCape());
         }));
     
@@ -259,7 +259,7 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
             skinSettings.setY(40);
         } else {
             int doubleWidth = widthOfButtons * 2;
-            
+        
             skinSettings.setButtonWidth(doubleWidth);
             capeSettings.setButtonWidth(doubleWidth);
         }

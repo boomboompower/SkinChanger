@@ -26,6 +26,8 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 
+import java.util.Collections;
+
 /**
  * An implementation of a button with a players head instead of text.
  *
@@ -36,12 +38,6 @@ import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 public class ModernButtonHead extends ModernButton {
     
     private final AbstractClientPlayer player;
-    
-    public ModernButtonHead(int buttonId, int x, int y, AbstractClientPlayer player) {
-        super(buttonId, x, y, player == null ? "" : player.getName());
-        
-        this.player = player;
-    }
     
     public ModernButtonHead(int buttonId, int x, int y, int widthIn, int heightIn, AbstractClientPlayer player, SimpleCallback<? extends ModernButton> clicked) {
         super(buttonId, x, y, widthIn, heightIn, player == null ? "" : player.getName(), clicked);
@@ -78,13 +74,24 @@ public class ModernButtonHead extends ModernButton {
         }
         
         // If the button is hovered we will outline it with the normal text color
-        if (isHovered()) {
+        if (isHovered() && !this.handler.isOldButtons()) {
             ModernGui.drawRectangleOutline(xPos - 3, yPos - 3, xPos + width + 2, yPos + height + 2, getTextHoverColor().getRGB());
         }
         
         // pop the gl buffer to the stackv
         GlStateManager.disableAlpha();
         GlStateManager.popMatrix();
+    }
+    
+    /**
+     * When this is called, it will cause the player who owns this head's name to appear when hovered.
+     *
+     * @return this buttons instance.
+     */
+    public ModernButtonHead enableNameOnHover() {
+        setMessageLines(Collections.singletonList(this.player.getName()));
+        
+        return this;
     }
     
     private boolean isSpecialPlayer(String name) {

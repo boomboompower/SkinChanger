@@ -31,7 +31,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * NOTE: This class is temporary and it's methods will eventually be tuned into a new gui.
+ * The core SkinChanger command
+ *
+ * Note: Most of this file will be trimmed for release. A lot of the subcommands exist for debugging only.
  */
 public class SkinCommand extends ModCommand {
     
@@ -54,7 +56,7 @@ public class SkinCommand extends ModCommand {
     
     @Override
     public void onCommand(ICommandSender sender, String[] args) {
-        // TODO remove this during production.
+        // TODO remove this during release.
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("reload")) {
                 this.mainMenu = new SkinChangerMenu();
@@ -73,10 +75,9 @@ public class SkinCommand extends ModCommand {
             if (args[0].equalsIgnoreCase("reset")) {
                 getMenu().getReflectionOptions().resetPlayer(this.mod.getStorage());
                 
-                sendBrandedMessage(ChatColor.GREEN + Language.format("skinchanger.phrase.apply"));
+                sendBrandedMessage(ChatColor.GREEN + Language.format("skinchanger.chat.applied"));
                 
                 return;
-//            } else if (args[0].equalsIgnoreCase("skin") || args[0].equalsIgnoreCase("cape")) {
             } else if (args[0].equalsIgnoreCase("toggle")) {
                 if (args.length == 1) {
                     this.mod.getConfig().setModEnabled(!this.mod.getConfig().isModEnabled());

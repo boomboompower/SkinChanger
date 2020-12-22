@@ -20,17 +20,18 @@ package wtf.boomy.mods.skinchanger.utils.gui;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import org.lwjgl.input.Mouse;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.ModernUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.UISkeleton;
@@ -49,7 +50,6 @@ import java.util.stream.Collectors;
  * @version 4.3
  * @since 2.0.0
  */
-@SuppressWarnings("WeakerAccess") // This is an API class. Weaker Access doesn't matter
 public abstract class ModernGui extends UILock implements UISkeleton {
     
     protected final Minecraft mc = Minecraft.getMinecraft();
@@ -71,8 +71,12 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     
     protected float yTranslation = 0;
     
+    protected EntityPlayerSP player;
+    
     @Override
     public final void initGui() {
+        this.player = this.mc.thePlayer;
+        
         this.textList.clear();
         this.modernList.clear();
         
@@ -307,61 +311,10 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     }
     
     /**
-     * Draws multiple lines on the screen
-     *
-     * @param startingX  the starting x position of the text
-     * @param startingY  the starting y position of the text
-     * @param separation the Y value separation between each line
-     * @param lines      the lines which will be drawn
-     */
-    public void writeInformation(int startingX, int startingY, int separation, String... lines) {
-        writeInformation(startingX, startingY, separation, true, lines);
-    }
-    
-    /**
-     * Draws multiple lines on the screen
-     *
-     * @param startingX  the starting x position of the text
-     * @param startingY  the starting y position of the text
-     * @param separation the Y value separation between each line
-     * @param centered   true if the text being rendered should be rendered as a centered string
-     * @param lines      the lines which will be drawn
-     */
-    public void writeInformation(int startingX, int startingY, int separation, boolean centered, String... lines) {
-        if (lines == null || lines.length == 0) {
-            return;
-        }
-        
-        // Loop through the lines
-        for (String line : lines) {
-            // Null components will be treated as an empty string
-            if (line == null) {
-                line = "";
-            } else if (!line.isEmpty()) {
-                line = ChatColor.translateAlternateColorCodes('&', line);
-            }
-    
-            drawConditionalCenter(line, startingX, startingY, Color.WHITE.getRGB(), centered);
-            
-            startingY += separation;
-        }
-    }
-    
-    /**
      * Displays this GUI to the Minecraft client
-     * <p>
-     * If using a version before 1.8.8 use
-     * FMLCommonHandler.instance().bus().register(this)
      */
-    @SuppressWarnings({"deprecation", "ConstantConditions"})
     public final void display() {
-        if (MinecraftForge.MC_VERSION.startsWith("1.7")) {
-            FMLCommonHandler.instance().bus().register(this);
-            
-            return;
-        }
-    
-        MinecraftForge.EVENT_BUS.register(this);
+        this.mod.registerEvents(this);
     }
     
     /**
@@ -376,50 +329,15 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     }
     
     /**
-     * Part of the {@link #display()} method. Again, if using a version below
-     * 1.8.8 then the following code should be used
-     * FMLCommonHandler.instance().bus().unregister(this)
+     * Opens the GUI on the next client tick
      *
      * @param event the client event
      */
-    @SuppressWarnings({"ConstantConditions", "deprecation"})
     @SubscribeEvent
     public final void onTick(TickEvent.ClientTickEvent event) {
         Minecraft.getMinecraft().displayGuiScreen(this);
         
-        if (MinecraftForge.MC_VERSION.startsWith("1.7")) {
-            FMLCommonHandler.instance().bus().unregister(this);
-        
-            return;
-        }
-        
-        MinecraftForge.EVENT_BUS.unregister(this);
-    }
-    
-    /**
-     * Draws a rectangle with float values
-     *
-     * @param startX the starting x position of the rectangle
-     * @param startY the starting y position of the rectangle
-     * @param endX   the ending x position of the rectangle
-     * @param endY   the ending y position of the rectangle
-     * @param color  the color of the rectangle
-     */
-    public static void drawRectF(float startX, float startY, float endX, float endY, int color) {
-        drawRect((int) startX, (int) startY, (int) endX, (int) endY, color);
-    }
-    
-    /**
-     * Draws a hollow rectangle on the screen with float values
-     *
-     * @param startX the starting x position of the rectangle
-     * @param startY the starting y position of the rectangle
-     * @param endX   the ending x position of the rectangle
-     * @param endY   the ending y position of the rectangle
-     * @param color  the color of the rectangle
-     */
-    public static void drawRectangleOutlineF(float startX, float startY, float endX, float endY, int color) {
-        drawRectangleOutline((int) startX, (int) startY, (int) endX, (int) endY, color);
+        this.mod.unregisterEvents(this);
     }
     
     /**
@@ -499,11 +417,16 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
     }
     
-    private void drawConditionalCenter(String text, int x, int y, int color, boolean centered) {
-        if (centered) {
-            drawCenteredString(this.fontRendererObj, text, x, y, color);
-        } else {
-            drawString(this.fontRendererObj, text, x, y, color);
-        }
+    public static void drawTexturedModalRect(float x, float y, float textureX, float textureY, float width, float height) {
+        float f = 0.00390625F;
+        float f1 = 0.00390625F;
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
+        worldrenderer.pos(x, y + height, 0).tex(textureX * f, (textureY + height) * f1).endVertex();
+        worldrenderer.pos(x + width, y + height, 0).tex((textureX + width) * f, (textureY + height) * f1).endVertex();
+        worldrenderer.pos(x + width, y, 0).tex((textureX + width) * f, textureY * f1).endVertex();
+        worldrenderer.pos(x, y, 0).tex(textureX * f, textureY * f1).endVertex();
+        tessellator.draw();
     }
 }

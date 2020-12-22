@@ -66,6 +66,9 @@ public class ConfigurationHandler {
     @SaveableField(customName = "animationSpeed")
     private float animationSpeed = 1;
     
+    @SaveableField
+    private boolean oldButtons = false;
+    
     // A bloody hack
     private boolean everyoneMe = false;
     
@@ -424,6 +427,10 @@ public class ConfigurationHandler {
         this.usingLighting = usingLighting;
     }
     
+    public void setOldButtons(boolean oldButtons) {
+        this.oldButtons = oldButtons;
+    }
+    
     public void setAnimationSpeed(float animationSpeed) {
         this.animationSpeed = animationSpeed;
     }
@@ -437,7 +444,11 @@ public class ConfigurationHandler {
     }
     
     public boolean isUsingLighting() {
-        return usingLighting;
+        return this.usingLighting;
+    }
+    
+    public boolean isOldButtons() {
+        return this.oldButtons;
     }
     
     public boolean isEveryoneMe() {

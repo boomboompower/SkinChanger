@@ -50,14 +50,12 @@ public class ModernTextBox {
     private int cursorCounter;
     
     private boolean isFocused = false;
-    private boolean isEnabled = true;
+    private final boolean isEnabled = true;
     
     private int lineScrollOffset; // The current character index that should be used as start of the rendered text.
     private int cursorPosition;
     
     private int selectionEnd;
-    private int enabledColor = 14737632;
-    private int disabledColor = 7368816;
     
     private final String noTextMessage;
     
@@ -403,8 +401,11 @@ public class ModernTextBox {
         ModernGui.drawRect(this.x, this.y, this.x + this.width, this.y + this.height, backgroundColor.getRGB());
         
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+    
+        int enabledColor = 14737632;
+        int disabledColor = 7368816;
         
-        int textColor = this.isEnabled ? this.enabledColor : this.disabledColor;
+        int textColor = this.isEnabled ? enabledColor : disabledColor;
         int j = this.cursorPosition - this.lineScrollOffset;
         int lengthOfSelection = this.selectionEnd - this.lineScrollOffset;
         String trimmedString = fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
@@ -527,17 +528,6 @@ public class ModernTextBox {
     }
     
     /**
-     * Sets the text colour for this textbox (disabled text will not use this colour)
-     */
-    public void setTextColor(int color) {
-        this.enabledColor = color;
-    }
-    
-    public void setDisabledTextColour(int color) {
-        this.disabledColor = color;
-    }
-    
-    /**
      * Sets focus to this gui element
      */
     public void setFocused(boolean isFocused) {
@@ -551,21 +541,6 @@ public class ModernTextBox {
             this.cursorCounter = 0;
         }
         this.isFocused = isFocused;
-    }
-    
-    /**
-     * Getter for the focused field
-     */
-    public boolean isFocused() {
-        return this.isFocused;
-    }
-    
-    public void setEnabled(boolean enabled) {
-        this.isEnabled = enabled;
-    }
-    
-    public boolean isEnabled() {
-        return this.isEnabled;
     }
     
     /**

@@ -57,58 +57,69 @@ public class ModOptionsMenu extends SkinChangerMenu {
         this.config = SkinChangerMod.getInstance().getConfig();
         
         this.extraButtons = Arrays.asList(
-                
-                new ModernLocaleButton(0x69, 0, 0, 0, 20, "Mod Enabled", getYesOrNo(this.config.isModEnabled()), button -> {
+                new ModernLocaleButton(0x69, 0, 0, 0, 20, "Mod Enabled", "skinchanger.options.mod-enabled.format", getYesOrNo(this.config.isModEnabled()), button -> {
                     this.config.setModEnabled(!this.config.isModEnabled());;
             
-                    button.updateValue(getYesOrNo(this.config.isModEnabled()));
+                    button.updateTitleWithValue(getYesOrNo(this.config.isModEnabled()));
                 }).setDefaultValue(getYesOrNo(true)),
                 
-                new ModernLocaleButton(0x70, 0, 0, 0, 20, "Patch Skins", getYesOrNo(ClassTransformer.shouldPatchSkinGetter), button -> {
+                new ModernLocaleButton(0x70, 0, 0, 0, 20, "Patch Skins", "skinchanger.options.patch-skins.format", getYesOrNo(ClassTransformer.shouldPatchSkinGetter), button -> {
                     ClassTransformer.shouldPatchSkinGetter = !ClassTransformer.shouldPatchSkinGetter;
             
-                    button.updateValue(getYesOrNo(ClassTransformer.shouldPatchSkinGetter));
+                    button.updateTitleWithValue(getYesOrNo(ClassTransformer.shouldPatchSkinGetter));
                 }).setDefaultValue(getYesOrNo(true)),
                 
-                new ModernLocaleButton(0x71, 0, 0, 0, 20, "Type", ChatColor.AQUA + this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType().getDisplayName(), button -> {
+                new ModernLocaleButton(0x71, 0, 0, 0, 20, "Type", "skinchanger.options.type.format", ChatColor.AQUA + this.mod.getCosmeticFactory().getFakePlayerRender().getSkinType().getDisplayName(), button -> {
                     this.currentSkinType = this.currentSkinType.getNextSkin();
             
-                    button.updateValue(ChatColor.AQUA + this.currentSkinType.getDisplayName());
+                    button.updateTitleWithValue(ChatColor.AQUA + this.currentSkinType.getDisplayName());
             
                     this.mod.getCosmeticFactory().getFakePlayerRender().setSkinType(this.currentSkinType.getSecretName());
                 }).setDefaultValue(ChatColor.AQUA + "Steve"),
                 
-                new ModernLocaleButton(0x72, 0, 0, 0, 20, "Patch Capes", getYesOrNo(ClassTransformer.shouldPatchCapeGetter), button -> {
+                new ModernLocaleButton(0x72, 0, 0, 0, 20, "Patch Capes", "skinchanger.options.patch-capes.format", getYesOrNo(ClassTransformer.shouldPatchCapeGetter), button -> {
                     ClassTransformer.shouldPatchCapeGetter = !ClassTransformer.shouldPatchCapeGetter;
             
-                    button.updateValue(getYesOrNo(ClassTransformer.shouldPatchCapeGetter));
+                    button.updateTitleWithValue(getYesOrNo(ClassTransformer.shouldPatchCapeGetter));
                 }).setDefaultValue(getYesOrNo(true)),
                 
-                new ModernLocaleButton(0x73, 0, 0, 0, 20, "API", ChatColor.AQUA + this.config.getSkinAPIType().getDisplayName(), button -> {
+                new ModernLocaleButton(0x73, 0, 0, 0, 20, "API", "skinchanger.options.api.format", ChatColor.AQUA + this.config.getSkinAPIType().getDisplayName(), button -> {
                     this.config.setSkinAPIType(this.config.getSkinAPIType().nextValue());
             
-                    button.updateValue(ChatColor.AQUA + this.config.getSkinAPIType().getDisplayName());
+                    button.updateTitleWithValue(ChatColor.AQUA + this.config.getSkinAPIType().getDisplayName());
                 }).setDefaultValue(ChatColor.AQUA + "Ashcon"),
                 
-                new ModernLocaleButton(0x74, 0, 0, 0, 20, "Patch Skin Type", getYesOrNo(ClassTransformer.shouldPatchSkinType), button -> {
+                new ModernLocaleButton(0x74, 0, 0, 0, 20, "Patch Skin Type", "skinchanger.options.patch-skin-type.format", getYesOrNo(ClassTransformer.shouldPatchSkinType), button -> {
                     ClassTransformer.shouldPatchSkinType = !ClassTransformer.shouldPatchSkinType;
             
-                    button.updateValue(getYesOrNo(ClassTransformer.shouldPatchSkinType));
-                }).setDefaultValue(getYesOrNo(true)),
-                
-                new ModernLocaleButton(0x75, 0, 0, 0, 20, "Animated Model", getYesOrNo(this.config.isUsingAnimatedPlayer()), button -> {
-                    this.config.setUsingAnimatedPlayer(!this.config.isUsingAnimatedPlayer());
-            
-                    button.updateValue(getYesOrNo(this.config.isUsingAnimatedPlayer()));
-                }).setDefaultValue(getYesOrNo(true)),
-                
-                new ModernLocaleButton(0x77, 0, 0, 0, 20, "Animated Cape", getYesOrNo(this.config.isUsingAnimatedCape()), button -> {
-                    this.config.setUsingAnimatedCape(!this.config.isUsingAnimatedCape());
-            
-                    button.updateValue(getYesOrNo(this.config.isUsingAnimatedCape()));
+                    button.updateTitleWithValue(getYesOrNo(ClassTransformer.shouldPatchSkinType));
                 }).setDefaultValue(getYesOrNo(true)),
         
-                new ModernLocaleButton(0x78, 0, 0, 0, 20, "Animation Speed", ChatColor.AQUA.toString() + Double.toString((this.config.getAnimationSpeed() * 10) / 4), button -> {
+                new ModernLocaleButton(0x75, 0, 0, 0, 20, "Old Buttons", "skinchanger.options.old-buttons.format", getYesOrNo(this.config.isOldButtons()), button -> {
+                    this.config.setOldButtons(!this.config.isOldButtons());
+            
+                    button.updateTitleWithValue(getYesOrNo(this.config.isOldButtons()));
+                }).setDefaultValue(getYesOrNo(false)),
+        
+                new ModernLocaleButton(0x76, 0, 0, 0, 20, "Patch Optifine", "skinchanger.options.patch-optifine.format", getYesOrNo(ClassTransformer.shouldPatchOptifine), button -> {
+                    ClassTransformer.shouldPatchOptifine = !ClassTransformer.shouldPatchOptifine;
+            
+                    button.updateTitleWithValue(getYesOrNo(ClassTransformer.shouldPatchOptifine));
+                }).setDefaultValue(getYesOrNo(true)),
+        
+                new ModernLocaleButton(0x77, 0, 0, 0, 20, "Animated Player", "skinchanger.options.animated-player.format", getYesOrNo(this.config.isUsingAnimatedPlayer()), button -> {
+                    this.config.setUsingAnimatedPlayer(!this.config.isUsingAnimatedPlayer());
+            
+                    button.updateTitleWithValue(getYesOrNo(this.config.isUsingAnimatedPlayer()));
+                }).setDefaultValue(getYesOrNo(true)),
+                
+                new ModernLocaleButton(0x78, 0, 0, 0, 20, "Animated Cape", "skinchanger.options.animated-capes.format", getYesOrNo(this.config.isUsingAnimatedCape()), button -> {
+                    this.config.setUsingAnimatedCape(!this.config.isUsingAnimatedCape());
+            
+                    button.updateTitleWithValue(getYesOrNo(this.config.isUsingAnimatedCape()));
+                }).setDefaultValue(getYesOrNo(true)),
+        
+                new ModernLocaleButton(0x79, 0, 0, 0, 20, "Animation Speed", "skinchanger.options.animation-speed.format", ChatColor.AQUA.toString() + Double.toString((this.config.getAnimationSpeed() * 10) / 4), button -> {
                     float animationSpeed = (this.config.getAnimationSpeed() * 10) + 1F;
                     
                     if (animationSpeed > 8) {
@@ -117,19 +128,19 @@ public class ModOptionsMenu extends SkinChangerMenu {
                     
                     this.config.setAnimationSpeed(animationSpeed / 10);
             
-                    button.updateValue(ChatColor.AQUA.toString() + (Double.toString(animationSpeed / 4)));
+                    button.updateTitleWithValue(ChatColor.AQUA.toString() + (Double.toString(animationSpeed / 4)));
                 }).setDefaultValue(ChatColor.AQUA + "1.0"),
         
-                new ModernLocaleButton(0x81, 0, 0, 0, 20, "Animation Lighting", getYesOrNo(this.config.isUsingLighting()), button -> {
+                new ModernLocaleButton(0x80, 0, 0, 0, 20, "Animation Lighting", "skinchanger.options.animation-lighting.format", getYesOrNo(this.config.isUsingLighting()), button -> {
                     this.config.setUsingLighting(!this.config.isUsingLighting());
             
-                    button.updateValue(getYesOrNo(this.config.isUsingLighting()));
+                    button.updateTitleWithValue(getYesOrNo(this.config.isUsingLighting()));
                 }).setDefaultValue(getYesOrNo(false)),
                 
-                new ModernLocaleButton(0x80, 0, 0, 0, 20, "All me", getYesOrNo(this.config.isEveryoneMe()), button -> {
+                new ModernLocaleButton(0x81, 0, 0, 0, 20, "All me", "skinchanger.options.all-me.format", getYesOrNo(this.config.isEveryoneMe()), button -> {
                     this.config.setEveryoneMe(!this.config.isEveryoneMe());
             
-                    button.updateValue(getYesOrNo(this.config.isEveryoneMe()));
+                    button.updateTitleWithValue(getYesOrNo(this.config.isEveryoneMe()));
                 }).setDefaultValue(getYesOrNo(false)),
                 
                 new ModernButton(0x82, 0, 0, 0, 20, "Useless: " + getYesOrNo(true), button -> {
@@ -171,7 +182,15 @@ public class ModOptionsMenu extends SkinChangerMenu {
                     defaultValue = ChatColor.RED + "No";
                 }
                 
-                locale.interpretLoreKey(locale.getKey(), defaultValue);
+                String loreKey = locale.getKey();
+                
+                // Special case
+                if (loreKey.endsWith(".format")) {
+                    loreKey = loreKey.substring(0, loreKey.length() - ".format".length());
+                    loreKey = loreKey + ".description";
+                }
+                
+                button = locale.interpretLoreKey(loreKey, defaultValue);
             }
             
             // Left button
@@ -201,7 +220,7 @@ public class ModOptionsMenu extends SkinChangerMenu {
     
     @Override
     public void buttonPressed(ModernButton button) {
-        boolean isASMRow = button.getId() >= 0x70 && button.getId() <= 0x74;
+        boolean isASMRow = button.getId() >= 0x70 && button.getId() <= 0x76;
         boolean isConfigRange = button.getId() >= 0x69 && button.getId() <= 0x80;
         
         if (isASMRow) {
@@ -221,7 +240,8 @@ public class ModOptionsMenu extends SkinChangerMenu {
             writeToFile(new File(this.config.getConfigFile().getParentFile(), "asm.txt"), "" +
                     "PatchSkins: " + (ClassTransformer.shouldPatchSkinGetter ? "yes" : "no") + System.lineSeparator() +
                     "PatchCapes: " + (ClassTransformer.shouldPatchCapeGetter ? "yes" : "no") + System.lineSeparator() +
-                    "PatchSkinType: " + (ClassTransformer.shouldPatchSkinType ? "yes" : "no")
+                    "PatchSkinType: " + (ClassTransformer.shouldPatchSkinType ? "yes" : "no") + System.lineSeparator() +
+                    "PatchOF: " + (ClassTransformer.shouldPatchOptifine ? "yes" : "no")
             );
         }
         

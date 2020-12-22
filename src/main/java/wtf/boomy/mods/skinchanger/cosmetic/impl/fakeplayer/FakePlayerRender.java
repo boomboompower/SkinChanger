@@ -314,17 +314,6 @@ public class FakePlayerRender {
     }
     
     /**
-     * Copies the resources to the FakePlayer
-     *
-     * @param skin     the skin tp copy
-     * @param cape     the cape to copy
-     * @param skinType the skin type to copy
-     */
-    public void copyFrom(ResourceLocation skin, ResourceLocation cape, String skinType) {
-        fakePlayer.copyFrom(skin, cape, skinType);
-    }
-    
-    /**
      * Copies resources from one player to another.
      *
      * @param player the player to copy resources from.
@@ -363,10 +352,6 @@ public class FakePlayerRender {
     
     public void setShouldCompute(boolean shouldCompute) {
         this.shouldCompute = shouldCompute;
-    }
-    
-    public CosmeticFactory getCosmeticFactory() {
-        return this.cosmeticFactory;
     }
     
     public static void setRotation(float rotation) {
