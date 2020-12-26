@@ -40,6 +40,20 @@
         "reset": "Reset Cape"
       },
 
+      "updates": {
+        "title": "Update",
+        "lines": [
+          "A new version of this mod is",
+          "available. Click here to go",
+          "to the download page!"
+        ],
+        "version": "Update Version: %s",
+        "info": [
+          "The updater can be disabled",
+          "in this mods settings."
+        ]
+      },
+
       "load-from-player": "Load from Player",
       "load-from-uuid": "Load from UUID",
       "load-from-url": "Load from URL",
@@ -113,12 +127,38 @@
         ]
       },
 
+      "clear-cache": {
+        "title": "Clear Cache",
+        "format": "Clear Cache: %s",
+        "description": [
+          "Enables deleting old cached skins",
+          "from your system when the game starts",
+          " ",
+          "If this is off, cached skins will never",
+          "be deleted when the game starts."
+        ]
+      },
+
       "mod-enabled": {
         "title": "Mod Enabled",
         "format": "Mod Enabled: %s",
         "description": [
           "Toggles the mod globally, ",
           "disabling all skin & cape overrides."
+        ]
+      },
+
+      "old-buttons": {
+        "title": "Old Buttons",
+        "format": "Old Buttons: %s",
+        "description": [
+          "Makes buttons and dials render using",
+          "your texture pack, instead of just",
+          "using a basic rectangle. ",
+          " ",
+          "For some users, this may be more",
+          "visually appealing and has no",
+          "large impact on performance."
         ]
       },
 
@@ -180,6 +220,20 @@
         "description": [
           "Overrides the current model skin type",
           "hit apply to use this."
+        ]
+      },
+
+      "updates": {
+        "title": "Update Checker",
+        "format": "Update Checker: %s",
+        "description": [
+          "By default the mod checkers for",
+          "newer versions every time the game",
+          "starts and will let you know when",
+          "a newer version is available",
+          " ",
+          "Disable this to stop checking for",
+          "updates."
         ]
       }
     }

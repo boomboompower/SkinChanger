@@ -33,14 +33,15 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import wtf.boomy.apagoge.ApagogeHandler;
 import wtf.boomy.mods.skinchanger.commands.impl.SkinCommand;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
-import wtf.boomy.mods.skinchanger.cosmetic.CosmeticFactory;
-import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
-import wtf.boomy.mods.skinchanger.language.Language;
+import wtf.boomy.mods.skinchanger.utils.cache.InternalCache;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.CosmeticFactory;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.SkinChangerStorage;
+import wtf.boomy.mods.skinchanger.locale.Language;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
-import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -63,7 +64,7 @@ public class SkinChangerMod {
     
     private ConfigurationHandler configurationHandler;
     private CosmeticFactory cosmeticFactory;
-    private CacheRetriever cacheRetriever;
+    private InternalCache internalCache;
     
     private File modConfigDirectory;
     
@@ -89,29 +90,41 @@ public class SkinChangerMod {
         
         this.modConfigDirectory = new File(event.getModConfigurationDirectory(), "skinchanger");
         
-        this.cacheRetriever = new CacheRetriever(this);
         this.configurationHandler = new ConfigurationHandler(this);
+        this.internalCache = new InternalCache(this);
         
         this.configurationHandler.addAsSaveable(this.configurationHandler);
     }
     
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        // Just a few classes, make sure they have the correct signature.
-        this.apagogeHandler.addValidatorClasses(SkinChangerMod.class,
+        // Requests for Apagoge to check these files. This is only a request
+        // and may be ignored in some implementations of Apagoge.
+        this.apagogeHandler.addValidatorClasses(
+                SkinChangerMod.class,
                 SkinChangerStorage.class,
                 SkinCommand.class,
-                CacheRetriever.class,
+                InternalCache.class,
                 ConfigurationHandler.class,
                 CosmeticFactory.class,
                 Language.class
         );
         
+        // Called once apagoge has determined if the build succeeded or not
+        // if no instance of Apagoge is available this will be called
+        // with a failure code. This can by bypassed by using the internal
+        // hook and not the handler. With ApagogeHandler#getUpdater() which
+        // will return the internal ApagogeVerifier instance (or null if
+        // it has either been destroyed or cannot be found).
         this.apagogeHandler.addCompletionListener((handler, success) -> {
             if (!success) {
-                this.logger.error("Apagoge failed.");
+                if (handler.getUpdater() == null) {
+                    this.logger.error("Apagoge was unable to run, no updater was found.");
+                } else {
+                    this.logger.error("Apagoge failed. Assuming invalid build.");
+                }
             } else {
-                this.logger.trace("Apagoge succeeded");
+                this.logger.trace("Apagoge succeeded. This build is official.");
             }
         });
         
@@ -121,6 +134,7 @@ public class SkinChangerMod {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         this.configurationHandler.load();
+        this.internalCache.init();
         
         this.cosmeticFactory = new CosmeticFactory(this);
         
@@ -129,6 +143,13 @@ public class SkinChangerMod {
         
         // This forces our patches to be done as the game loads
         new NetworkPlayerInfo((GameProfile) null);
+        
+        // Configurable, this will only happen if the user explicitly
+        // chooses to disable the updater. By default it will run.
+        if (this.configurationHandler.shouldRunUpdater()) {
+            // Ask to start. If no implementation is found this will do nothing.
+            this.apagogeHandler.begin();
+        }
     }
     
     @Mod.EventHandler
@@ -140,7 +161,9 @@ public class SkinChangerMod {
         
         // Requests the updater to destroy itself.
         // Depending on the implementation this can be ignored.
-        this.apagogeHandler.requestKill();
+        // We don't use the handler case for it, since it also
+        // makes the updater instance null.
+        if (this.apagogeHandler.getUpdater() != null) this.apagogeHandler.getUpdater().kill();
     }
     
     /**
@@ -201,14 +224,13 @@ public class SkinChangerMod {
     }
     
     /**
-     * Returns the object containing all the smart caching objects.
-     * <p>
-     * Automatically saves and stores files retrieved from websites or Mojang's database to increase load times.
+     * Returns the instance for SkinChanger internal cache. Superseding the original "CacheRetriever"
+     * object. Performs most operations at the startup of the game.
      *
      * @return the caching platform used by the mod.
      */
-    public CacheRetriever getCacheRetriever() {
-        return this.cacheRetriever;
+    public InternalCache getInternalCache() {
+        return this.internalCache;
     }
     
     /**

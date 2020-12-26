@@ -23,7 +23,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 
-import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 
 import java.util.Collections;

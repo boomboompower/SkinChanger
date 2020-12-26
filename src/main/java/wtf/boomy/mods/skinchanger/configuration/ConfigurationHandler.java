@@ -22,12 +22,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.api.SkinAPIType;
 import wtf.boomy.mods.skinchanger.configuration.meta.ConfigurationData;
 import wtf.boomy.mods.skinchanger.configuration.meta.SaveableClassData;
 import wtf.boomy.mods.skinchanger.configuration.meta.SaveableField;
 import wtf.boomy.mods.skinchanger.utils.BetterJsonObject;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.api.SkinAPIType;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,8 +48,30 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * A reflection based handler for saving and loading from files to fields
+ *
+ * Saved fields are stored with their respective classes, see the following:
+ * <code>
+ * {
+ *     "class": {
+ *         "field1": "value",
+ *         ...
+ *     },
+ *     "class2": {
+ *         "myfield": "value",
+ *         ...
+ *     }
+ * }
+ * </code>
+ *
+ * @since 3.0
+ * @author boomboompower
+ */
 @SaveableClassData(saveName = "config")
 public class ConfigurationHandler {
+    
+    private final Logger logger = LogManager.getLogger("SkinChanger - Config");
     
     @SaveableField(customName = "animatedRenderer")
     private boolean usingAnimatedPlayer = true;
@@ -66,22 +91,39 @@ public class ConfigurationHandler {
     @SaveableField(customName = "animationSpeed")
     private float animationSpeed = 1;
     
-    @SaveableField
+    @SaveableField(customName = "oldButtons")
     private boolean oldButtons = false;
     
-    // A bloody hack
+    @SaveableField(customName = "updateCheck")
+    private boolean runUpdater = true;
+    
+    // Oh god don't let this be saveable
     private boolean everyoneMe = false;
     
     private final SkinChangerMod mod;
     private final File configFile;
     private final File capesDirectory;
     
+    // Stores all possible saved values
     private final HashMap<Class<?>, ConfigurationData[]> saveableValues = new HashMap<>();
     
+    /**
+     * A constructor for a configurable class based on a mod
+     *
+     * The config directory will be populated from the mod
+     *
+     * @param mod the mod for the configuration
+     */
     public ConfigurationHandler(SkinChangerMod mod) {
         this(mod, mod.getModConfigDirectory());
     }
     
+    /**
+     * A constructor for a configurable class based on a mod
+     *
+     * @param mod the mod for the configuration
+     * @param configDirectory the main directory where files will be stored
+     */
     public ConfigurationHandler(SkinChangerMod mod, File configDirectory) {
         this.mod = mod;
         
@@ -131,6 +173,16 @@ public class ConfigurationHandler {
         saveObject.writeToFile(this.configFile);
     }
     
+    /**
+     * Loads the serialized values from the config file into
+     * the respective fields for which they are for.
+     *
+     * Only loads the fields into mapped fields which have already
+     * been registered through {@link #addAsSaveable(Object)}
+     *
+     * This method will do nothing if the config file doesn't exist
+     * or if there are no fields loaded into the handler.
+     */
     public void load() {
         if (this.saveableValues.isEmpty()) {
             return;
@@ -153,13 +205,15 @@ public class ConfigurationHandler {
             String json = String.join("\n", lines);
             
             if (json.trim().isEmpty()) {
+                this.logger.warn("The config file was empty. Skipping...");
+                
                 return;
             }
     
             JsonElement parsedJson = new JsonParser().parse(json);
             
             if (!parsedJson.isJsonObject()) {
-                System.err.println("Unable to load settings, config file corrupt.");
+                this.logger.error("Unable to load settings, config format incorrect.");
                 
                 return;
             }
@@ -186,7 +240,7 @@ public class ConfigurationHandler {
                 JsonElement metaElement = config.get(classSaveName);
                 
                 if (!metaElement.isJsonObject()) {
-                    System.err.println("Corrupt config segment " + classSaveName);
+                    this.logger.error("Config segment " + classSaveName + " was not the correct type. Expected JSON_OBJECT but got "+ metaElement.getClass());
                     
                     continue;
                 }
@@ -216,7 +270,7 @@ public class ConfigurationHandler {
                             }
                             
                             if (!found) {
-                                System.err.println("Unable to find appropriate value for " + data.getField().getType());
+                                this.logger.warn("Unable to find appropriate value for " + data.getField().getType());
                             }
                         } else {
                             Object deserialize = config.getGsonData().fromJson(element, data.getField().getType());
@@ -233,17 +287,30 @@ public class ConfigurationHandler {
         }
     }
     
-    public void addAsSaveable(Object clazz) {
-        if (clazz == null) {
+    /**
+     * Registers an instance to the configuration handler.
+     *
+     * Any fields in this class with the {@link SaveableField} will have their values read during
+     * the saving process (when {@link #save()} is called) and set during the loading process (when
+     * {@link #load()} is called.
+     *
+     * Field names in the config can be customized by changing the {@link SaveableField#customName()}
+     * attribute, and class names can be changed with the {@link SaveableClassData} attribute.
+     *
+     * @param instance the class instance
+     */
+    public void addAsSaveable(Object instance) {
+        if (instance == null) {
             return;
         }
         
         // If the class is already registered, don't add it again.
-        if (this.saveableValues.containsKey(clazz.getClass())) {
+        if (this.saveableValues.containsKey(instance.getClass())) {
             return;
         }
         
-        Field[] clazzFields = clazz.getClass().getDeclaredFields();
+        // Lists the declared fields in the class.
+        Field[] clazzFields = instance.getClass().getDeclaredFields();
         
         // Don't touch it if it has no fields
         if (clazzFields.length <= 0) {
@@ -255,38 +322,47 @@ public class ConfigurationHandler {
         // True if a field has been found with a SaveableField attribute.
         boolean hasSaveableField = false;
         
-        for (Field f : clazzFields) {
+        for (Field field : clazzFields) {
             try {
-                // Check if the field is actually saveable
-                if (!f.isAnnotationPresent(SaveableField.class)) {
+                // Skip to the next field if this field
+                // hasn't specified the SaveableField annotation
+                if (!field.isAnnotationPresent(SaveableField.class)) {
                     continue;
                 }
-    
+                
+                // Specify that this class actually has
+                // fields which can be saved
                 hasSaveableField = true;
     
-                SaveableField saveable = f.getAnnotation(SaveableField.class);
+                // Collect the saved field information
+                SaveableField saveable = field.getAnnotation(SaveableField.class);
     
-                String nameToSave = f.getName();
+                // Choose the default config name as the field's name
+                String nameToSave = field.getName();
     
+                // If the annotation specifies a custom name,
+                // use that instead. (Will still work will obfuscation).
                 if (!saveable.customName().isEmpty()) {
                     nameToSave = saveable.customName();
                 }
     
-                // Create an instance of this field.
-                ConfigurationData data = new ConfigurationData(f, nameToSave, saveable.shouldOverwriteOnLoad());
+                // Create a configuration instance of this field
+                ConfigurationData data = new ConfigurationData(field, nameToSave, saveable.shouldOverwriteOnLoad());
     
-                data.initialize(clazz);
+                // Initialize the instance with the fields instance (for later saving)
+                data.initialize(instance);
     
+                // Add the field to the stored data list to be saved later.
                 storedData.add(data);
             } catch (AnnotationFormatError ex) {
-                System.err.println("An error occurred whilst reading field " + f.getName() + " in " + clazz.getClass().getSimpleName());
+                this.logger.error("An error occurred whilst reading field " + field.getName() + " in " + instance.getClass().getSimpleName(), ex);
             }
         }
         
-        this.saveableValues.put(clazz.getClass(), storedData.toArray(new ConfigurationData[0]));
+        this.saveableValues.put(instance.getClass(), storedData.toArray(new ConfigurationData[0]));
         
         if (!hasSaveableField) {
-            System.out.println("Class '%s' was called through ConfigurationHandler#addAsSaveable however no @SaveableField annotations were present on any fields. It is advised to deregister that class as calling this method for no purpose may degrade performance. ");
+            this.logger.warn("Class '%s' was called through ConfigurationHandler#addAsSaveable however no @SaveableField annotations were present on any fields.");
         }
     }
     
@@ -328,6 +404,8 @@ public class ConfigurationHandler {
                 return;
             }
             
+            String capesDirectoryCanonicalPath = this.capesDirectory.getCanonicalPath() + File.separator;
+            
             // Increases the performance, usually completes in ~32ms, 2048 is quicker but uses more memory.
             byte[] buffer = new byte[512];
             
@@ -344,19 +422,25 @@ public class ConfigurationHandler {
                         // Creates a file relative to the path in the zip file
                         File unzippedFile = new File(this.capesDirectory, entry.getName());
                         
-                        // If for some reason the parent file of this entry doesn't exist, it should be made.
-                        // This attempts to make the parent folder.
-                        if (!unzippedFile.getParentFile().exists()) {
-                            if (!unzippedFile.getParentFile().mkdirs()) {
-                                continue;
-                            }
+                        // Fixes the "Zip Slip" vulnerability caused by directory traversal in zips
+                        // See https://snyk.io/research/zip-slip-vulnerability for more info
+                        if (!unzippedFile.getCanonicalPath().startsWith(capesDirectoryCanonicalPath)) {
+                            this.logger.trace("Skipping suspicious zip entry: " + entry.getName());
+                            
+                            continue;
                         }
                         
-                        // Try make the file we will write to
-                        if (!unzippedFile.exists()) {
-                            if (!unzippedFile.createNewFile()) {
-                                continue;
-                            }
+                        // Creates the parent directory for the zip if it doesn't already exist
+                        // or skips this entry if the parent folder cannot be created.
+                        if (!unzippedFile.getParentFile().exists() && !unzippedFile.getParentFile().mkdirs()) {
+                            continue;
+                        }
+                        
+                        // Checks if the unzipped file already exists, if it doesn't
+                        // we'll attempt to create it. If this fails we'll skip to the
+                        // next entry in the zip file.
+                        if (!unzippedFile.exists() && !unzippedFile.createNewFile()) {
+                            continue;
                         }
                         
                         // Creates an output stream out of the existing file.
@@ -431,6 +515,10 @@ public class ConfigurationHandler {
         this.oldButtons = oldButtons;
     }
     
+    public void setRunUpdater(boolean runUpdater) {
+        this.runUpdater = runUpdater;
+    }
+    
     public void setAnimationSpeed(float animationSpeed) {
         this.animationSpeed = animationSpeed;
     }
@@ -457,6 +545,10 @@ public class ConfigurationHandler {
     
     public boolean isModEnabled() {
         return this.modEnabled;
+    }
+    
+    public boolean shouldRunUpdater() {
+        return this.runUpdater;
     }
     
     public float getAnimationSpeed() {

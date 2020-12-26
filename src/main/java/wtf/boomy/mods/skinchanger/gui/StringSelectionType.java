@@ -18,7 +18,7 @@
 package wtf.boomy.mods.skinchanger.gui;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
+import wtf.boomy.mods.skinchanger.utils.cache.CacheType;
 
 import java.util.UUID;
 
@@ -26,16 +26,16 @@ import java.util.UUID;
  * Tells this class which variant of itself it should use
  */
 public enum StringSelectionType {
-    P_USERNAME("Enter the username of the player.", 12, CacheRetriever.CacheType.SKIN),
-    C_USERNAME("Enter the username of the player.", 17, CacheRetriever.CacheType.CAPE),
+    P_USERNAME("Enter the username of the player.", 12, CacheType.SKIN),
+    C_USERNAME("Enter the username of the player.", 17, CacheType.CAPE),
     
-    P_URL("Enter the URL of the skin. (https://....)", 14, CacheRetriever.CacheType.SKIN),
-    C_URL("Enter the URL of the cape. (https://....)", 19, CacheRetriever.CacheType.CAPE),
+    P_URL("Enter the URL of the skin. (https://....)", 14, CacheType.SKIN),
+    C_URL("Enter the URL of the cape. (https://....)", 19, CacheType.CAPE),
     
-    P_UUID("Enter the UUID of the player. (ABCD-EFGH-...)", 13, CacheRetriever.CacheType.SKIN),
-    C_UUID("Enter the UUID of the player. (ABCD-EFGH-...)", 18, CacheRetriever.CacheType.CAPE);
+    P_UUID("Enter the UUID of the player. (ABCD-EFGH-...)", 13, CacheType.SKIN),
+    C_UUID("Enter the UUID of the player. (ABCD-EFGH-...)", 18, CacheType.CAPE);
     
-    private final CacheRetriever.CacheType cacheType;
+    private final CacheType cacheType;
     private final String displaySentence;
     private final int buttonID;
     
@@ -44,7 +44,7 @@ public enum StringSelectionType {
     // it so we don't have to parse it twice
     private UUID storedUUID;
     
-    StringSelectionType(String displaySentence, int buttonID, CacheRetriever.CacheType cacheType) {
+    StringSelectionType(String displaySentence, int buttonID, CacheType cacheType) {
         this.displaySentence = displaySentence;
         
         this.buttonID = buttonID;
@@ -55,7 +55,7 @@ public enum StringSelectionType {
         return this.buttonID;
     }
     
-    public CacheRetriever.CacheType getCacheType() {
+    public CacheType getCacheType() {
         return this.cacheType;
     }
     

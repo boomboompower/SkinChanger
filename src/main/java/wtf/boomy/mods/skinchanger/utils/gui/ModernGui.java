@@ -120,7 +120,7 @@ public abstract class ModernGui extends UILock implements UISkeleton {
                     GlStateManager.translate(0, this.yTranslation, 0);
                 }
                 
-                element.render(mouseX, mouseY, this.yTranslation);
+                element.render(mouseX, mouseY, this.yTranslation, partialTicks);
                 
                 if (element.isTranslatable()) {
                     GlStateManager.translate(0, -this.yTranslation, 0);
@@ -364,6 +364,47 @@ public abstract class ModernGui extends UILock implements UISkeleton {
     }
     
     /**
+     * Draws a hollow rectangle on the screen
+     *
+     * @param startX the starting x position of the rectangle
+     * @param startY the starting y position of the rectangle
+     * @param endX   the ending x position of the rectangle
+     * @param endY   the ending y position of the rectangle
+     * @param color  the color of the rectangle
+     */
+    public static void drawRectangleOutlineF(float startX, float startY, float endX, float endY, int color) {
+        // Top
+        drawHorizontalLineF_(startX, endX, startY, color);
+        
+        // Right
+        drawVerticalLineF_(endX, startY, endY, color);
+        
+        // Bottom
+        drawHorizontalLineF_(startX, endX, endY, color);
+        
+        // Left
+        drawVerticalLineF_(startX, startY, endY, color);
+    }
+    
+    /**
+     * Draws a horizontal line (just a 1x2 rectangle)
+     *
+     * @param startX the starting x position of the line
+     * @param endX   the ending x position of the line
+     * @param y      the y position of the line
+     * @param color  the color of the line
+     */
+    public static void drawHorizontalLineF_(float startX, float endX, float y, int color) {
+        if (endX < startX) {
+            float i = startX;
+            startX = endX;
+            endX = i;
+        }
+        
+        drawRectF(startX, y, endX + 1, y + 1, color);
+    }
+    
+    /**
      * Draws a horizontal line (just a 1x2 rectangle)
      *
      * @param startX the starting x position of the line
@@ -397,6 +438,60 @@ public abstract class ModernGui extends UILock implements UISkeleton {
         }
         
         drawRect(x, startY + 1, x + 1, endY, color);
+    }
+    
+    /**
+     * Draws a vertical line (just a 2x1 rectangle)
+     *
+     * @param x      the x position of the line
+     * @param startY the starting y position of the line
+     * @param endY   the ending y position of the line
+     * @param color  the color of the line
+     */
+    public static void drawVerticalLineF_(float x, float startY, float endY, int color) {
+        if (endY < startY) {
+            float i = startY;
+            startY = endY;
+            endY = i;
+        }
+        
+        drawRectF(x, startY + 1, x + 1, endY, color);
+    }
+    
+    public static void drawRectF(float left, float top, float right, float bottom, int color)
+    {
+        if (left < right)
+        {
+            float i = left;
+            left = right;
+            right = i;
+        }
+        
+        if (top < bottom)
+        {
+            float j = top;
+            top = bottom;
+            bottom = j;
+        }
+        
+        float f3 = (float)(color >> 24 & 255) / 255.0F;
+        float f = (float)(color >> 16 & 255) / 255.0F;
+        float f1 = (float)(color >> 8 & 255) / 255.0F;
+        float f2 = (float)(color & 255) / 255.0F;
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.color(f, f1, f2, f3);
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(left, bottom, 0.0D).endVertex();
+        worldrenderer.pos(right, bottom, 0.0D).endVertex();
+        worldrenderer.pos(right, top, 0.0D).endVertex();
+        worldrenderer.pos(left, top, 0.0D).endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
     }
     
     // =============================================== PRIVATE ================================================= //

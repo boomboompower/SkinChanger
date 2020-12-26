@@ -17,17 +17,19 @@
 
 package wtf.boomy.mods.skinchanger.gui;
 
+import com.google.gson.JsonObject;
+
 import net.minecraft.client.renderer.GlStateManager;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage;
-import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
-import wtf.boomy.mods.skinchanger.cosmetic.options.ReflectionOptions;
 import wtf.boomy.mods.skinchanger.gui.additional.ModOptionsMenu;
 import wtf.boomy.mods.skinchanger.gui.additional.PlayerSelectMenu;
 import wtf.boomy.mods.skinchanger.gui.additional.SkinCopyMenu;
-import wtf.boomy.mods.skinchanger.language.Language;
+import wtf.boomy.mods.skinchanger.locale.Language;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.SkinChangerStorage;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.fakeplayer.FakePlayerRender;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.options.ReflectionOptions;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.PlayerModelUI;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
@@ -37,6 +39,12 @@ import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernLocaleButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernSlider;
 
 import java.awt.Color;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The base SkinChanger menu, redesigned to be more user-friendly.
@@ -56,8 +64,6 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
     private ModernButton m_optionsButton;
     private ModernButton m_revertButton;
     private ModernButton m_applyBackButton;
-    
-    private final int transparentWhite = new Color(0.7F, 0.7F, 0.7F, 0.2F).getRGB();
     
     private final SkinChangerStorage storage = SkinChangerMod.getInstance().getStorage();
     private SkinChangerMenu instance;
@@ -275,6 +281,7 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
         registerElement(skinSettings);
         registerElement(capeSettings);
         registerElement(stealButton);
+        registerUpdateChecker();
     }
     
     @Override
@@ -295,7 +302,7 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
     
         GlStateManager.pushMatrix();
     
-        float smallScale = 0.65F;
+        float smallScale = 0.66F;
     
         GlStateManager.scale(smallScale, smallScale, 0F);
         drawCenteredString(this.fontRendererObj, "by " + ChatColor.AQUA + "boomboompower" + ChatColor.RESET, (int) (((this.width / 4) + 10) / smallScale), (int) (20 / smallScale), Color.WHITE.getRGB());
@@ -389,5 +396,50 @@ public class SkinChangerMenu extends ModernGui implements PlayerModelUI {
      */
     public ReflectionOptions getReflectionOptions() {
         return reflectionOptions;
+    }
+    
+    /**
+     * Places the update checker button on the screen if an update has been found
+     */
+    private void registerUpdateChecker() {
+        if (this.mod.getApagogeHandler().getUpdateData() != null) {
+            JsonObject updateData = this.mod.getApagogeHandler().getUpdateData();
+            String newerVersion = "??";
+            String versionURL = "https://mods.boomy.wtf/";
+            
+            if (updateData.has("latestVersion")) {
+                // versions.boomy.wtf
+                newerVersion = updateData.get("version").getAsString();
+                versionURL = updateData.get("download").getAsString();
+            } else if (updateData.has("tag_name")) {
+                // github builds
+                newerVersion = updateData.get("tag_name").getAsString();
+                versionURL = updateData.get("html_url").getAsString();
+            }
+        
+            List<String> lore = new ArrayList<>(Language.getMultiLine("skinchanger.buttons.updates.lines"));
+        
+            lore.add(" ");
+            lore.add(Language.format("skinchanger.buttons.updates.version", ChatColor.GOLD + newerVersion));
+            lore.add(" ");
+        
+            for (String line : Language.getMultiLine("skinchanger.buttons.updates.info")) {
+                lore.add(ChatColor.DARK_GRAY + ChatColor.ITALIC.toString() + line);
+            }
+        
+            final String foundVersionLink = versionURL;
+        
+            ModernButton updateButton = new ModernLocaleButton(105, 5, 5, 50, 25, "Update", "skinchanger.buttons.updates.title", (button) -> {
+                try {
+                    Desktop.getDesktop().browse(new URI(foundVersionLink));
+                } catch (IOException | URISyntaxException exception) {
+                    exception.printStackTrace();
+                }
+            }).setMessageLines(lore).setOuterGlow(3, 0.15f);
+    
+            registerElement(updateButton);
+        }
+        
+        
     }
 }

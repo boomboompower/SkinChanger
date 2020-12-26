@@ -29,7 +29,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
+import wtf.boomy.mods.skinchanger.utils.ambiguous.ThreadFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -47,10 +47,8 @@ import java.util.stream.Collectors;
  */
 public class ClassTransformer implements IClassTransformer {
     
-    private static final Logger logger = LogManager.getLogger("SkinChanger - CoreMod");
-    
     private static final String skinChangerClass = wtf.boomy.mods.skinchanger.SkinChangerMod.class.getName().replace(".", "/");
-    private static final String storageClass = wtf.boomy.mods.skinchanger.cosmetic.impl.SkinChangerStorage.class.getName().replace(".", "/");
+    private static final String storageClass = wtf.boomy.mods.skinchanger.utils.cosmetic.impl.SkinChangerStorage.class.getName().replace(".", "/");
     
     public static boolean shouldPatchSkinGetter = true;
     public static boolean shouldPatchCapeGetter = true;
@@ -59,6 +57,9 @@ public class ClassTransformer implements IClassTransformer {
     
     // If capes have already been tweaked on optifine don't bother patching networkplayerinfo
     private boolean tweakedOptifine = false;
+    
+    // Stores the logger instance
+    private Logger logger;
     
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     public ClassTransformer() {
@@ -171,45 +172,47 @@ public class ClassTransformer implements IClassTransformer {
         String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(clazz.name, method.name, method.desc);
         
         if (methodName.equals("getLocationCape") || methodName.equals("func_178861_h") || methodName.equals("k")) {
-            logger.info("Patching Optifine capes (" + method.name + ")");
+            getLogger().info("Patching Optifine capes (" + method.name + ")");
             
             method.instructions.insert(createForOptifine(isDevEnv, "getPlayerCape"));
             
-            logger.info("Finished patching Optifine capes (" + method.name + ")");
+            getLogger().info("Finished patching Optifine capes (" + method.name + ")");
             
             this.tweakedOptifine = true;
         }
     }
     
     private void transformNetworkPlayerInfo(boolean isDevEnv, ClassNode clazz, MethodNode method) {
+        if (method.name == null || clazz.name == null) return;
+        
         String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(clazz.name, method.name, method.desc);
         
         if (shouldPatchSkinGetter && methodName.equals((isDevEnv ? "getLocationSkin" : "func_178837_g"))) {
-            logger.info("Patching getLocationSkin (" + method.name + ")");
+            getLogger().info("Patching getLocationSkin (" + method.name + ")");
             
             method.instructions.insert(createForResource(isDevEnv, "getPlayerSkin"));
             
-            logger.info("Finished patching getLocationSkin (" + method.name + ")");
+            getLogger().info("Finished patching getLocationSkin (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setSkinPatchApplied(true);
         } else if (shouldPatchCapeGetter && methodName.equals((isDevEnv ? "getLocationCape" : "func_178861_h"))) {
             if (this.tweakedOptifine) {
-                logger.info("Skipping getLocationCape patch (" + method.name + ") since optifine has already been patched!");
+                getLogger().info("Skipping getLocationCape patch (" + method.name + ") since optifine has already been patched!");
             } else {
-                logger.info("Patching getLocationCape (" + method.name + ")");
+                getLogger().info("Patching getLocationCape (" + method.name + ")");
     
                 method.instructions.insert(createForResource(isDevEnv, "getPlayerCape"));
     
-                logger.info("Finished patching getLocationCape (" + method.name + ")");
+                getLogger().info("Finished patching getLocationCape (" + method.name + ")");
             }
             
             SkinChangerMod.getInstance().getStorage().setCapePatchApplied(true);
         } else if (shouldPatchSkinType && methodName.equals((isDevEnv ? "getSkinType" : "func_178851_f"))) {
-            logger.info("Patching getSkinType (" + method.name + ")");
+            getLogger().info("Patching getSkinType (" + method.name + ")");
             
             method.instructions.insert(createForSkinType(isDevEnv));
             
-            logger.info("Finished patching getSkinType (" + method.name + ")");
+            getLogger().info("Finished patching getSkinType (" + method.name + ")");
             
             SkinChangerMod.getInstance().getStorage().setSkinTypePatchApplied(true);
         }
@@ -333,5 +336,13 @@ public class ClassTransformer implements IClassTransformer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private Logger getLogger() {
+        if (this.logger == null) {
+            this.logger = LogManager.getLogger("SkinChanger - CoreMod");
+        }
+        
+        return this.logger;
     }
 }

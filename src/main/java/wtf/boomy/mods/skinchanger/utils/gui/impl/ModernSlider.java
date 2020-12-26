@@ -92,7 +92,7 @@ public class ModernSlider implements InteractiveUIElement, StartEndUIElement {
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float yTranslation) {
+    public void render(int mouseX, int mouseY, float yTranslation, float partialTicks) {
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.enableAlpha();

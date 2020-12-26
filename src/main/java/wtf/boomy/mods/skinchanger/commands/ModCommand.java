@@ -25,7 +25,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
+import wtf.boomy.mods.skinchanger.utils.ambiguous.ThreadFactory;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
 
 import java.util.ArrayList;

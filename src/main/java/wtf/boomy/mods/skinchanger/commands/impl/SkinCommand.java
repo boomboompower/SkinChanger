@@ -23,7 +23,7 @@ import net.minecraft.command.ICommandSender;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.commands.ModCommand;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
-import wtf.boomy.mods.skinchanger.language.Language;
+import wtf.boomy.mods.skinchanger.locale.Language;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 

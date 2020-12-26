@@ -57,11 +57,11 @@ public interface ModernUIElement {
      * @param mouseX the current x position of the mouse.
      * @param mouseY the current y position of the mouse.
      */
-    public void render(int mouseX, int mouseY, float yTranslation);
+    public void render(int mouseX, int mouseY, float yTranslation, float partialTicks);
     
     /**
      * Renders the element from a header position. By default this will just call the {@link
-     * #render(int, int, float)} method, however some {@link ModernUIElement}'s will react differently
+     * #render(int, int, float, float)} method, however some {@link ModernUIElement}'s will react differently
      * to this change.
      *
      * @param xPos               the x position of the element
@@ -72,15 +72,15 @@ public interface ModernUIElement {
      * @param recommendedYOffset the recommended offset this {@link ModernUIElement} should follow (how
      *                           far down it should be shifted).
      */
-    public default void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
-        render(mouseX, mouseY, yTranslation);
+    public default void renderFromHeader(int xPos, int yPos, float yTranslation, float partialTicks, int mouseX, int mouseY, int recommendedYOffset) {
+        render(mouseX, mouseY, yTranslation, partialTicks);
     }
     
     /**
      * Should this element be drawn? If this is false the header will not call the {@link
-     * #render(int, int, float)} method.
+     * #render(int, int, float, float)} method.
      *
-     * @return true if {@link #render(int, int, float)} should be called for the element.
+     * @return true if {@link #render(int, int, float, float)} should be called for the element.
      */
     public boolean isEnabled();
     

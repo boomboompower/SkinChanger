@@ -22,8 +22,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
-import wtf.boomy.mods.skinchanger.language.Language;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.fakeplayer.FakePlayerRender;
+import wtf.boomy.mods.skinchanger.locale.Language;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.PlayerModelUI;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;

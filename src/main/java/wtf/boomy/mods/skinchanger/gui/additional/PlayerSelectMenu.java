@@ -22,25 +22,22 @@ import net.minecraft.client.Minecraft;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
-import wtf.boomy.mods.skinchanger.api.SkinAPIType;
-import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
-import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.PlayerSkinType;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.api.SkinAPIType;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.fakeplayer.FakePlayerRender;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
 import wtf.boomy.mods.skinchanger.gui.StringSelectionType;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
-import wtf.boomy.mods.skinchanger.utils.backend.CacheRetriever;
-import wtf.boomy.mods.skinchanger.utils.backend.ThreadFactory;
+import wtf.boomy.mods.skinchanger.utils.ambiguous.ThreadFactory;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.resources.ResourceLoader;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernTextBox;
 
 import java.awt.Color;
-import java.util.Objects;
 
 public class PlayerSelectMenu extends SkinChangerMenu {
     
-    private static boolean loading;
-    
-    private final CacheRetriever cacheRetriever;
+    private final ResourceLoader resourceLoader;
     private final FakePlayerRender fakePlayerRender;
     private final ThreadFactory threadFactory;
     
@@ -48,12 +45,13 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     private SkinChangerMenu skinChangerMenu;
     private StringSelectionType selectionType;
     
-    private float errorMessageTimer = 0;
-    private String lastErrorMessage = null;
-    private String errorMessage = "";
-    
     private ModernButton skinTypeButton;
     private ModernTextBox textBox;
+    
+    private float quarterWidth;
+    private float halfHeight;
+    
+    private String errorMessage;
     
     public PlayerSelectMenu(SkinChangerMenu menu, StringSelectionType selectionType) {
         this.skinChangerMenu = menu;
@@ -61,7 +59,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         
         this.skinAPI = SkinChangerMod.getInstance().getConfig().getSkinAPIType();
         this.fakePlayerRender = SkinChangerMod.getInstance().getCosmeticFactory().getFakePlayerRender();
-        this.cacheRetriever = SkinChangerMod.getInstance().getCacheRetriever();
+        this.resourceLoader = SkinChangerMod.getInstance().getCosmeticFactory().getResourceLoader();
         this.threadFactory = new ThreadFactory("SelectionMenu");
     }
     
@@ -74,8 +72,11 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         float boxWidth = 150;
         float boxHeight = 20;
         
-        float xLocation = ((float) this.width / 4) - (boxWidth / 2);
-        float yLocation = ((float) this.height / 2) - boxHeight;
+        this.quarterWidth = this.width / 4;
+        this.halfHeight = this.height / 2;
+        
+        float xLocation = this.quarterWidth - 75;
+        float yLocation = this.halfHeight - 50;
         
         ModernTextBox entryBox = new ModernTextBox(0, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight);
         
@@ -119,21 +120,11 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     public void onRender(int mouseX, int mouseY, float partialTicks) {
         super.onRender(mouseX, mouseY, partialTicks);
         
-        if (!Objects.equals(this.lastErrorMessage, this.errorMessage)) {
-            System.out.println(this.errorMessage);
-            
-            this.errorMessageTimer = 0;
-            
-            this.lastErrorMessage = errorMessage;
+        drawCenteredString(this.fontRendererObj, this.selectionType.getDisplaySentence(), (int) this.quarterWidth, (int) this.halfHeight - 80, Color.WHITE.getRGB());
+        
+        if (this.errorMessage != null) {
+            drawCenteredString(this.fontRendererObj, this.errorMessage, (int) this.quarterWidth, (int) this.halfHeight + 20, Color.WHITE.getRGB());
         }
-        
-        int floatingPosition = (int) cap(this.errorMessageTimer);
-        
-        drawCenteredString(this.fontRendererObj, this.selectionType.getDisplaySentence(), this.width / 4, this.height / 2 - 40, Color.WHITE.getRGB());
-        
-        drawCenteredString(this.fontRendererObj, this.errorMessage, this.width / 2, this.height - floatingPosition, Color.WHITE.getRGB());
-        
-        this.errorMessageTimer += partialTicks;
     }
     
     @Override
@@ -154,11 +145,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     private void onLoadClicked(ModernButton button) {
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
             this.threadFactory.runAsync(() -> {
-                loading = true;
-    
                 onLoadClicked(button);
-            
-                loading = false;
             });
         
             return;
@@ -206,9 +193,10 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         switch (this.selectionType) {
             case P_USERNAME:
                 String realUsername = this.skinAPI.getAPI().getRealNameFromName(enteredText);
+                String realId = this.skinAPI.getAPI().getIdFromUsername(realUsername);
                 
-                this.skinAPI.getAPI().getSkinFromId(this.skinAPI.getAPI().getIdFromUsername(realUsername), resourceLocation -> {
-                    boolean hasSlimSkin = this.skinAPI.getAPI().hasSlimSkin(realUsername);
+                this.skinAPI.getAPI().getSkinFromId(realId, resourceLocation -> {
+                    boolean hasSlimSkin = this.skinAPI.getAPI().hasSlimSkin(realId);
     
                     this.fakePlayerRender.setSkinType(hasSlimSkin ? "slim" : "default");
                     this.fakePlayerRender.setSkinLocation(resourceLocation);
@@ -222,17 +210,17 @@ public class PlayerSelectMenu extends SkinChangerMenu {
             case C_USERNAME:
                 String url = "http://s.optifine.net/capes/" + enteredText + ".png";
             
-                this.cacheRetriever.loadIntoGame(cacheName, url, this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
+                this.resourceLoader.loadIntoGame(cacheName, url, this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
             
                 break;
             case P_URL:
                 // Skin URL Resource
-                this.cacheRetriever.loadIntoGame(cacheName, enteredText, this.selectionType.getCacheType(), this.fakePlayerRender::setSkinLocation);
+                this.resourceLoader.loadIntoGame(cacheName, enteredText, this.selectionType.getCacheType(), this.fakePlayerRender::setSkinLocation);
                 
                 break;
             case C_URL:
                 // Cape URL Resource
-                this.cacheRetriever.loadIntoGame(cacheName, enteredText, this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
+                this.resourceLoader.loadIntoGame(cacheName, enteredText, this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
             
                 break;
             case P_UUID:
@@ -242,7 +230,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
                 break;
             case C_UUID:
                 // Cape UUID Resource
-                this.cacheRetriever.loadIntoGame(enteredText, "http://s.optifine.net/capes/" + this.skinAPI.getAPI().getNameFromID(enteredText) + ".png", this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
+                this.resourceLoader.loadIntoGame(enteredText, "http://s.optifine.net/capes/" + this.skinAPI.getAPI().getNameFromID(enteredText) + ".png", this.selectionType.getCacheType(), this.fakePlayerRender::setCapeLocation);
         }
     }
     

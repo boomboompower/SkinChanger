@@ -17,8 +17,8 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
-import wtf.boomy.mods.skinchanger.language.Language;
-import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
+import wtf.boomy.mods.skinchanger.locale.Language;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.options.SimpleCallback;
 
 import java.util.ArrayList;
 import java.util.List;

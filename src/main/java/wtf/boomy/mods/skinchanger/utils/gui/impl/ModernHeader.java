@@ -96,7 +96,7 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float yTranslation) {
+    public void render(int mouseX, int mouseY, float yTranslation, float partialTicks) {
         if (!this.visible) {
             return;
         }
@@ -153,10 +153,10 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
         // Pop the changes to the gl stack.
         GlStateManager.popMatrix();
     
-        drawChildren(xPos, yPos, yTranslation, mouseX, mouseY);
+        drawChildren(xPos, yPos, yTranslation, partialTicks, mouseX, mouseY);
     }
     
-    protected void drawChildren(float xPos, float yPos, float yTranslation, int mouseX, int mouseY) {
+    protected void drawChildren(float xPos, float yPos, float yTranslation, float partialTicks, int mouseX, int mouseY) {
         if (this.children.size() > 0) {
             float yOffset = (12 * this.scaleSize) + this.offsetBetweenChildren / 2;
         
@@ -165,11 +165,11 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
                 if (child.renderRelativeToHeader()) {
                     GlStateManager.pushMatrix();
                 
-                    child.renderFromHeader((int) xPos, (int) yPos, yTranslation, mouseX, mouseY, (int) yOffset);
+                    child.renderFromHeader((int) xPos, (int) yPos, yTranslation, partialTicks, mouseX, mouseY, (int) yOffset);
                 
                     GlStateManager.popMatrix();
                 } else {
-                    child.render(mouseX, mouseY, yTranslation);
+                    child.render(mouseX, mouseY, yTranslation, partialTicks);
                 }
             
                 if (child instanceof StartEndUIElement) {
@@ -199,7 +199,7 @@ public class ModernHeader extends Gui implements InteractiveUIElement {
     }
     
     @Override
-    public void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
+    public void renderFromHeader(int xPos, int yPos, float yTranslation, float partialTicks, int mouseX, int mouseY, int recommendedYOffset) {
         throw new IllegalStateException("A header cannot be placed in a header");
     }
     

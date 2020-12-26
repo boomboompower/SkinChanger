@@ -17,9 +17,10 @@
 
 package wtf.boomy.mods.skinchanger.utils.gui.impl;
 
+import org.lwjgl.opengl.Display;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
-import wtf.boomy.mods.skinchanger.cosmetic.options.SimpleCallback;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.options.SimpleCallback;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.InteractiveUIElement;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.gui.faces.StartEndUIElement;
@@ -74,6 +75,10 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     private int recommendedYPosition;
 
     private boolean translatable;
+    
+    private float storedGlow;
+    private float glowPadding;
+    private float glowIncrements;
 
     public ModernButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
         this(buttonId, x, y, widthIn, heightIn, buttonText, null);
@@ -105,7 +110,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float yTranslation) {
+    public void render(int mouseX, int mouseY, float yTranslation, float partialTicks) {
         if (this.visible) {
             FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
 
@@ -118,7 +123,9 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
             int i = this.getHoverState(this.hovered);
 
             int textColor = 14737632;
-
+    
+            renderOuterGlow(xPosition, yPosition, partialTicks);
+            
             if (this.handler.isOldButtons()) {
                 drawOldBackground(xPosition, yPosition);
             } else {
@@ -130,7 +137,7 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
     }
 
     @Override
-    public void renderFromHeader(int xPos, int yPos, float yTranslation, int mouseX, int mouseY, int recommendedYOffset) {
+    public void renderFromHeader(int xPos, int yPos, float yTranslation, float partialTicks, int mouseX, int mouseY, int recommendedYOffset) {
         if (this.visible) {
             FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
 
@@ -147,6 +154,8 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
 
             int j = 14737632;
     
+            renderOuterGlow(xPosition, yPosition, partialTicks);
+            
             if (this.handler.isOldButtons()) {
                 drawOldBackground(xPosition, yPosition);
             } else {
@@ -280,6 +289,18 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         return this;
     }
     
+    public ModernButton setOuterGlow(float padding, float increments) {
+        if (padding <= 0) {
+            this.glowPadding = 0;
+            this.glowIncrements = 0;
+        } else {
+            this.glowPadding = padding;
+            this.glowIncrements = increments;
+        }
+        
+        return this;
+    }
+    
     /**
      * Renders the string of the button
      *
@@ -296,6 +317,41 @@ public class ModernButton implements InteractiveUIElement, StartEndUIElement {
         }
 
         fontrenderer.drawString(this.displayString, (xPosition + (float) this.width / 2 - fontrenderer.getStringWidth(this.displayString) / 2.0f), yPosition + ((float) this.height - 8) / 2, textColor, false);
+    }
+    
+    /**
+     * Renders an outer glow on this button.
+     *
+     * If the game is not active (the foreground window), this will be skipped.
+     *
+     * @param xPosition the starting x position for the glow
+     * @param yPosition the starting y position for the glow
+     * @param partialTicks the amount of time since the previous frame
+     */
+    protected void renderOuterGlow(int xPosition, int yPosition, float partialTicks) {
+        // Use glfwGetWindowAttrib with GLFW_FOCUSED for LWJGL 3.0
+        if (!Display.isActive()) return;
+        
+        if (this.glowPadding > 0 && this.glowIncrements > 0) {
+            float subsequentPadding = this.glowPadding + 1;
+            
+            this.storedGlow += this.glowIncrements * partialTicks;
+        
+            if (this.storedGlow > subsequentPadding + 3) {
+                this.storedGlow = 0;
+            }
+            
+            float alphaValue = (1 - (this.storedGlow / subsequentPadding));
+        
+            if (alphaValue > 1 || alphaValue < 0) alphaValue = 0;
+    
+            float left = xPosition + 1 - this.storedGlow;
+            float top = yPosition + 1 - this.storedGlow;
+            float right = xPosition - 2 + this.width + this.storedGlow;
+            float bottom = yPosition - 2 + this.height + this.storedGlow;
+            
+            ModernGui.drawRectangleOutlineF(left, top, right, bottom, new Color(1, 1, 1, alphaValue).getRGB());
+        }
     }
     
     public int getId() {

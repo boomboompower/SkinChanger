@@ -19,7 +19,7 @@ package wtf.boomy.mods.skinchanger.utils.gui.faces;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import wtf.boomy.mods.skinchanger.cosmetic.impl.fakeplayer.FakePlayerRender;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.fakeplayer.FakePlayerRender;
 import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 
 import java.awt.Color;

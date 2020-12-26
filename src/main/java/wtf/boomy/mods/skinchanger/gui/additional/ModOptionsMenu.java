@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.core.ClassTransformer;
-import wtf.boomy.mods.skinchanger.cosmetic.PlayerSkinType;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.PlayerSkinType;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
@@ -143,7 +143,20 @@ public class ModOptionsMenu extends SkinChangerMenu {
                     button.updateTitleWithValue(getYesOrNo(this.config.isEveryoneMe()));
                 }).setDefaultValue(getYesOrNo(false)),
                 
-                new ModernButton(0x82, 0, 0, 0, 20, "Useless: " + getYesOrNo(true), button -> {
+                new ModernLocaleButton(0x82, 0, 0, 0, 20, "Update Checker", "skinchanger.options.updates.format", getYesOrNo(this.config.shouldRunUpdater()), button -> {
+                    this.config.setRunUpdater(!this.config.shouldRunUpdater());
+                    
+                    button.updateTitleWithValue(getYesOrNo(this.config.shouldRunUpdater()));
+                    
+                }).setDefaultValue(getYesOrNo(true)),
+        
+                new ModernLocaleButton(0x83, 0, 0, 0, 20, "Clear Cache", "skinchanger.options.clear-cache.format", getYesOrNo(this.mod.getInternalCache().isInvalidateCacheOnLoad()), button -> {
+                    this.mod.getInternalCache().setInvalidateCacheOnLoad(!this.mod.getInternalCache().isInvalidateCacheOnLoad());
+                    
+                    button.updateTitleWithValue(getYesOrNo(this.mod.getInternalCache().isInvalidateCacheOnLoad()));
+                }).setDefaultValue(getYesOrNo(true)),
+                
+                new ModernButton(0x84, 0, 0, 0, 20, "Useless: " + getYesOrNo(true), button -> {
                     System.err.println("Unimplemented o.o");
                 }).setMessageLines(Collections.singletonList("Does nothing"))
         );
@@ -225,9 +238,9 @@ public class ModOptionsMenu extends SkinChangerMenu {
         
         if (isASMRow) {
             this.saveMixinConfig = true;
-        } else if (isConfigRange) {
-            this.saveNormalConfig = true;
         }
+    
+        this.saveNormalConfig = true;
     }
     
     @Override
