@@ -150,29 +150,31 @@ public class ApagogeUpdater implements ApagogeVerifier {
         }
         
         try {
-            Version buildVersion = new Version("3.0." + IOUtils.toString(actionsBuild, StandardCharsets.UTF_8));
+            String version = "3.0." + IOUtils.toString(actionsBuild, StandardCharsets.UTF_8);
             
+            Version buildVersion = new Version(version);
+    
             String url = "https://api.github.com/repos/boomboompower/SkinChanger/releases";
-            
+    
             JsonElement element = new JsonParser().parse(IOUtils.toString(new URL(url), StandardCharsets.UTF_8));
-            
+    
             if (element.isJsonObject() && isNewerVersion(buildVersion, element.getAsJsonObject())) {
                 this.updateInformation = element.getAsJsonObject();
-                
+        
                 return;
             }
-            
+    
             JsonArray array = element.getAsJsonArray();
-            
+    
             for (JsonElement child : array) {
                 if (child.isJsonObject() && isNewerVersion(buildVersion, child.getAsJsonObject())) {
                     this.updateInformation = child.getAsJsonObject();
-                    
+    
                     break;
                 }
             }
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (IllegalArgumentException | IOException ex) {
+            ex.printStackTrace();
             
             terminate();
         } finally {
@@ -246,6 +248,9 @@ public class ApagogeUpdater implements ApagogeVerifier {
         
         public Version(String version) {
             if (version == null) throw new IllegalArgumentException("Version can not be null");
+            
+            version = version.trim();
+            
             if (!version.matches("[0-9]+(\\.[0-9]+)*")) throw new IllegalArgumentException("Invalid version format");
             
             this.version = version;
