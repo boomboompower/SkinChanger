@@ -30,6 +30,7 @@ import org.objectweb.asm.tree.*;
 
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.utils.ambiguous.ThreadFactory;
+import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.SkinChangerStorage;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -193,8 +194,8 @@ public class ClassTransformer implements IClassTransformer {
             method.instructions.insert(createForResource(isDevEnv, "getPlayerSkin"));
             
             getLogger().info("Finished patching getLocationSkin (" + method.name + ")");
-            
-            SkinChangerMod.getInstance().getStorage().setSkinPatchApplied(true);
+    
+            SkinChangerStorage.getInstance().activateSkinPatch();
         } else if (shouldPatchCapeGetter && methodName.equals((isDevEnv ? "getLocationCape" : "func_178861_h"))) {
             if (this.tweakedOptifine) {
                 getLogger().info("Skipping getLocationCape patch (" + method.name + ") since optifine has already been patched!");
@@ -206,7 +207,7 @@ public class ClassTransformer implements IClassTransformer {
                 getLogger().info("Finished patching getLocationCape (" + method.name + ")");
             }
             
-            SkinChangerMod.getInstance().getStorage().setCapePatchApplied(true);
+            SkinChangerStorage.getInstance().activateCapePatch();
         } else if (shouldPatchSkinType && methodName.equals((isDevEnv ? "getSkinType" : "func_178851_f"))) {
             getLogger().info("Patching getSkinType (" + method.name + ")");
             
@@ -214,7 +215,7 @@ public class ClassTransformer implements IClassTransformer {
             
             getLogger().info("Finished patching getSkinType (" + method.name + ")");
             
-            SkinChangerMod.getInstance().getStorage().setSkinTypePatchApplied(true);
+            SkinChangerStorage.getInstance().activateCapeTypePatch();
         }
     }
     

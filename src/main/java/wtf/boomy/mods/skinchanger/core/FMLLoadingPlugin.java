@@ -25,7 +25,7 @@ import java.util.Map;
  * To load this in a dev environment, the following must be added to the VM args
  * -Dfml.coreMods.load=wtf.boomy.mods.skinchanger.core.FMLLoadingPlugin
  */
-@IFMLLoadingPlugin.MCVersion("1.8.9")
+@IFMLLoadingPlugin.MCVersion("1.8")
 @IFMLLoadingPlugin.TransformerExclusions({"wtf.boomy.mods.skinchanger"})
 public class FMLLoadingPlugin implements IFMLLoadingPlugin {
     

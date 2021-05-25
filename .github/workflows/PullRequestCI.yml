@@ -1,9 +1,9 @@
-# Builds the mod on the three OS
+# Builds the mod on multiple platforms.
 #
 # creator: boomboompower
 # version: 1.0
 
-name: Java CI with Forge
+name: Pull Request CI
 
 # Trigger the integration for pull requests
 on: [pull_request]
@@ -61,7 +61,7 @@ jobs:
         # Uses ForgeGradle to build the jar
       - name: Build with Gradle
         run: ./gradlew build
-        
+
   macOS:
     name: macOS Mod CI
 

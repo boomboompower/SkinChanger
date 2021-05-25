@@ -21,7 +21,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import org.apache.commons.io.IOUtils;
+
 import wtf.boomy.apagoge.ApagogeHandler;
 import wtf.boomy.apagoge.ApagogeVerifier;
 import wtf.boomy.apagoge.CompletionListener;
@@ -33,6 +35,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A Github based updater. Only implements the run functionality as per
@@ -47,8 +51,17 @@ public class ApagogeUpdater implements ApagogeVerifier {
     // Stores the handler
     private final ApagogeHandler handler;
     
+    // Stores the current version information
+    private Version currentVersion = null;
+    
     // Stores the latest update information
     private JsonObject updateInformation = null;
+    
+    // Am I running a newer version than release?
+    private boolean runningNewer = false;
+    
+    // Stores the matching pattern
+    private final Pattern versionPattern = Pattern.compile("(?<version>[0-9]+(\\.[0-9]+)*)");
     
     /**
      * Basic constructor
@@ -58,7 +71,7 @@ public class ApagogeUpdater implements ApagogeVerifier {
      * @param c       unmapped variable
      * @param handler the handler instance associated with this updater.
      */
-    protected ApagogeUpdater(File a, String b, String c, ApagogeHandler handler) {
+    public ApagogeUpdater(File a, String b, String c, ApagogeHandler handler) {
         this.handler = handler;
     }
     
@@ -101,7 +114,7 @@ public class ApagogeUpdater implements ApagogeVerifier {
      */
     @Override
     public boolean isRunningNewerVersion() {
-        return false;
+        return this.runningNewer;
     }
     
     /**
@@ -136,41 +149,137 @@ public class ApagogeUpdater implements ApagogeVerifier {
     
     }
     
+    private boolean doesCommitMatch(String commit, JsonObject object) {
+        if (!object.has("target_commitish")) {
+            return false;
+        }
+        
+        // Check if the tag matches the incoming commit
+        return object.get("target_commitish").getAsString().equals(commit);
+    }
+    
+    private String getVersionFromObject(JsonObject element) {
+        if (element.has("tag_name")) {
+            String tagName = element.get("tag_name").getAsString();
+            
+            Matcher matcher = this.versionPattern.matcher(tagName);
+            
+            // No matches found
+            if (!matcher.find(0) || matcher.groupCount() == 0) {
+                return null;
+            }
+            
+            return matcher.group(0);
+        } else if (element.has("name")) {
+            String name = element.get("name").getAsString();
+            
+            Matcher matcher = this.versionPattern.matcher(name);
+            
+            // No matches found
+            if (!matcher.find(0) || matcher.groupCount() == 0) {
+                return null;
+            }
+            
+            return matcher.group(0);
+        }
+        
+        return null;
+    }
+    
     /**
      * Tells the Apagoge updater to run, results may be cached from the first time this is ran and can be wiped with {@link #resetUpdateCache()}
      */
     @Override
     public void run() {
-        InputStream actionsBuild = ApagogeUpdater.class.getResourceAsStream("/GHCI.txt");
+        // Try get the stream for the commit file
+        InputStream commitHashStream = ApagogeUpdater.class.getResourceAsStream("/commit.txt");
         
-        if (actionsBuild == null) {
+        // This generally means the file did not exist in the JAR. Just stop the updater.
+        if (commitHashStream == null) {
             terminate();
             
             return;
         }
         
         try {
-            String version = "3.0." + IOUtils.toString(actionsBuild, StandardCharsets.UTF_8);
+            // Get the commit hash from the file and trip any newline or whitespace characters at the end
+            String commitHash = IOUtils.toString(commitHashStream, StandardCharsets.UTF_8).trim();
             
-            Version buildVersion = new Version(version);
-    
-            String url = "https://api.github.com/repos/boomboompower/SkinChanger/releases";
-    
+            // The URL which lists all the releases. We use the per_page tag to make it show up to 100
+            String url = "https://api.github.com/repos/boomboompower/SkinChanger/releases?per_page=100";
+            
+            // Parses the JSON from the releases URL
             JsonElement element = new JsonParser().parse(IOUtils.toString(new URL(url), StandardCharsets.UTF_8));
-    
-            if (element.isJsonObject() && isNewerVersion(buildVersion, element.getAsJsonObject())) {
-                this.updateInformation = element.getAsJsonObject();
-        
+            
+            // Stores the current version
+            this.currentVersion = null;
+            
+            // If there is only one element then we can't check for newer versions.
+            if (element.isJsonObject()) {
+                terminate();
+                
+                return;
+            } else if (element.isJsonArray()) {
+                // Iterate through each of the versions to try find the version which matches
+                // to the release we are currently using. This is better than just using
+                // the github build number because we sometimes skip releases.
+                for (JsonElement child : element.getAsJsonArray()) {
+                    // We only want to look at objects, not nestled arrays
+                    if (!child.isJsonObject()) {
+                        continue;
+                    }
+                    
+                    // If the commit does not match, then we have a problem here.
+                    if (!doesCommitMatch(commitHash, child.getAsJsonObject())) {
+                        continue;
+                    }
+                    
+                    // Get the version object, may be null if the version tags aren't found on the object.
+                    // Theoretically the above check would filter out these kinds of issues, but it's good
+                    // to be safe anyway. This will just use a matcher to retrieve the version.
+                    String version = getVersionFromObject(child.getAsJsonObject());
+                    
+                    // The matcher couldn't find the version in the tag or release name, or neither were found in the
+                    // JSON so we should just return here since we can't actually determine the version number.
+                    if (version == null) {
+                        continue;
+                    }
+                    
+                    // Successfully found the version
+                    this.currentVersion = new Version(version);
+                    
+                    break;
+                }
+            }
+            
+            // How many returns do you want? Yes.
+            // So basically this checks if the calculated version object
+            // is null, which will happen if there are no releases matching the release hash
+            if (this.currentVersion == null) {
+                terminate();
+                
                 return;
             }
-    
+            
             JsonArray array = element.getAsJsonArray();
-    
+            
+            // TODO, move away from looping twice since this is O(n^2) and is worse than just O(n)
             for (JsonElement child : array) {
-                if (child.isJsonObject() && isNewerVersion(buildVersion, child.getAsJsonObject())) {
+                if (!child.isJsonObject()) {
+                    return;
+                }
+                
+                // Store the compared information
+                int comparison = getComparison(this.currentVersion, child.getAsJsonObject());
+                
+                // Check if the object is newer than the current version.
+                if (comparison < 0) {
+                    // Store the update information
                     this.updateInformation = child.getAsJsonObject();
-    
+                    
                     break;
+                } else if (comparison > 0) {
+                    this.runningNewer = true;
                 }
             }
         } catch (IllegalArgumentException | IOException ex) {
@@ -179,7 +288,7 @@ public class ApagogeUpdater implements ApagogeVerifier {
             terminate();
         } finally {
             try {
-                actionsBuild.close();
+                commitHashStream.close();
             } catch (IOException exception) {
                 exception.printStackTrace();
                 
@@ -188,25 +297,30 @@ public class ApagogeUpdater implements ApagogeVerifier {
         }
     }
     
-    private boolean isNewerVersion(Version currentVersion, JsonObject jsonObject) {
-        if (jsonObject.has("tag_name")) {
-            String tag_name = jsonObject.get("tag_name").getAsString();
-            
-            // For variations
-            if (tag_name.contains("-")) {
-                tag_name = tag_name.split("-")[0];
-            }
-            
-            try {
-                Version foundVersion = new Version(tag_name);
-                
-                return currentVersion.compareTo(foundVersion) < 1;
-            } catch (IllegalArgumentException ignored) {
-                return false;
-            }
+    /**
+     * Returns the comparison between the two versions
+     *
+     * -1 if jsonObject is newer
+     * 0 on failure or if they're the same
+     * 1 if the current version is newer
+     *
+     * @param currentVersion the version we're currently using
+     * @param jsonObject the object to check update information on
+     *
+     * @return true if the json object has newer version information
+     */
+    private int getComparison(Version currentVersion, JsonObject jsonObject) {
+        String version = getVersionFromObject(jsonObject);
+        
+        if (version == null) {
+            return 0;
         }
         
-        return false;
+        try {
+            return currentVersion.compareTo(new Version(version));
+        } catch (IllegalArgumentException ignored) {
+            return 0;
+        }
     }
     
     /**
@@ -231,6 +345,10 @@ public class ApagogeUpdater implements ApagogeVerifier {
     @Override
     public void kill() {
     
+    }
+    
+    public String getCurrentVersionString() {
+        return this.currentVersion == null ? "Unknown" : this.currentVersion.get();
     }
     
     /**

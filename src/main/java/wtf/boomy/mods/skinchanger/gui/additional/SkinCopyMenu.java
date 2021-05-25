@@ -21,14 +21,14 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 
+import wtf.boomy.mods.modernui.uis.ModernGui;
+import wtf.boomy.mods.modernui.uis.components.ButtonComponent;
+import wtf.boomy.mods.modernui.uis.components.HeadButtonComponent;
+import wtf.boomy.mods.modernui.uis.components.SliderComponent;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.fakeplayer.FakePlayerRender;
 import wtf.boomy.mods.skinchanger.locale.Language;
-import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
-import wtf.boomy.mods.skinchanger.utils.gui.faces.PlayerModelUI;
-import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
-import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButtonHead;
-import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernSlider;
+import wtf.boomy.mods.skinchanger.utils.uis.PlayerModelUI;
 
 import java.util.List;
 
@@ -47,17 +47,23 @@ public class SkinCopyMenu extends ModernGui implements PlayerModelUI {
     // Stores the previous UI which was opened.
     private final ModernGui previousUI;
     
+    // Stored skinchanger instance
+    protected SkinChangerMod mod;
+    
     // Stores the translation above the player model
     protected String playerModelTranslation;
     private FakePlayerRender fakePlayer;
     private String lastPlayerName;
     
     public SkinCopyMenu(ModernGui menu) {
+        this.mod = SkinChangerMod.getInstance();
         this.previousUI = menu;
     }
     
     @Override
     public void onGuiOpen() {
+        boolean buttonModern = !SkinChangerMod.getInstance().getConfig().isOldButtons();
+        
         // Cache the translation
         this.playerModelTranslation = Language.format("skinchanger.options.title");
         this.fakePlayer = this.mod.getCosmeticFactory().getFakePlayerRender();
@@ -77,7 +83,7 @@ public class SkinCopyMenu extends ModernGui implements PlayerModelUI {
         float sliderXPos = ((leftPosBox + rightPosBox) / 2) - sliderWidth / 2;
         float sliderYPos = bottomPosBox - sliderHeight;
         
-        ModernSlider slider = new ModernSlider(5, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.model.rotation") + " ", "\u00B0", 0.0F, 360.0F, FakePlayerRender.getRotation()) {
+        SliderComponent slider = new SliderComponent(5, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, Language.format("skinchanger.model.rotation") + " ", "\u00B0", 0.0F, 360.0F, FakePlayerRender.getRotation()) {
             @Override
             public void onSliderUpdate() {
                 FakePlayerRender.setRotation((float) getValue());
@@ -91,7 +97,7 @@ public class SkinCopyMenu extends ModernGui implements PlayerModelUI {
         sliderYPos -= 5;
         
         // Make the back button above the slider. Make it the same width and height as well.
-        ModernButton backButton = new ModernButton(102, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, "\u2190", mouseButton -> this.previousUI.display());
+        ButtonComponent backButton = new ButtonComponent(102, (int) sliderXPos, (int) sliderYPos, (int) sliderWidth, (int) sliderHeight, "\u2190", mouseButton -> this.previousUI.display());
     
         // Important. Prevents the button moving when the UI is translated.
         backButton.disableTranslatable();
@@ -107,7 +113,7 @@ public class SkinCopyMenu extends ModernGui implements PlayerModelUI {
         // will be skewed if they are different as it will stretch
         // to fit the available space. It's worth noting that the skin
         // will not take up this space exactly, check the logic in the
-        // render method in the ModernButtonHead class for more info.
+        // render method in the ButtonComponentHead class for more info.
         int btnWidth = 50;
         int btnHeight = 50;
         
@@ -147,15 +153,19 @@ public class SkinCopyMenu extends ModernGui implements PlayerModelUI {
             
                 yPos += btnHeight;
             }
-        
-            registerElement(new ModernButtonHead(420, xPos + margin, yPos + margin, btnWidth - margin, btnHeight - margin, player, mouseButton -> {
-                SkinCopyMenu.this.lastPlayerName = player.getName();
             
+            HeadButtonComponent headButtonComponent = new HeadButtonComponent(420, xPos + margin, yPos + margin, btnWidth - margin, btnHeight - margin, player, mouseButton -> {
+                SkinCopyMenu.this.lastPlayerName = player.getName();
+    
                 SkinChangerMod.getInstance().getStorage().setPlayerSkin(player.getLocationSkin());
                 SkinChangerMod.getInstance().getStorage().setSkinType(player.getSkinType());
-            
+    
                 this.fakePlayer.copyFrom(player);
-            }).enableNameOnHover().enableTranslatable());
+            });
+            
+            headButtonComponent.enableNameOnHover().enableTranslatable();
+        
+            registerElement(headButtonComponent);
             
             // Increment the x offset by the width of this button.
             xPos += btnWidth;

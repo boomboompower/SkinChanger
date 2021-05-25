@@ -139,6 +139,15 @@
         ]
       },
 
+      "export-skin": {
+        "title": "Export Skin",
+        "format": "Export Skin",
+        "description": [
+          "Exports the currently used skin, ",
+          "and lets you choose where to save it."
+        ]
+      },
+
       "mod-enabled": {
         "title": "Mod Enabled",
         "format": "Mod Enabled: %s",

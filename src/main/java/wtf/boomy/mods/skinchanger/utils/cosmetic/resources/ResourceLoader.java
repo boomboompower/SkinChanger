@@ -83,7 +83,7 @@ public final class ResourceLoader {
     public void loadFileDirectly(File file, CacheType cacheType, SimpleCallback<ResourceLocation> callback) {
         final ImageBuffer buffer = cacheType == CacheType.CAPE ? new CapeBuffer() : cacheType == CacheType.SKIN ? new SkinBuffer() : null;
         
-        ResourceLocation location = new ResourceLocation("skinchanger/" + file.getName());
+        ResourceLocation location = new ResourceLocation("skinchanger", file.getAbsolutePath());
         
         Minecraft.getMinecraft().addScheduledTask(() -> {
             Minecraft.getMinecraft().renderEngine.loadTexture(location, new LocalFileData(cacheType == CacheType.SKIN ? DefaultPlayerSkin.getDefaultSkinLegacy() : null, file, buffer));

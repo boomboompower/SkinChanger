@@ -14,13 +14,12 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package wtf.boomy.mods.skinchanger.utils.gui.faces;
+package wtf.boomy.mods.skinchanger.utils.uis;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import wtf.boomy.mods.modernui.uis.ModernGui;
 import wtf.boomy.mods.skinchanger.utils.cosmetic.impl.fakeplayer.FakePlayerRender;
-import wtf.boomy.mods.skinchanger.utils.gui.ModernGui;
 
 import java.awt.Color;
 
@@ -28,13 +27,13 @@ public interface PlayerModelUI {
     
     public default void renderFakePlayer(int width, int height, float partialTicks, FakePlayerRender fakePlayer) {
         int halfWidth = width / 2 + 20;
-    
+        
         int scale = (int) ((1.5 * width) / 10);
-    
+        
         GlStateManager.pushMatrix();
-    
+        
         fakePlayer.renderFakePlayer((halfWidth + (width - 20)) / 2, height - 10 - scale, scale, partialTicks, FakePlayerRender.getRotation());
-    
+        
         GlStateManager.popMatrix();
     }
     
@@ -53,7 +52,7 @@ public interface PlayerModelUI {
         
         // 20 pixel margin.
         ModernGui.drawRect(width / 2 + 20, 20, width - 20, height - 20, 867414963);
-    
+        
         fontRendererObj.drawString(playerModelTranslation, (float) (x - fontRendererObj.getStringWidth(playerModelTranslation) / 2), (float) y, Color.WHITE.getRGB(), false);
         
         if (underName != null) {

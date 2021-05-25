@@ -20,12 +20,12 @@ package wtf.boomy.mods.skinchanger.commands.impl;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.command.ICommandSender;
 
+import wtf.boomy.mods.modernui.uis.components.ButtonComponent;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.commands.ModCommand;
 import wtf.boomy.mods.skinchanger.gui.SkinChangerMenu;
 import wtf.boomy.mods.skinchanger.locale.Language;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
-import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
 
 import java.util.Arrays;
 import java.util.List;
@@ -93,9 +93,9 @@ public class SkinCommand extends ModCommand {
                         return;
                     }
                     
-                    ModernButton found = null;
+                    ButtonComponent found = null;
                     
-                    for (ModernButton button : menu.getOptionsMenu().getExtraButtons()) {
+                    for (ButtonComponent button : menu.getOptionsMenu().getExtraButtons()) {
                         if (button.getText().toLowerCase().startsWith(identifier)) {
                             found = button;
                         }

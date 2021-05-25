@@ -1,9 +1,10 @@
 # The workflow will build a Forge Mod with Gradle
+# then upload it to the github releases tab
 #
 # creator: boomboompower
 # version: 1.0
 
-name: Java CI with Forge
+name: Mod Deployment CI
 
 # Trigger the integration for pull requests and pushes
 # to every branch on the repository
@@ -29,11 +30,12 @@ jobs:
 
       - name: Commit message
         id: com-mess
-        env: 
-          GITHUB_CONTEXT: ${{ toJson(github) }} 
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
-           echo ::set-output name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
-           echo "${{ github.run_number }}" > ./src/main/resources/GHCI.txt
+          echo ::set-output name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
+          echo "${{ github.run_number }}" > ./src/main/resources/GHCI.txt
+          echo "${{ github.sha }}" > ./src/main/resources/commit.txt
 
         # Required so gradlew can build the JAR file
       - name: Grant execute permission for gradlew
@@ -53,7 +55,7 @@ jobs:
         # Uses ForgeGradle to build the jar
       - name: Build with Gradle
         run: ./gradlew build
-      
+
       - name: Calculate Hashes
         id: hashes
         run: |
@@ -64,54 +66,70 @@ jobs:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
-        
+
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 3.0.${{ github.run_number }}
-          release_name: Beta Release ${{ github.run_number }}
+          tag_name: 3.0.${{ github.run_number }}-temp
+          release_name: Beta Release ${{ github.run_number }} (3.0.${{ github.run_number }})
           body: |
-            ### SkinChanger Beta ${{ github.run_number }}
+            ### SkinChanger Beta 3.0.${{ github.run_number }}
             > Huh, nothing here?
-            
+
             ```
             ${{ steps.com-mess.outputs.commitmsg }}
             ```
-            
-            **Next up**
+
+            ### Next up
             > What's on the roadmap?
+
             It seems quiet... Too quiet...
-            
-            **Hashes**
+
+            ### Installation
+
+            ##### Using the installer:
+            1. Download "SkinChanger.jar"
+            2. Double click the file
+            3. Go through the installer
+            4. Run the game
+
+            ##### Manual install:
+            1. Install [Forge for 1.8.9](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.8.9.html)
+            2. [Locate .minecraft](https://help.minecraft.net/hc/en-us/articles/360035131551-Where-are-Minecraft-files-stored) folder
+            3. Download the "SkinChangerMod.jar" to your ".minecraft/mods/1.8.9" directory
+            4. Run the game
+
+
+            ### Hashes
             > Don't install untrusted files
-            SkinChangerMod: ${{ steps.hashes.outputs.program_hash }}
-            SkinChangerMod-sources: ${{ steps.hashes.outputs.source_hash }}
-            
+            * SkinChangerMod: `${{ steps.hashes.outputs.program_hash }}`
+            * SkinChangerMod-sources: `${{ steps.hashes.outputs.source_hash }}`
+
             Automagically generated with lots of ❤
           draft: false
           prerelease: true
       - name: Upload Mod
-        id: upload-release-asset 
+        id: upload-release-asset
         uses: actions/upload-release-asset@v1
-        
+
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: './build/libs/SkinChangerMod.jar'
           asset_name: SkinChangerMod.jar
           asset_content_type: application/zip
       - name: Upload Mod Sources
-        id: upload-sources-asset 
+        id: upload-sources-asset
         uses: actions/upload-release-asset@v1
-        
+
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: './build/libs/SkinChangerMod-sources.jar'
           asset_name: SkinChangerMod-sources.jar
           asset_content_type: application/zip

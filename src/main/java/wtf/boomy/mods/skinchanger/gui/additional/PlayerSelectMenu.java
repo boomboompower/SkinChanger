@@ -21,6 +21,8 @@ import net.minecraft.client.Minecraft;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import wtf.boomy.mods.modernui.uis.components.ButtonComponent;
+import wtf.boomy.mods.modernui.uis.components.TextBoxComponent;
 import wtf.boomy.mods.skinchanger.SkinChangerMod;
 import wtf.boomy.mods.skinchanger.utils.cosmetic.PlayerSkinType;
 import wtf.boomy.mods.skinchanger.utils.cosmetic.api.SkinAPIType;
@@ -30,8 +32,6 @@ import wtf.boomy.mods.skinchanger.gui.StringSelectionType;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
 import wtf.boomy.mods.skinchanger.utils.ambiguous.ThreadFactory;
 import wtf.boomy.mods.skinchanger.utils.cosmetic.resources.ResourceLoader;
-import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernButton;
-import wtf.boomy.mods.skinchanger.utils.gui.impl.ModernTextBox;
 
 import java.awt.Color;
 
@@ -45,8 +45,8 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     private SkinChangerMenu skinChangerMenu;
     private StringSelectionType selectionType;
     
-    private ModernButton skinTypeButton;
-    private ModernTextBox textBox;
+    private ButtonComponent skinTypeButton;
+    private TextBoxComponent textBox;
     
     private float quarterWidth;
     private float halfHeight;
@@ -64,7 +64,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     }
     
     @Override
-    protected void onGuiInitExtra() {
+    protected void onGuiInitExtra(boolean buttonModern) {
         setAsSubMenu(this.skinChangerMenu);
     
         this.skinAPI = SkinChangerMod.getInstance().getConfig().getSkinAPIType();
@@ -72,13 +72,13 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         float boxWidth = 150;
         float boxHeight = 20;
         
-        this.quarterWidth = this.width / 4;
-        this.halfHeight = this.height / 2;
+        this.quarterWidth = this.width / 4f;
+        this.halfHeight = this.height / 2f;
         
         float xLocation = this.quarterWidth - 75;
         float yLocation = this.halfHeight - 50;
         
-        ModernTextBox entryBox = new ModernTextBox(0, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight);
+        TextBoxComponent entryBox = new TextBoxComponent(0, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight);
         
         if (this.selectionType.isTypeOfUrl()) {
             entryBox.setMaxStringLength(520);
@@ -94,12 +94,12 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         
         yLocation += boxHeight + 4;
     
-        ModernButton loadButton = new ModernButton(500, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Load", this::onLoadClicked);
+        ButtonComponent loadButton = new ButtonComponent(500, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Load", this::onLoadClicked);
         
         yLocation += loadButton.getHeight() + 20;
         
         if (this.selectionType.isTypeOfSkin()) {
-            ModernButton type = new ModernButton(505, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Type: " + ChatColor.AQUA + this.fakePlayerRender.getSkinType().getDisplayName(), this::onTypeClicked);
+            ButtonComponent type = new ButtonComponent(505, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Type: " + ChatColor.AQUA + this.fakePlayerRender.getSkinType().getDisplayName(), this::onTypeClicked);
     
             type.setEnabled(this.mod.getStorage().isSkinTypePatchApplied());
             
@@ -110,7 +110,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
             this.skinTypeButton = type;
         }
     
-        ModernButton confirm = new ModernButton(506, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Confirm", button -> this.skinChangerMenu.display());
+        ButtonComponent confirm = new ButtonComponent(506, (int) xLocation, (int) yLocation, (int) boxWidth, (int) boxHeight, "Confirm", button -> this.skinChangerMenu.display());
     
         registerElement(loadButton);
         registerElement(confirm);
@@ -128,13 +128,13 @@ public class PlayerSelectMenu extends SkinChangerMenu {
     }
     
     @Override
-    public void buttonPressed(ModernButton button) {
+    public void buttonPressed(ButtonComponent button) {
         if (button.getId() == 55) {
             this.skinChangerMenu.display();
         }
     }
     
-    private void onTypeClicked(ModernButton button) {
+    private void onTypeClicked(ButtonComponent button) {
         PlayerSkinType nextType = this.fakePlayerRender.getSkinType().getNextSkin();
         
         this.fakePlayerRender.setRawSkinType(nextType);
@@ -142,7 +142,7 @@ public class PlayerSelectMenu extends SkinChangerMenu {
         button.setText("Type: " + ChatColor.AQUA + nextType.getDisplayName());
     }
     
-    private void onLoadClicked(ModernButton button) {
+    private void onLoadClicked(ButtonComponent button) {
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
             this.threadFactory.runAsync(() -> {
                 onLoadClicked(button);

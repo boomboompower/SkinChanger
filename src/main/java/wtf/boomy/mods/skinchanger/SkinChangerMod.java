@@ -35,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import wtf.boomy.apagoge.ApagogeHandler;
+import wtf.boomy.apagoge.impl.ApagogeUpdater;
 import wtf.boomy.mods.skinchanger.commands.impl.SkinCommand;
 import wtf.boomy.mods.skinchanger.configuration.ConfigurationHandler;
 import wtf.boomy.mods.skinchanger.utils.cache.InternalCache;
@@ -44,6 +45,7 @@ import wtf.boomy.mods.skinchanger.locale.Language;
 import wtf.boomy.mods.skinchanger.utils.ChatColor;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 
 /**
@@ -53,7 +55,7 @@ import java.net.URISyntaxException;
  * @version 3.0.0
  */
 @Mod(modid = SkinChangerMod.MOD_ID, version = SkinChangerMod.VERSION, acceptedMinecraftVersions = "@MC_VERSION@", clientSideOnly = true, certificateFingerprint = "@FINGERPRINT@")
-public class SkinChangerMod {
+public final class SkinChangerMod {
     
     public static final String MOD_ID = "skinchanger";
     public static final String VERSION = "@VERSION@";
@@ -63,12 +65,12 @@ public class SkinChangerMod {
     private static SkinChangerMod instance;
     
     private ConfigurationHandler configurationHandler;
+    private SkinChangerStorage skinChangerStorage;
     private CosmeticFactory cosmeticFactory;
     private InternalCache internalCache;
     
     private File modConfigDirectory;
     
-    private final SkinChangerStorage skinChangerStorage = new SkinChangerStorage(this);
     private final Logger logger = LogManager.getLogger("SkinChanger - Core");
     private final ApagogeHandler apagogeHandler;
     
@@ -78,7 +80,15 @@ public class SkinChangerMod {
      * @throws URISyntaxException an exception thrown when Java is unable to locate the code source.
      */
     public SkinChangerMod() throws URISyntaxException {
-        this.apagogeHandler = new ApagogeHandler(new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI()), "SkinChanger", SkinChangerMod.VERSION);
+    
+        File runFile;
+        try {
+            runFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+        } catch (URISyntaxException | IllegalArgumentException e) {
+            runFile = new File("");
+        }
+        
+        this.apagogeHandler = hackHandler(new ApagogeHandler(runFile, "SkinChanger", SkinChangerMod.VERSION), runFile);
     }
     
     @Mod.EventHandler
@@ -202,6 +212,16 @@ public class SkinChangerMod {
      * @return the object containing skin & cape data.
      */
     public SkinChangerStorage getStorage() {
+        // Update the storage
+        if (this.skinChangerStorage == null) {
+            this.skinChangerStorage = SkinChangerStorage.getInstance();
+        }
+        
+        // Update the mod instance
+        if (this.skinChangerStorage.getMod() == null) {
+            this.skinChangerStorage.setMod(this);
+        }
+        
         return this.skinChangerStorage;
     }
     
@@ -259,5 +279,26 @@ public class SkinChangerMod {
      */
     public static SkinChangerMod getInstance() {
         return instance;
+    }
+    
+    // Never do this.
+    private ApagogeHandler hackHandler(ApagogeHandler in, File runFile) {
+        // Updater already working.
+        if (in.getUpdater() != null) {
+            return in;
+        }
+        
+        try {
+            Class<?> clazz = in.getClass();
+            
+            Field updater = clazz.getDeclaredField("updater");
+            updater.setAccessible(true);
+            
+            updater.set(in, new ApagogeUpdater(runFile, "SkinChanger", SkinChangerMod.VERSION, in));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        
+        return in;
     }
 }
