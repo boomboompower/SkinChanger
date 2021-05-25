@@ -68,6 +68,9 @@ repositories {
 dependencies {
     // Updater functionality
     provided 'com.github.boomboompower:ApagogeJava:master-SNAPSHOT'
+
+    // UI functionality
+    implementation 'com.github.boomboompower:ModernUI:ebc86f3af1'
 }
 
 

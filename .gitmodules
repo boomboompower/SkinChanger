@@ -1,0 +1,3 @@
+[submodule "ModernUI"]
+	path = ModernUI
+	url = https://github.com/boomboompower/ModernUI
