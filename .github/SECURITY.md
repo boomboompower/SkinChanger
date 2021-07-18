@@ -18,7 +18,7 @@ Once version 3.0 is released, version 2.0 will no longer be supported here.
 ## Reporting a Vulnerability
 
 If a vulnerability with SkinChanger (for any version) is found, please do one of these (in order of preference):
- - [Message me on Twitter](https://twitter.com/messages/compose?recipient_id=713547573840097280)
+ - Send me an email security(at)boomy.wtf
  - [Create an issue](https://github.com/boomboompower/SkinChanger/issues/new/choose) - *Don't do this for high severity security issues*
 
 #### Afterwards
