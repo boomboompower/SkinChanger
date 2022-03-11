@@ -5,6 +5,8 @@ As of the 12th of March, this mod will no longer be updated or maintained - Anyo
 
 A Minecraft mod which allows players to change their cape and skin directly from an in-game menu. Skins can be retrieved from files, urls and directly from player names and UUIDs.
 
+-----------
+
 ##### Badges
 [![Latest Release](https://img.shields.io/github/v/release/boomboompower/SkinChanger?label=Latest%20Release&style=flat-square)](https://github.com/boomboompower/SkinChanger/releases)
 [![Latest Beta](https://img.shields.io/github/v/release/boomboompower/SkinChanger?include_prereleases&label=Latest%20Beta&sort=semver)](https://github.com/boomboompower/SkinChanger/releases)
